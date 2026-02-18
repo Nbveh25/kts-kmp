@@ -6,6 +6,8 @@ plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+
+    alias(libs.plugins.detektPlugin)
 }
 
 kotlin {
@@ -71,6 +73,27 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+
+detekt {
+    toolVersion = libs.versions.detektVersion.get()
+
+    config.setFrom(files("${rootProject.projectDir}/config/detekt/detekt.yml"))
+
+    buildUponDefaultConfig = true
+    allRules = false
+    ignoreFailures = false
+    parallel = true
+
+
+    source = files(
+        rootProject.projectDir
+    )
+}
+
+tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+    exclude("**/build/**")
+    exclude("**/generated/**")
 }
 
 dependencies {
