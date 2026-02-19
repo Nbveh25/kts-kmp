@@ -1,0 +1,4 @@
+<resources>
+    <string name="onboarding_welcome">Добро пожаловать в KTS!</string>
+    <string name="button_login">Старт!</string>
+</resources>
