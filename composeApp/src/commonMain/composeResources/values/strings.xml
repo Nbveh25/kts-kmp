@@ -1,4 +1,9 @@
 <resources>
     <string name="onboarding_welcome">Добро пожаловать в KTS!</string>
     <string name="button_login">Старт!</string>
+    <string name="login">Логин</string>
+    <string name="password">Пароль</string>
+    <string name="title_login">Вход в систему</string>
+    <string name="example_mail">example@mail.ru</string>
+    <string name="signin">Войти</string>
 </resources>
