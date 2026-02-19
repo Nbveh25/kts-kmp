@@ -17,6 +17,8 @@ material3 = "1.10.0-alpha05"
 detektVersion = "1.23.8"
 navigationCompose = "2.9.2"
 coilVersion = "3.3.0"
+kotlinSerializationJsonVersion = "1.10.0"
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -38,9 +40,11 @@ compose-components-resources = { module = "org.jetbrains.compose.components:comp
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 
 jetbrains-compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
-coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilVersion" }
-coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coilVersion" }
 
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilVersion" }
+coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coilVersion" }
+
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJsonVersion"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -48,4 +52,6 @@ androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+
 detektPlugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion"}
+serializationPlugin = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}

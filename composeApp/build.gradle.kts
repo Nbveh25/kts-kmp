@@ -8,6 +8,7 @@ plugins {
     alias(libs.plugins.composeCompiler)
 
     alias(libs.plugins.detektPlugin)
+    alias(libs.plugins.serializationPlugin)
 }
 
 kotlin {
@@ -44,7 +45,9 @@ kotlin {
 
             implementation(libs.jetbrains.compose.navigation)
             implementation(libs.coil.compose)
-            implementation(libs.coil.network.okhttp)
+            implementation(libs.coil.network.ktor)
+
+            implementation(libs.kotlinx.serialization.json)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

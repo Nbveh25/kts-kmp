@@ -8,4 +8,5 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform) apply false
 
     alias(libs.plugins.detektPlugin) apply false
+    alias(libs.plugins.serializationPlugin) apply false
 }
