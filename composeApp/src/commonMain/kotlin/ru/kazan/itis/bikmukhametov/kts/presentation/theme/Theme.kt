@@ -38,6 +38,7 @@ fun KtsMetaclassTheme(
 
     MaterialTheme(
         colorScheme = colorScheme,
+        typography = getTypography(),
         content = content
     )
 }
