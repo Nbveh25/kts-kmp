@@ -43,6 +43,7 @@ jetbrains-compose-navigation = { module = "org.jetbrains.androidx.navigation:nav
 
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilVersion" }
 coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coilVersion" }
+ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-android", version.ref = "coilVersion" }
 
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJsonVersion"}
 

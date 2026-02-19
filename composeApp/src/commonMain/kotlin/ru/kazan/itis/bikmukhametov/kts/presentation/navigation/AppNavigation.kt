@@ -18,10 +18,15 @@ fun AppNavigation(
         startDestination = startDestination
     ) {
         composable<Route.Onboarding> {
-            OnboardingScreen()
+            OnboardingScreen(
+                onNavigateToLogin = {
+                    navController.navigate(Route.Login)
+                }
+            )
         }
         composable<Route.Login> {
             LoginScreen()
         }
+
     }
 }
