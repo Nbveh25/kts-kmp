@@ -20,8 +20,8 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import kts.composeapp.generated.resources.Res
-import kts.composeapp.generated.resources.ic_visibility
-import kts.composeapp.generated.resources.ic_visibility_off
+import kts.composeapp.generated.resources.ic_vis_24
+import kts.composeapp.generated.resources.ic_vis_off_24
 import kts.composeapp.generated.resources.password
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -58,8 +58,8 @@ fun PasswordTextField(
                 Icon(
                     modifier = Modifier.size(20.dp),
                     painter = painterResource(
-                        if (isPasswordVisible) Res.drawable.ic_visibility
-                        else Res.drawable.ic_visibility_off
+                        if (isPasswordVisible) Res.drawable.ic_vis_24
+                        else Res.drawable.ic_vis_off_24
                     ),
                     tint = MaterialTheme.colorScheme.primary,
                     contentDescription = "Видимость пароля"
