@@ -26,6 +26,7 @@ import kts.composeapp.generated.resources.password
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
+/* Компонент для ввода пароля */
 @Composable
 fun PasswordTextField(
     password: String,
@@ -70,6 +71,7 @@ fun PasswordTextField(
     )
 }
 
+/* Компонент для ввода текста (может потом сделаю общий компонент - объединю с паролем)*/
 @Composable
 fun AppTextField(
     value: String,
@@ -110,8 +112,9 @@ fun AppTextField(
     )
 }
 
+/* Основные цвета для полей ввода */
 @Composable
-fun defaultTextFieldColors() = TextFieldDefaults.colors(
+private fun defaultTextFieldColors() = TextFieldDefaults.colors(
     focusedTextColor = MaterialTheme.colorScheme.onSurface,
     unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
     disabledTextColor = MaterialTheme.colorScheme.onSurface,

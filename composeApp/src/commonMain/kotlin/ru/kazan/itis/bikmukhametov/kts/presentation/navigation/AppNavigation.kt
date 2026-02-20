@@ -8,6 +8,7 @@ import androidx.navigation.compose.rememberNavController
 import ru.kazan.itis.bikmukhametov.kts.presentation.screens.LoginScreen
 import ru.kazan.itis.bikmukhametov.kts.presentation.screens.OnboardingScreen
 
+/* Навигация приложения */
 @Composable
 fun AppNavigation(
     navController: NavHostController = rememberNavController(),
@@ -17,6 +18,7 @@ fun AppNavigation(
         navController = navController,
         startDestination = startDestination
     ) {
+
         composable<Route.Onboarding> {
             OnboardingScreen(
                 onNavigateToLogin = {

@@ -33,6 +33,7 @@ import org.jetbrains.compose.resources.stringResource
 private const val IMAGE_URL =
     "https://res.cloudinary.com/dsrqq4er2/image/upload/v1771504876/Onboarding_a9p6c9.png"
 
+/* Приветственный экран */
 @Composable
 fun OnboardingScreen(
     onNavigateToLogin: () -> Unit,

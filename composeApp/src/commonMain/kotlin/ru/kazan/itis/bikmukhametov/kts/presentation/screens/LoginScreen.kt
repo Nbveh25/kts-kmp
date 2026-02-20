@@ -32,6 +32,7 @@ import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.kts.presentation.component.AppTextField
 import ru.kazan.itis.bikmukhametov.kts.presentation.component.PasswordTextField
 
+/* Экран входа */
 @Composable
 fun LoginScreen() {
 
