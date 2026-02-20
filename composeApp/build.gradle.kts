@@ -65,8 +65,8 @@ android {
         applicationId = "ru.kazan.itis.bikmukhametov.kts"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = rootProject.extra.get("versionCode") as Int
+        versionName = rootProject.extra.get("versionName") as String
     }
     packaging {
         resources {
