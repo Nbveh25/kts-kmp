@@ -33,6 +33,7 @@ kotlin {
             implementation(libs.compose.uiToolingPreview)
             implementation(libs.androidx.activity.compose)
 
+            // Coil
             implementation(libs.ktor.client.okhttp)
         }
         commonMain.dependencies {
@@ -45,11 +46,18 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
             implementation(libs.androidx.lifecycle.runtimeCompose)
 
+            // Навигация
             implementation(libs.jetbrains.compose.navigation)
+
+            // Coil
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
 
+            // Сериализация
             implementation(libs.kotlinx.serialization.json)
+
+            // Логирование
+            implementation(libs.napier)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -81,6 +89,9 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+    }
+    buildFeatures {
+        buildConfig = true
     }
 }
 

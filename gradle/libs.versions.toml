@@ -26,6 +26,9 @@ coilVersion = "3.3.0"
 # Сериализация
 kotlinSerializationJsonVersion = "1.10.0"
 
+# Логирование
+napierVersion = "2.7.1"
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -56,6 +59,9 @@ ktor-client-okhttp = { group = "io.ktor", name = "ktor-client-android", version.
 
 # Сериализация
 kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJsonVersion"}
+
+# Логирование
+napier = { group = "io.github.aakira", name = "napier", version.ref = "napierVersion"}
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
