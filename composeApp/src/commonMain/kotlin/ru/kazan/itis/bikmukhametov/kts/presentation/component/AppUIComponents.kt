@@ -23,67 +23,53 @@ import kts.composeapp.generated.resources.Res
 import kts.composeapp.generated.resources.ic_vis_24
 import kts.composeapp.generated.resources.ic_vis_off_24
 import kts.composeapp.generated.resources.password
+import kts.composeapp.generated.resources.password_visibility_toggle
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 
-/* Компонент для ввода пароля */
-@Composable
-fun PasswordTextField(
-    password: String,
-    onPasswordChange: (String) -> Unit,
-    modifier: Modifier = Modifier,
-    label: String = stringResource(Res.string.password)
-) {
-    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
-
-    OutlinedTextField(
-        value = password,
-        onValueChange = onPasswordChange,
-        textStyle = MaterialTheme.typography.bodySmall,
-        label = {
-            Text(
-                text = label,
-                style = MaterialTheme.typography.bodySmall,
-            )
-        },
-        modifier = modifier.fillMaxWidth(),
-        singleLine = true,
-        visualTransformation = if (isPasswordVisible) VisualTransformation.None
-        else PasswordVisualTransformation(),
-        trailingIcon = {
-            IconButton(
-                modifier = Modifier.size(24.dp),
-                onClick = { isPasswordVisible = !isPasswordVisible }
-            ) {
-                Icon(
-                    modifier = Modifier.size(20.dp),
-                    painter = painterResource(
-                        if (isPasswordVisible) Res.drawable.ic_vis_24
-                        else Res.drawable.ic_vis_off_24
-                    ),
-                    tint = MaterialTheme.colorScheme.primary,
-                    contentDescription = "Видимость пароля"
-                )
-            }
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-        colors = defaultTextFieldColors()
-    )
-}
-
-/* Компонент для ввода текста (может потом сделаю общий компонент - объединю с паролем)*/
+/* Базовое поле ввода: текст или пароль (при isPassword = true — маскировка и иконка видимости) */
 @Composable
 fun AppTextField(
+    modifier: Modifier = Modifier,
     value: String,
     onValueChange: (String) -> Unit,
     label: String,
-    modifier: Modifier = Modifier,
     placeholder: String? = null,
     singleLine: Boolean = true,
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
-    trailingIcon: @Composable (() -> Unit)? = null
+    trailingIcon: @Composable (() -> Unit)? = null,
+    isPassword: Boolean = false
 ) {
+    var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
+
+    val effectiveTransformation = when {
+        isPassword -> if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
+        else -> visualTransformation
+    }
+    val effectiveKeyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else keyboardOptions
+    val effectiveTrailingIcon: @Composable (() -> Unit)? = when {
+        isPassword -> {
+            {
+                IconButton(
+                    modifier = Modifier.size(24.dp),
+                    onClick = { isPasswordVisible = !isPasswordVisible }
+                ) {
+                    Icon(
+                        modifier = Modifier.size(20.dp),
+                        painter = painterResource(
+                            if (isPasswordVisible) Res.drawable.ic_vis_24
+                            else Res.drawable.ic_vis_off_24
+                        ),
+                        tint = MaterialTheme.colorScheme.primary,
+                        contentDescription = stringResource(Res.string.password_visibility_toggle)
+                    )
+                }
+            }
+        }
+        else -> trailingIcon
+    }
+
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
@@ -105,10 +91,27 @@ fun AppTextField(
         },
         modifier = modifier.fillMaxWidth(),
         singleLine = singleLine,
-        keyboardOptions = keyboardOptions,
-        visualTransformation = visualTransformation,
-        trailingIcon = trailingIcon,
+        keyboardOptions = effectiveKeyboardOptions,
+        visualTransformation = effectiveTransformation,
+        trailingIcon = effectiveTrailingIcon,
         colors = defaultTextFieldColors()
+    )
+}
+
+/* Обёртка для поля пароля с подставленным лейблом из ресурсов */
+@Composable
+fun PasswordTextField(
+    modifier: Modifier = Modifier,
+    password: String,
+    onPasswordChange: (String) -> Unit,
+    label: String = stringResource(Res.string.password)
+) {
+    AppTextField(
+        modifier = modifier,
+        value = password,
+        onValueChange = onPasswordChange,
+        label = label,
+        isPassword = true
     )
 }
 
