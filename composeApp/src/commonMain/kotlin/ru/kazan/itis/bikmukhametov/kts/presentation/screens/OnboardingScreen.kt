@@ -27,6 +27,7 @@ import kts.composeapp.generated.resources.Res
 import kts.composeapp.generated.resources.button_login
 import kts.composeapp.generated.resources.ic_error
 import kts.composeapp.generated.resources.ic_loading
+import kts.composeapp.generated.resources.onboarding_image
 import kts.composeapp.generated.resources.onboarding_welcome
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -53,11 +54,11 @@ fun OnboardingScreen(
 
         // Картинка из облака через Coil
         AsyncImage(
-            model = IMAGE_URL,
-            contentDescription = "Greeting Image",
             modifier = Modifier
                 .size(Dimensions.onboardingImageSize)
                 .clip(RoundedCornerShape(CornerShape.cornerShapeMedium)),
+            model = IMAGE_URL,
+            contentDescription = stringResource(Res.string.onboarding_image),
             contentScale = ContentScale.Crop,
             error = painterResource(Res.drawable.ic_error),
             placeholder = painterResource(Res.drawable.ic_loading)
@@ -76,10 +77,10 @@ fun OnboardingScreen(
 
         // Кнопка перехода к экрану логина
         Button(
-            onClick = onNavigateToLogin,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
                 .height(Dimensions.buttonHeight),
+            onClick = onNavigateToLogin,
             shape = RoundedCornerShape(CornerShape.cornerShapeSmall)
         ) {
             Text(
