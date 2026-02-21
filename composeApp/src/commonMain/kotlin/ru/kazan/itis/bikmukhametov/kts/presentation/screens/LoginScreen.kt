@@ -17,14 +17,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
 import kts.composeapp.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.kts.presentation.theme.Dimensions
+import ru.kazan.itis.bikmukhametov.kts.presentation.theme.Spacing
 import kts.composeapp.generated.resources.example_mail
 import kts.composeapp.generated.resources.login
 import kts.composeapp.generated.resources.signin
@@ -43,7 +43,7 @@ fun LoginScreen() {
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(24.dp)
+            .padding(horizontal = Spacing.horizontalScreenPadding, vertical = Spacing.verticalScreenPadding)
             .imePadding()
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -57,7 +57,7 @@ fun LoginScreen() {
             color = MaterialTheme.colorScheme.primary
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
         // Поле ввода логина
         AppTextField(
@@ -68,23 +68,23 @@ fun LoginScreen() {
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
         )
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(Spacing.paddingMedium))
 
         // Поле ввода пароля
         PasswordTextField(
             password = password,
             onPasswordChange = { password = it },
-            modifier = Modifier.padding(top = 16.dp)
+            modifier = Modifier.padding(top = Spacing.paddingMedium)
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
         // Кнопка входа
         Button(
             onClick = {
                 // Логика в следующей домашке
             },
-            modifier = Modifier.fillMaxWidth().height(56.dp),
+            modifier = Modifier.fillMaxWidth().height(Dimensions.buttonHeight),
             shape = MaterialTheme.shapes.medium
         ) {
             Text(

@@ -18,8 +18,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
-import androidx.compose.ui.unit.dp
 import kts.composeapp.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.kts.presentation.theme.Dimensions
 import kts.composeapp.generated.resources.ic_vis_24
 import kts.composeapp.generated.resources.ic_vis_off_24
 import kts.composeapp.generated.resources.password
@@ -52,11 +52,11 @@ fun AppTextField(
         isPassword -> {
             {
                 IconButton(
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(Dimensions.iconButtonSize),
                     onClick = { isPasswordVisible = !isPasswordVisible }
                 ) {
                     Icon(
-                        modifier = Modifier.size(20.dp),
+                        modifier = Modifier.size(Dimensions.iconSize),
                         painter = painterResource(
                             if (isPasswordVisible) Res.drawable.ic_vis_24
                             else Res.drawable.ic_vis_off_24

@@ -20,8 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import ru.kazan.itis.bikmukhametov.kts.presentation.theme.Dimensions
+import ru.kazan.itis.bikmukhametov.kts.presentation.theme.Spacing
 import kts.composeapp.generated.resources.Res
 import kts.composeapp.generated.resources.button_login
 import kts.composeapp.generated.resources.ic_error
@@ -29,6 +30,7 @@ import kts.composeapp.generated.resources.ic_loading
 import kts.composeapp.generated.resources.onboarding_welcome
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
+import ru.kazan.itis.bikmukhametov.kts.presentation.theme.CornerShape
 
 private const val IMAGE_URL =
     "https://res.cloudinary.com/dsrqq4er2/image/upload/v1771504876/Onboarding_a9p6c9.png"
@@ -43,7 +45,7 @@ fun OnboardingScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(horizontal = Spacing.horizontalScreenPadding, vertical = Spacing.verticalScreenPadding)
             .verticalScroll(scrollState),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
@@ -54,14 +56,14 @@ fun OnboardingScreen(
             model = IMAGE_URL,
             contentDescription = "Greeting Image",
             modifier = Modifier
-                .size(400.dp)
-                .clip(RoundedCornerShape(12.dp)),
+                .size(Dimensions.onboardingImageSize)
+                .clip(RoundedCornerShape(CornerShape.cornerShapeMedium)),
             contentScale = ContentScale.Crop,
             error = painterResource(Res.drawable.ic_error),
             placeholder = painterResource(Res.drawable.ic_loading)
         )
 
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
         // Текст приветствия
         Text(
@@ -70,15 +72,15 @@ fun OnboardingScreen(
             textAlign = TextAlign.Center
         )
 
-        Spacer(modifier = Modifier.height(32.dp))
+        Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
         // Кнопка перехода к экрану логина
         Button(
             onClick = onNavigateToLogin,
             modifier = Modifier
                 .fillMaxWidth(0.8f)
-                .height(56.dp),
-            shape = RoundedCornerShape(8.dp)
+                .height(Dimensions.buttonHeight),
+            shape = RoundedCornerShape(CornerShape.cornerShapeSmall)
         ) {
             Text(
                 text = stringResource(Res.string.button_login),
