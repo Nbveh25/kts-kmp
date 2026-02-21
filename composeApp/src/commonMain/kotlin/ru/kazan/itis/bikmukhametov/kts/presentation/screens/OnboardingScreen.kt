@@ -32,9 +32,7 @@ import kts.composeapp.generated.resources.onboarding_welcome
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.kts.presentation.theme.CornerShape
-
-private const val IMAGE_URL =
-    "https://res.cloudinary.com/dsrqq4er2/image/upload/v1771504876/Onboarding_a9p6c9.png"
+import ru.kazan.itis.bikmukhametov.kts.util.AppConstants.ONBOARDING_IMAGE_URL
 
 /* Приветственный экран */
 @Composable
@@ -57,7 +55,7 @@ fun OnboardingScreen(
             modifier = Modifier
                 .size(Dimensions.onboardingImageSize)
                 .clip(RoundedCornerShape(CornerShape.cornerShapeMedium)),
-            model = IMAGE_URL,
+            model = ONBOARDING_IMAGE_URL,
             contentDescription = stringResource(Res.string.onboarding_image),
             contentScale = ContentScale.Crop,
             error = painterResource(Res.drawable.ic_error),

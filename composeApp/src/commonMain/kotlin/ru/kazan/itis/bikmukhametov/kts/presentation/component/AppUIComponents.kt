@@ -47,7 +47,9 @@ fun AppTextField(
         isPassword -> if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation()
         else -> visualTransformation
     }
-    val effectiveKeyboardOptions = if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password) else keyboardOptions
+    val effectiveKeyboardOptions =
+        if (isPassword) KeyboardOptions(keyboardType = KeyboardType.Password)
+        else keyboardOptions
     val effectiveTrailingIcon: @Composable (() -> Unit)? = when {
         isPassword -> {
             {
@@ -67,6 +69,7 @@ fun AppTextField(
                 }
             }
         }
+
         else -> trailingIcon
     }
 
