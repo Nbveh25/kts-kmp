@@ -16,3 +16,9 @@ val KtsTextSecondary = Color(0xFF6E6E73)
 // Темная тема (как на главной странице сайта)
 val KtsBgDark = Color(0xFF000000)       // Сайт KTS глубоко черный
 val KtsSurfaceDark = Color(0xFF1C1C1E)  // Карточки в темной теме
+
+// Контент поверх акцентных цветов (для colorScheme)
+val KtsOnPrimary = Color(0xFFFFFFFF)       // текст/иконки на primary (обе темы)
+val KtsOnSecondaryDark = Color(0xFF000000) // контент на secondary в тёмной теме
+val KtsOnBackgroundDark = Color(0xFFFFFFFF) // текст на background в тёмной теме
+val KtsOnSurfaceDark = Color(0xFFFFFFFF)   // текст на surface в тёмной теме
