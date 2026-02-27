@@ -29,3 +29,9 @@ dependencyResolutionManagement {
 }
 
 include(":composeApp")
+
+include(":core")
+
+include(":feature")
+
+include(":feature:onboarding")

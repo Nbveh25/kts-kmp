@@ -11,6 +11,7 @@ plugins {
 
     alias(libs.plugins.detektPlugin) apply false
     alias(libs.plugins.serializationPlugin) apply false
+    alias(libs.plugins.kotlinAndroid) apply false
 }
 
 private val versionMajor = 1
