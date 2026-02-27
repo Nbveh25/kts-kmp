@@ -34,6 +34,9 @@ kotlin {
 
             // Coil
             implementation(libs.ktor.client.okhttp)
+
+            // Feature modules
+            implementation(project(":feature:onboarding"))
         }
         commonMain.dependencies {
             implementation(libs.compose.runtime)

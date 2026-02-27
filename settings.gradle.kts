@@ -35,3 +35,4 @@ include(":core")
 include(":feature")
 
 include(":feature:onboarding")
+include(":core:ui")
