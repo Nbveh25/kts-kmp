@@ -36,3 +36,4 @@ include(":feature")
 
 include(":feature:onboarding")
 include(":core:ui")
+include(":feature:login")
