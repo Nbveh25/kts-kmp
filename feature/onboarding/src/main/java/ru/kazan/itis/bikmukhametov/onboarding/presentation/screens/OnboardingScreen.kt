@@ -15,10 +15,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
-import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.FirstScreen
+import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.OnboardingPageScreen
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.PageIndicator
-import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.SecondScreen
-import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.ThirdScreen
+import ru.kazan.itis.bikmukhametov.onboarding.presentation.model.onboardingPagesUi
 
 @Composable
 fun OnboardingScreen(
@@ -28,12 +27,13 @@ fun OnboardingScreen(
     val colors = listOf(
         MaterialTheme.colorScheme.primary,
         MaterialTheme.colorScheme.tertiary,
-        MaterialTheme.colorScheme.secondary
+        MaterialTheme.colorScheme.secondary,
+        MaterialTheme.colorScheme.primary
     )
 
     val pagerState = rememberPagerState(
         initialPage = 0,
-        pageCount = { 3 }
+        pageCount = { onboardingPagesUi.size }
     )
     val coroutineScope = rememberCoroutineScope()
 
@@ -47,35 +47,29 @@ fun OnboardingScreen(
         HorizontalPager(
             state = pagerState,
             modifier = Modifier.fillMaxSize()
-        ) { page ->
-            when (page) {
-                0 -> FirstScreen(
-                    onNextClick = {
+        ) { pageIndex ->
+            val ui = onboardingPagesUi[pageIndex]
+            val isLastPage = pageIndex == onboardingPagesUi.lastIndex
+
+            OnboardingPageScreen(
+                ui = ui,
+                onNextClick = {
+                    if (isLastPage) {
+                        onOnboardingComplete()
+                    } else {
                         coroutineScope.launch {
-                            pagerState.animateScrollToPage(1)
+                            pagerState.animateScrollToPage(pageIndex + 1)
                         }
                     }
-                )
-
-                1 -> SecondScreen(
-                    onNextClick = {
-                        coroutineScope.launch {
-                            pagerState.animateScrollToPage(2)
-                        }
-                    }
-                )
-
-                2 -> ThirdScreen(
-                    onNextClick = onOnboardingComplete
-                )
-            }
+                }
+            )
         }
 
         PageIndicator(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 128.dp),
-            pageCount = 3,
+            pageCount = onboardingPagesUi.size,
             currentPage = pagerState.currentPage,
             activeColor = activeColor,
             inactiveColor = MaterialTheme.colorScheme.surfaceVariant

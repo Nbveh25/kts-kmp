@@ -39,6 +39,8 @@ dependencies {
     implementation(libs.androidx.appcompat)
     implementation(libs.material)
 
+    implementation(project(":core:ui"))
+
     // Compose
     implementation(libs.compose.runtime)
     implementation(libs.compose.ui)
