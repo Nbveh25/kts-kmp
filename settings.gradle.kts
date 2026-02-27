@@ -32,8 +32,11 @@ include(":composeApp")
 
 include(":core")
 
+include(":core:ui")
+
 include(":feature")
+include(":feature:login")
 
 include(":feature:onboarding")
-include(":core:ui")
-include(":feature:login")
+include(":feature:login:api")
+include(":feature:login:impl")

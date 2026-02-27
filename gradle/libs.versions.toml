@@ -30,6 +30,8 @@ kotlinSerializationJsonVersion = "1.10.0"
 napierVersion = "2.7.1"
 material = "1.13.0"
 
+jetbrainsKotlinJvm = "2.3.0"
+
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -78,3 +80,4 @@ detektPlugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersio
 # Сериализация плагин
 serializationPlugin = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
