@@ -20,3 +20,14 @@ private val versionMinor = 0
 
 val versionName by extra(initialValue = "$versionMajor.$versionMinor")
 val versionCode by extra(initialValue = versionMajor * 1000 + versionMinor * 10)
+
+subprojects {
+    apply(plugin = "io.gitlab.arturbosch.detekt")
+    extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension>("detekt") {
+        buildUponDefaultConfig = true
+        config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    }
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        jvmTarget = "11"
+    }
+}
