@@ -1,0 +1,8 @@
+<resources>
+    <string name="login_title">Вход в систему</string>
+    <string name="login_login_hint">Логин</string>
+    <string name="login_password_hint">Пароль</string>
+    <string name="login_example_mail">example@mail.ru</string>
+    <string name="login_signin">Войти</string>
+    <string name="login_password_visibility_toggle">Видимость пароля</string>
+</resources>

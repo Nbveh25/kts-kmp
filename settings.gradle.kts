@@ -28,15 +28,17 @@ dependencyResolutionManagement {
     }
 }
 
-include(":composeApp")
+// Точки входа
+include(":androidApp")
+include(":iosApp")
 
-include(":core")
+// Зонтик объединяет main (навигация, App) + core + feature
+include(":shared")
+include(":shared:main")
 
-include(":core:ui")
+include(":shared:core:ui")
+include(":shared:core:theme")
 
-include(":feature")
-include(":feature:login")
-
-include(":feature:onboarding")
-include(":feature:login:api")
-include(":feature:login:impl")
+include(":shared:feature:onboarding")
+include(":shared:feature:login:api")
+include(":shared:feature:login:impl")
