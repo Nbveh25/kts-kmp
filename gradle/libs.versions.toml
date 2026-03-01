@@ -32,6 +32,12 @@ material = "1.13.0"
 
 jetbrainsKotlinJvm = "2.3.0"
 
+# Koin
+koinVersion = "4.1.1"
+koinAndroidExt = "3.0.2"
+
+# Lifecycle ViewModel
+lifecycleVersion = "2.10.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -65,7 +71,18 @@ kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serializa
 
 # Логирование
 napier = { group = "io.github.aakira", name = "napier", version.ref = "napierVersion"}
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+
+# Koin
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinVersion" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koinVersion" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koinVersion" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koinVersion" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
+koin-android-ext = { group = "io.insert-koin", name = "koin-android-ext", version.ref = "koinAndroidExt" }
+
+
+# Lifecycle ViewModel
+lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleVersion" }
 
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
@@ -80,4 +97,8 @@ detektPlugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersio
 # Сериализация плагин
 serializationPlugin = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
 kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
 jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+
+# Koin
+koinCompilerPlugin = { id = "io.insert-koin.compiler.plugin", version.ref = "koinVersion" }

@@ -40,6 +40,10 @@ dependencies {
     // Модуль зонтик
     implementation(project(":shared"))
 
+    implementation(libs.koin.android)
+    implementation(libs.koin.android.ext)
+    implementation(libs.koin.core)
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.runtime)
     implementation(libs.compose.ui)

@@ -23,6 +23,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import ru.kazan.itis.bikmukhametov.theme.Dimensions
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_example_mail
@@ -35,7 +36,9 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 /* Экран входа */
 @Composable
-fun LoginScreen() {
+fun LoginScreen(
+    viewModel: LoginViewModel = koinInject()
+) {
 
     var login by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
