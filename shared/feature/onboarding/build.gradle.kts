@@ -41,7 +41,7 @@ kotlin {
 }
 
 compose.resources {
-    packageOfResClass = "ru.kazan.itis.bikmukhametov.impl.generated.resources"
+    packageOfResClass = "ru.kazan.itis.bikmukhametov.onboarding.generated.resources"
 }
 
 android {
