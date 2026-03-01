@@ -15,9 +15,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -33,15 +34,23 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_title
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.AppTextField
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.PasswordTextField
 import ru.kazan.itis.bikmukhametov.theme.Spacing
+import kotlinx.coroutines.flow.collect
 
-/* Экран входа */
+/* Экран логина */
 @Composable
 fun LoginScreen(
+    onLoginSuccess: () -> Unit,
     viewModel: LoginViewModel = koinInject()
 ) {
+    val state by viewModel.state.collectAsState(initial = LoginUiState())
 
-    var login by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        viewModel.events.collect { event ->
+            when (event) {
+                is LoginUiEvent.LoginSuccessEvent -> onLoginSuccess()
+            }
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -56,7 +65,7 @@ fun LoginScreen(
         verticalArrangement = Arrangement.Center
     ) {
 
-        // Тайтл
+        /* Заголовок логина */
         Text(
             text = stringResource(Res.string.login_title),
             style = MaterialTheme.typography.headlineMedium,
@@ -65,10 +74,12 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
-        // Поле ввода логина
+        /* Ввод логина */
         AppTextField(
-            value = login,
-            onValueChange = { login = it },
+            value = state.username,
+            onValueChange = {
+                viewModel.onAction(LoginAction.OnUsernameChanged(it))
+            },
             label = stringResource(Res.string.login_login_hint),
             placeholder = stringResource(Res.string.login_example_mail),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
@@ -76,20 +87,37 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(Spacing.paddingMedium))
 
-        // Поле ввода пароля
+        /* Ввод пароля */
         PasswordTextField(
-            password = password,
-            onPasswordChange = { password = it },
+            password = state.password,
+            onPasswordChange = {
+                viewModel.onAction(LoginAction.OnPasswordChanged(it))
+            },
             modifier = Modifier.padding(top = Spacing.paddingMedium)
         )
 
+        /* Сообщение об ошибке */
+        state.error?.let { error ->
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(Spacing.paddingSmall),
+                horizontalAlignment = Alignment.Start
+            ) {
+                Text(
+                    text = error,
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
+        }
+
         Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
-        // Кнопка входа
+        /* Кнопка отправить */
         Button(
-            onClick = {
-                // Логика в следующей домашке
-            },
+            onClick = { viewModel.onAction(LoginAction.Submit) },
+            enabled = state.isLoginButtonActive,
             modifier = Modifier.fillMaxWidth().height(Dimensions.buttonHeight),
             shape = MaterialTheme.shapes.medium
         ) {

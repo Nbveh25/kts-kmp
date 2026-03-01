@@ -9,4 +9,7 @@ sealed interface Route {
 
     @Serializable
     object Login : Route
+
+    @Serializable
+    object Main : Route
 }
