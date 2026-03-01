@@ -40,5 +40,9 @@ include(":shared:core:ui")
 include(":shared:core:theme")
 
 include(":shared:feature:onboarding")
+
 include(":shared:feature:login:api")
 include(":shared:feature:login:impl")
+
+include(":shared:feature:main:api")
+include(":shared:feature:main:impl")
