@@ -1,15 +1,18 @@
 package ru.kazan.itis.bikmukhametov.onboarding.presentation.component
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -17,12 +20,83 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import org.jetbrains.compose.resources.painterResource
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.model.OnboardingPage
 import ru.kazan.itis.bikmukhametov.ui.components.PrimaryButton
+import ru.kazan.itis.bikmukhametov.theme.CornerShape
+import ru.kazan.itis.bikmukhametov.theme.Spacing
+
+@Composable
+internal fun OnboardingPageScreen(
+    ui: OnboardingPage,
+    onNextClick: () -> Unit = {}
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(
+                horizontal = Spacing.horizontalScreenPadding,
+                vertical = Spacing.paddingLarge
+            ),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Spacer(modifier = Modifier.padding(top = Spacing.paddingLarge))
+
+            Image(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.paddingLarge)
+                    .clip(RoundedCornerShape(CornerShape.cornerShapeLarge)),
+                painter = painterResource(ui.image),
+                contentDescription = null,
+                contentScale = ContentScale.Fit
+            )
+
+            Spacer(modifier = Modifier.padding(top = Spacing.paddingLarge))
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = ui.title,
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 28.sp // можно вынести в типографику, пока оставим
+                    ),
+                    color = MaterialTheme.colorScheme.onSurface,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(horizontal = Spacing.paddingMedium)
+                )
+
+                Text(
+                    text = ui.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    lineHeight = 24.sp, // типографика
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.padding(Spacing.paddingMedium)
+                )
+            }
+
+        }
+
+        PrimaryButton(
+            modifier = Modifier.padding(bottom = Spacing.paddingExtraLarge),
+            text = ui.buttonText,
+            onClick = onNextClick
+        )
+    }
+}
 
 @Composable
 internal fun PageIndicator(
@@ -46,51 +120,6 @@ internal fun PageIndicator(
                     .background(
                         if (index == currentPage) activeColor else inactiveColor
                     )
-            )
-        }
-    }
-}
-
-@Composable
-internal fun OnboardingPageScreen(
-    ui: OnboardingPage,
-    onNextClick: () -> Unit = {}
-) {
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Column(
-            modifier = Modifier
-                .weight(1f),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.padding(top = 16.dp))
-
-            Column {
-                Text(
-                    text = ui.title,
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp
-                    ),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(horizontal = 16.dp)
-                )
-
-                Text(
-                    text = ui.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = 24.sp,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp)
-                )
-            }
-
-            PrimaryButton(
-                text = ui.buttonText,
-                onClick = onNextClick
             )
         }
     }

@@ -28,6 +28,7 @@ kotlin {
         commonMain.dependencies {
 
             implementation(project(":shared:core:ui"))
+            implementation(project(":shared:core:theme"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)

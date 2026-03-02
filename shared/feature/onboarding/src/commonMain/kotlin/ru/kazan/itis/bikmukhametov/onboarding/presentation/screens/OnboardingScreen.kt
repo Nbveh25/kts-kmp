@@ -13,11 +13,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.OnboardingPageScreen
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.component.PageIndicator
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.model.onboardingPagesUi
+import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
 fun OnboardingScreen(
@@ -68,7 +68,7 @@ fun OnboardingScreen(
         PageIndicator(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 128.dp),
+                .padding(bottom = Spacing.paddingExtraLarge * 4),
             pageCount = onboardingPagesUi.size,
             currentPage = pagerState.currentPage,
             activeColor = activeColor,
