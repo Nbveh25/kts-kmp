@@ -11,7 +11,7 @@ import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScr
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    startDestination: Route = Route.Main // TODO()
+    startDestination: Route = Route.Onboarding // потом надо запоминать что открывал онбординг
 ) {
     NavHost(
         navController = navController,
@@ -20,7 +20,9 @@ fun AppNavigation(
         composable<Route.Onboarding> {
             OnboardingScreen(
                 onOnboardingComplete = {
-                    navController.navigate(Route.Login)
+                    navController.navigate(Route.Login) {
+                        popUpTo(Route.Onboarding) { inclusive = true }
+                    }
                 }
             )
         }
@@ -34,9 +36,7 @@ fun AppNavigation(
             )
         }
         composable<Route.Main> {
-            MainScreen(
-               
-            )
+            MainScreen()
         }
     }
 }
