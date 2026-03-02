@@ -32,7 +32,9 @@ kotlin {
             implementation(project(":shared:core:theme"))
 
             implementation(project(":shared:feature:onboarding"))
+            
             implementation(project(":shared:feature:login:impl"))
+            implementation(project(":shared:feature:main:impl"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

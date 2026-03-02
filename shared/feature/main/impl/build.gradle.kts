@@ -41,6 +41,14 @@ kotlin {
             implementation(libs.koin.compose.viewmodel)
 
             implementation(libs.androidx.lifecycle.viewmodelCompose)
+
+            implementation(libs.coil.compose)
+            implementation(libs.coil.network.ktor)
+        }
+
+        androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
+
         }
     }
 }

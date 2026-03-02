@@ -10,7 +10,7 @@ import ru.kazan.itis.bikmukhametov.impl.data.repository.LoginRepositoryImpl
 import ru.kazan.itis.bikmukhametov.impl.domain.usecase.LoginUseCaseImpl
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginViewModel
 
-/**
+/*
  * Koin-модуль фичи Login
  */
 val loginModule = module {

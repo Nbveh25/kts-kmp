@@ -5,13 +5,13 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
-import ru.kazan.itis.bikmukhametov.kts.presentation.screen.MainScreen
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScreen
 
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    startDestination: Route = Route.Onboarding
+    startDestination: Route = Route.Main // TODO()
 ) {
     NavHost(
         navController = navController,
@@ -26,11 +26,17 @@ fun AppNavigation(
         }
         composable<Route.Login> {
             LoginScreen(
-                onLoginSuccess = { navController.navigate(Route.Main) }
+                onLoginSuccess = {
+                    navController.navigate(Route.Main) {
+                        popUpTo(Route.Login) { inclusive = true }
+                    }
+                }
             )
         }
         composable<Route.Main> {
-            MainScreen()
+            MainScreen(
+               
+            )
         }
     }
 }
