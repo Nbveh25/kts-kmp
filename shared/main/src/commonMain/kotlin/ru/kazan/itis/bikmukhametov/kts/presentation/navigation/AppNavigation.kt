@@ -11,7 +11,7 @@ import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScr
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    startDestination: Route = Route.Login
+    startDestination: Route = Route.Onboarding
 ) {
     NavHost(
         navController = navController,

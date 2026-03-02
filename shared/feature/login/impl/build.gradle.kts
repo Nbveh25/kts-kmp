@@ -1,3 +1,5 @@
+import org.gradle.kotlin.dsl.implementation
+import org.gradle.kotlin.dsl.project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -29,6 +31,7 @@ kotlin {
 
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
+            implementation(project(":shared:feature:login:api"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)

@@ -1,11 +1,16 @@
 package ru.kazan.itis.bikmukhametov.impl.presentation.screen
 
+import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.launch
+import ru.kazan.itis.bikmukhametov.api.usecase.LoginUseCase
 import ru.kazan.itis.bikmukhametov.ui.util.BasicViewModel
 
 /* Вьюмодель экрана входа */
-class LoginViewModel : BasicViewModel<LoginUiState, LoginAction>(LoginUiState()) {
+class LoginViewModel(
+    private val loginUseCase: LoginUseCase
+) : BasicViewModel<LoginUiState, LoginAction>(LoginUiState()) {
 
     private val _events = MutableSharedFlow<LoginUiEvent>(
         replay = 0,
@@ -48,14 +53,21 @@ class LoginViewModel : BasicViewModel<LoginUiState, LoginAction>(LoginUiState())
     // Авторизация
     private fun tryLogin() {
         val current = state.value
-        if (!current.isLoginButtonActive) return
 
-        // Моковая проверка: успех при user / pass
-        val isValid = current.username.trim() == "user" && current.password == "pass"
-        if (isValid) {
-            _events.tryEmit(LoginUiEvent.LoginSuccessEvent)
-        } else {
-            updateState { copy(error = "Неверный логин или пароль") }
+        viewModelScope.launch {
+
+            loginUseCase(
+                username = current.username,
+                password = current.password
+            ).onSuccess {
+                _events.emit(LoginUiEvent.LoginSuccessEvent) // навигация на экран main
+            }.onFailure { error ->
+                updateState {
+                    copy(error = error.message)
+                }
+            }
+
         }
+
     }
 }
