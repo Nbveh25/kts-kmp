@@ -40,8 +40,8 @@ import kotlinx.coroutines.flow.collect
 @Composable
 fun LoginScreen(
     onLoginSuccess: () -> Unit,
-    viewModel: LoginViewModel = koinViewModel()
 ) {
+    val viewModel: LoginViewModel = koinViewModel()
     val state by viewModel.state.collectAsState(initial = LoginUiState())
 
     LaunchedEffect(Unit) {
