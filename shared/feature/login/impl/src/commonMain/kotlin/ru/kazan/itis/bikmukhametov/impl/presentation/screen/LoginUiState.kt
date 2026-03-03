@@ -1,6 +1,9 @@
 package ru.kazan.itis.bikmukhametov.impl.presentation.screen
 
+import androidx.compose.runtime.Immutable
+
 /* Состояние экрана входа */
+@Immutable
 data class LoginUiState(
     val username: String = "",
     val password: String = "",
