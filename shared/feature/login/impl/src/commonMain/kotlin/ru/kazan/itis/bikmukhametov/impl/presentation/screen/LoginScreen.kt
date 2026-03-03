@@ -117,7 +117,7 @@ fun LoginScreen(
         /* Кнопка отправить */
         Button(
             onClick = { viewModel.onAction(LoginAction.Submit) },
-            enabled = state.isLoginButtonActive,
+            enabled = state.isLoginButtonActive && !state.isLoading,
             modifier = Modifier.fillMaxWidth().height(Dimensions.buttonHeight),
             shape = MaterialTheme.shapes.medium
         ) {

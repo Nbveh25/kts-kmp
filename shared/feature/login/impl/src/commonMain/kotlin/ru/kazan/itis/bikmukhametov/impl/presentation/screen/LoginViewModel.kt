@@ -55,6 +55,7 @@ internal class LoginViewModel(
         val current = state.value
 
         viewModelScope.launch {
+            updateState { copy(isLoading = true, error = null) }
 
             loginUseCase(
                 username = current.username,
@@ -62,12 +63,10 @@ internal class LoginViewModel(
             ).onSuccess {
                 _events.emit(LoginUiEvent.LoginSuccessEvent) // навигация на экран main
             }.onFailure { error ->
-                updateState {
-                    copy(error = error.message)
-                }
+                updateState { copy(error = error.message) }
             }
 
+            updateState { copy(isLoading = false) }
         }
-
     }
 }
