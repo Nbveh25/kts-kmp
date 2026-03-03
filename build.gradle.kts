@@ -26,8 +26,21 @@ subprojects {
     extensions.configure<io.gitlab.arturbosch.detekt.extensions.DetektExtension>("detekt") {
         buildUponDefaultConfig = true
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+
+        // Явно указываем исходники для детекта, включая KMP-источники
+        source.setFrom(
+            files(
+                "src/main/java",
+                "src/main/kotlin",
+                "src/commonMain/kotlin",
+                "src/androidMain/kotlin",
+                "src/iosMain/kotlin",
+            )
+        )
     }
     tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
         jvmTarget = "11"
+        // Не сканировать сгенерированный/собранный код
+        exclude("**/build/**")
     }
 }

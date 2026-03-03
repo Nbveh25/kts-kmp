@@ -9,7 +9,8 @@ import ru.kazan.itis.bikmukhametov.onboarding.generated.resources.onboarding_scr
 internal val onboardingPagesUi = listOf(
     OnboardingPage(
         title = "Привет!",
-        description = "Reddit — это мир сообществ по любым интересам. Находите единомышленников и обсуждайте то, что вам действительно интересно.",
+        description = "Reddit — это мир сообществ по любым интересам. " +
+                "Находите единомышленников и обсуждайте то, что вам действительно интересно.",
         buttonText = "Далее",
         image = Res.drawable.onboarding_screen_1,
     ),
@@ -21,7 +22,8 @@ internal val onboardingPagesUi = listOf(
     ),
     OnboardingPage(
         title = "Возможности клиента",
-        description = "Темы оформления, быстрый поиск по сабреддитам и пользователям, фильтры по типу контента и умные рекомендации — всё в одном месте.",
+        description = "Темы оформления, быстрый поиск по сабреддитам и пользователям, " +
+                "фильтры по типу контента и умные рекомендации — всё в одном месте.",
         buttonText = "Далее",
         image = Res.drawable.onboarding_screen_3,
     ),

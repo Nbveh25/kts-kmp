@@ -3,7 +3,8 @@ package ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.PostDataSource
 import ru.kazan.itis.bikmukhametov.main.api.model.PostModel
 
-internal class PostDataSourceImpl(): PostDataSource {
+@Suppress("MaxLineLength")
+internal class PostDataSourceImpl: PostDataSource {
     override suspend fun getPosts(): List<PostModel> {
         return listOf(
             PostModel(

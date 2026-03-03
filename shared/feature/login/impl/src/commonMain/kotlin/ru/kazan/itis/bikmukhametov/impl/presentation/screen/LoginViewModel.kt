@@ -8,7 +8,7 @@ import ru.kazan.itis.bikmukhametov.api.usecase.LoginUseCase
 import ru.kazan.itis.bikmukhametov.ui.util.BasicViewModel
 
 /* Вьюмодель экрана входа */
-class LoginViewModel(
+internal class LoginViewModel(
     private val loginUseCase: LoginUseCase
 ) : BasicViewModel<LoginUiState, LoginAction>(LoginUiState()) {
 

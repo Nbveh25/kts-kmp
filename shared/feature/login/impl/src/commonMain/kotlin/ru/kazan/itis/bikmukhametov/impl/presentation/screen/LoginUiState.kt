@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 
 /* Состояние экрана входа */
 @Immutable
-data class LoginUiState(
+internal data class LoginUiState(
     val username: String = "",
     val password: String = "",
     val isLoginButtonActive: Boolean = false,

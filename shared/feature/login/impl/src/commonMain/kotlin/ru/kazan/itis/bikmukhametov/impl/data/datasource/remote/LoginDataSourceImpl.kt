@@ -2,7 +2,7 @@ package ru.kazan.itis.bikmukhametov.impl.data.datasource.remote
 
 import ru.kazan.itis.bikmukhametov.api.datasource.remote.LoginDataSource
 
-internal class LoginDataSourceImpl(): LoginDataSource {
+internal class LoginDataSourceImpl: LoginDataSource {
     override suspend fun login(
         username: String,
         password: String
