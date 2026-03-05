@@ -24,9 +24,13 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            // Ktor добавим позже: пока только модуль-заглушка
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.serialization)
+            implementation(libs.ktor.client.logging)
         }
         androidMain.dependencies {
+            implementation(libs.ktor.client.okhttp)
         }
         iosMain.dependencies {
         }
