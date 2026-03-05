@@ -38,6 +38,7 @@ include(":shared:main")
 
 include(":shared:core:ui")
 include(":shared:core:theme")
+include(":shared:core:network")
 
 include(":shared:feature:onboarding")
 
