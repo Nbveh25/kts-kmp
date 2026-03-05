@@ -33,7 +33,7 @@ kotlin {
 
             implementation(project(":shared:feature:onboarding"))
             
-            implementation(project(":shared:feature:login:impl"))
+            implementation(project(":shared:feature:auth:impl"))
             implementation(project(":shared:feature:main:impl"))
 
             implementation(libs.compose.runtime)

@@ -42,8 +42,8 @@ include(":shared:core:network")
 
 include(":shared:feature:onboarding")
 
-include(":shared:feature:login:api")
-include(":shared:feature:login:impl")
+include(":shared:feature:auth:api")
+include(":shared:feature:auth:impl")
 
 include(":shared:feature:main:api")
 include(":shared:feature:main:impl")

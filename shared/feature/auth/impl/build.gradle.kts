@@ -31,7 +31,7 @@ kotlin {
 
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
-            implementation(project(":shared:feature:login:api"))
+            implementation(project(":shared:feature:auth:api"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)

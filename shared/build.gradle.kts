@@ -33,7 +33,7 @@ kotlin {
             api(project(":shared:core:network"))
 
             api(project(":shared:feature:onboarding"))
-            api(project(":shared:feature:login:impl"))
+            api(project(":shared:feature:auth:impl"))
             api(project(":shared:feature:main:impl"))
         }
     }
