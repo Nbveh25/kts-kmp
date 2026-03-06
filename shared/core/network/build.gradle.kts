@@ -7,12 +7,13 @@ plugins {
 }
 
 buildkonfig {
+    val cabinetDomain = "metac-92"
     packageName = "ru.kazan.itis.bikmukhametov.network"
     defaultConfigs {
         buildConfigField(
             type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             name = "BASE_URL",
-            value = "https://www.smartbotpro.ru"
+            value = "https://${cabinetDomain}.smartbotpro.ru/api"
         )
     }
 }
@@ -41,8 +42,11 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.client.logging)
+            implementation(libs.ktor.client.websockets)
 
             implementation(libs.koin.core)
+
+            implementation(libs.datastore.preferences.core)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
