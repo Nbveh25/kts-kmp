@@ -42,6 +42,9 @@ lifecycleVersion = "2.10.0"
 # Ktor
 ktorVersion = "3.4.1"
 
+# buildKonfig
+buildKonfigVersion = "0.17.1"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -93,6 +96,8 @@ ktor-client-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json"
 ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorVersion" }
 ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVersion" }
 
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
@@ -111,3 +116,6 @@ jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrains
 
 # Koin
 koinCompilerPlugin = { id = "io.insert-koin.compiler.plugin", version.ref = "koinVersion" }
+
+# buildKonfig
+buildKonfigPlugin = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfigVersion" }

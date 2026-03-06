@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     //alias(libs.plugins.koinCompilerPlugin)
+    //alias(libs.plugins.buildKonfigPlugin)
 }
 
 kotlin {
@@ -25,7 +26,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            
+
             api(project(":shared:main"))
 
             api(project(":shared:core:ui"))

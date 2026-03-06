@@ -12,6 +12,7 @@ import io.ktor.http.HttpHeaders
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
+import ru.kazan.itis.bikmukhametov.network.BuildKonfig
 
 /* модуль для сети */
 val networkModule = module {
@@ -32,7 +33,7 @@ val networkModule = module {
 
             // Базовый URL
             defaultRequest {
-                url("https://www.smartbotpro.ru/")
+                url(BuildKonfig.BASE_URL)
 
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 header("Accept", "application/json")
