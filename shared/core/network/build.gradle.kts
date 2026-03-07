@@ -50,6 +50,7 @@ kotlin {
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)
+            implementation(libs.datastore.preferences)
         }
         iosMain.dependencies {
         }

@@ -1,11 +1,14 @@
 package ru.kazan.itis.bikmukhametov.kts.presentation.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import org.koin.compose.koinInject
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
+import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScreen
 
 @Composable
@@ -13,6 +16,16 @@ fun AppNavigation(
     navController: NavHostController,
     startDestination: Route = Route.Onboarding // потом надо запоминать что открывал онбординг
 ) {
+    val logoutEventBus = koinInject<LogoutEventBus>()
+
+    LaunchedEffect(logoutEventBus) {
+        logoutEventBus.logoutEvents.collect {
+            navController.navigate(Route.Login) {
+                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+            }
+        }
+    }
+
     NavHost(
         navController = navController,
         startDestination = startDestination

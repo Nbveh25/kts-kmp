@@ -44,6 +44,7 @@ dependencies {
     implementation(libs.koin.android.ext)
     implementation(libs.koin.core)
 
+    implementation(libs.datastore.preferences)
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.runtime)
     implementation(libs.compose.ui)

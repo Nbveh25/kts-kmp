@@ -102,6 +102,7 @@ ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVers
 
 # Datastore
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastoreVersion" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVersion" }
 
 
 
