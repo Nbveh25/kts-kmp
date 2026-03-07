@@ -52,7 +52,7 @@ fun OnboardingScreen(
             val isLastPage = pageIndex == onboardingPagesUi.lastIndex
 
             OnboardingPageScreen(
-                ui = ui,
+                pageContent = ui,
                 onNextClick = {
                     if (isLastPage) {
                         onOnboardingComplete()

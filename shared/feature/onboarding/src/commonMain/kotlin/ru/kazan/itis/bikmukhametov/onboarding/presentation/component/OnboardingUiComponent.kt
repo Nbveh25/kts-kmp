@@ -33,7 +33,7 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
 internal fun OnboardingPageScreen(
-    ui: OnboardingPage,
+    pageContent: OnboardingPage,
     onNextClick: () -> Unit = {}
 ) {
     Column(
@@ -58,9 +58,9 @@ internal fun OnboardingPageScreen(
                     .fillMaxWidth()
                     .padding(horizontal = Spacing.paddingLarge)
                     .clip(RoundedCornerShape(CornerShape.cornerShapeLarge)),
-                painter = painterResource(ui.image),
+                painter = painterResource(pageContent.image),
                 contentDescription = null,
-                contentScale = ContentScale.Fit
+                contentScale = ContentScale.FillWidth
             )
 
             Spacer(modifier = Modifier.padding(top = Spacing.paddingLarge))
@@ -69,7 +69,7 @@ internal fun OnboardingPageScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = ui.title,
+                    text = pageContent.title,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
                         fontSize = 28.sp // можно вынести в типографику, пока оставим
@@ -80,7 +80,7 @@ internal fun OnboardingPageScreen(
                 )
 
                 Text(
-                    text = ui.description,
+                    text = pageContent.description,
                     style = MaterialTheme.typography.bodyMedium,
                     lineHeight = 24.sp, // типографика
                     textAlign = TextAlign.Center,
@@ -92,7 +92,7 @@ internal fun OnboardingPageScreen(
 
         PrimaryButton(
             modifier = Modifier.padding(bottom = Spacing.paddingExtraLarge),
-            text = ui.buttonText,
+            text = pageContent.buttonText,
             onClick = onNextClick
         )
     }
