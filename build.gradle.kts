@@ -13,6 +13,8 @@ plugins {
     alias(libs.plugins.serializationPlugin) apply false
     alias(libs.plugins.kotlinAndroid) apply false
     alias(libs.plugins.jetbrainsKotlinJvm) apply false
+
+    alias(libs.plugins.secretGradlePlugin) apply false
 }
 
 private val versionMajor = 1
@@ -40,7 +42,6 @@ subprojects {
     }
     tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
         jvmTarget = "11"
-        // Не сканировать сгенерированный/собранный код
         exclude("**/build/**")
     }
 }

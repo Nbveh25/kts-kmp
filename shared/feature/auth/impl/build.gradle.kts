@@ -1,4 +1,6 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
+import java.io.FileInputStream
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
@@ -6,6 +8,27 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.serializationPlugin)
+    alias(libs.plugins.secretGradlePlugin)
+    alias(libs.plugins.buildKonfigPlugin)
+}
+
+fun localProperty(key: String): String {
+    val file = rootProject.file("local.properties")
+    if (!file.isFile) return ""
+    val props = Properties()
+    FileInputStream(file).use { props.load(it) }
+    return props.getProperty(key) ?: ""
+}
+
+buildkonfig {
+    packageName = "ru.kazan.itis.bikmukhametov.impl"
+    defaultConfigs {
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "YANDEX_CAPTCHA_SITE_KEY",
+            value = localProperty("YANDEX_CAPTCHA_SITE_KEY")
+        )
+    }
 }
 
 kotlin {
@@ -51,7 +74,6 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
         androidMain.dependencies {
-            
         }
     }
 }

@@ -16,11 +16,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -35,8 +32,8 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_signin
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_title
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.AppTextField
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.PasswordTextField
+import ru.kazan.itis.bikmukhametov.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.YandexCaptchaWidget
-import ru.kazan.itis.bikmukhametov.impl.presentation.component.YANDEX_CAPTCHA_SITE_KEY_PLACEHOLDER
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 /* Экран логина */
@@ -120,13 +117,12 @@ fun LoginScreen(
         /* Yandex Smart Captcha: при успехе токен уходит в state. key() пересоздаёт виджет после ошибки (токен одноразовый). */
         key(state.captchaWidgetKey) {
             YandexCaptchaWidget(
-                siteKey = YANDEX_CAPTCHA_SITE_KEY_PLACEHOLDER,
+                siteKey = BuildKonfig.YANDEX_CAPTCHA_SITE_KEY,
                 onToken = { viewModel.onAction(LoginAction.OnCaptchaTokenReceived(it)) }
             )
         }
 
-
-        Spacer(modifier = Modifier.height(Spacing.paddingLarge))
+        Spacer(modifier = Modifier.height(Spacing.paddingMedium))
 
         /* Кнопка отправить */
         Button(

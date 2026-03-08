@@ -48,9 +48,8 @@ buildKonfigVersion = "0.17.1"
 # Datastore
 datastoreVersion = "1.2.0"
 
-# Yandex Captcha
-smartcaptchaAndroid = "1.0.1"
-yandexCaptchaVersion = "0.1.0"
+# Secret gradle plugin
+secretGradlePlugin = "2.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -108,9 +107,6 @@ ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVers
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastoreVersion" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVersion" }
 
-# Yandex Captcha
-smartcaptcha-android = { module = "com.yandex.smartcaptcha:smartcaptcha-android", version.ref = "smartcaptchaAndroid" }
-yandex-captcha = { module = "ru.yandex.mobile.captcha:captcha-android", version.ref = "yandexCaptchaVersion" }
 
 
 
@@ -135,3 +131,6 @@ koinCompilerPlugin = { id = "io.insert-koin.compiler.plugin", version.ref = "koi
 
 # buildKonfig
 buildKonfigPlugin = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfigVersion" }
+
+# secretGradlePlugin
+secretGradlePlugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretGradlePlugin" }

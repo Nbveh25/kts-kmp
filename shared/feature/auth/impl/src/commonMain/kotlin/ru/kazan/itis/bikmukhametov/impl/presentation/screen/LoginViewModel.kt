@@ -74,12 +74,11 @@ internal class LoginViewModel(
             ).onSuccess {
                 _events.emit(LoginUiEvent.LoginSuccessEvent) // навигация на экран main
             }.onFailure { error ->
-                // Токен капчи одноразовый; сбрасываем и пересоздаём виджет (captchaWidgetKey)
                 updateState {
                     copy(
                         error = error.message,
                         captchaToken = "",
-                        captchaWidgetKey = captchaWidgetKey + 1
+                        captchaWidgetKey = captchaWidgetKey + 1 // пересоздаю токен капчи
                     )
                 }
             }
