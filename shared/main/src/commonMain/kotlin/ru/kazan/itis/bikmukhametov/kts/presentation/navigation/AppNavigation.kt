@@ -14,7 +14,7 @@ import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScr
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    startDestination: Route = Route.Login // TODO потом надо запоминать что открывал онбординг
+    startDestination: Route = Route.Main // TODO потом надо запоминать что открывал онбординг
 ) {
     val logoutEventBus = koinInject<LogoutEventBus>()
 
