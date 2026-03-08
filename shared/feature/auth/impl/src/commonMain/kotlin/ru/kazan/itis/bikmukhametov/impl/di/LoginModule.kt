@@ -1,5 +1,6 @@
 package ru.kazan.itis.bikmukhametov.impl.di
 
+import io.ktor.client.HttpClient
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 import ru.kazan.itis.bikmukhametov.api.datasource.remote.LoginDataSource
@@ -15,8 +16,8 @@ import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginViewModel
  */
 val loginModule = module {
 
-    // Data layer
-    single<LoginDataSource> { LoginDataSourceImpl() }
+    // Data layer 
+    single<LoginDataSource> { LoginDataSourceImpl(get<HttpClient>()) }
     single<LoginRepository> { LoginRepositoryImpl(get()) }
 
     // Domain layer

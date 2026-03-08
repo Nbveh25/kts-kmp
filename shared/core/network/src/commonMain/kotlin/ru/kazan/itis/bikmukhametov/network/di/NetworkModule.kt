@@ -78,9 +78,13 @@ val networkModule = module {
             HttpResponseValidator {
                 validateResponse { response ->
                     if (response.status == HttpStatusCode.Unauthorized) {
-                        appScope.launch {
-                            cookiePersistence.clear()
-                            logoutBus.trigger()
+                        val path = response.call.request.url.encodedPath
+                        // Не сбрасывать сессию при 401 на самом запросе логина (неверные данные)
+                        if (!path.contains("auth") && !path.contains("login")) {
+                            appScope.launch {
+                                cookiePersistence.clear()
+                                logoutBus.trigger()
+                            }
                         }
                     }
                 }

@@ -8,12 +8,14 @@ internal class LoginUseCaseImpl(
 ) : LoginUseCase {
 
     override suspend fun invoke(
-        username: String,
-        password: String
+        email: String,
+        password: String,
+        captchaToken: String
     ): Result<Unit> {
         return loginRepository.login(
-            username = username,
-            password = password
+            email = email,
+            password = password,
+            captchaToken = captchaToken
         )
     }
 

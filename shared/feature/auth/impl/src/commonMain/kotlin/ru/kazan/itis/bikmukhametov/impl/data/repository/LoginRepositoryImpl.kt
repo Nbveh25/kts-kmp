@@ -5,11 +5,16 @@ import ru.kazan.itis.bikmukhametov.api.repository.LoginRepository
 
 internal class LoginRepositoryImpl(
     private val loginDataSource: LoginDataSource
-): LoginRepository {
-    override suspend fun login(username: String, password: String): Result<Unit> {
+) : LoginRepository {
+    override suspend fun login(
+        email: String,
+        password: String,
+        captchaToken: String
+    ): Result<Unit> {
         return loginDataSource.login(
-            username = username,
-            password = password
+            email = email,
+            password = password,
+            captchaToken = captchaToken
         )
     }
 }

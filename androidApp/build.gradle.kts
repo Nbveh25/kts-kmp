@@ -43,6 +43,7 @@ dependencies {
     implementation(libs.koin.android)
     implementation(libs.koin.android.ext)
     implementation(libs.koin.core)
+    implementation(libs.napier)
 
     implementation(libs.datastore.preferences)
     implementation(libs.androidx.activity.compose)

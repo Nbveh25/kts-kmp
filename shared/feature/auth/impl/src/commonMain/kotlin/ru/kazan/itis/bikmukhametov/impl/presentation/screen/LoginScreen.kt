@@ -18,11 +18,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.theme.Dimensions
@@ -33,8 +35,9 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_signin
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_title
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.AppTextField
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.PasswordTextField
+import ru.kazan.itis.bikmukhametov.impl.presentation.component.YandexCaptchaWidget
+import ru.kazan.itis.bikmukhametov.impl.presentation.component.YANDEX_CAPTCHA_SITE_KEY_PLACEHOLDER
 import ru.kazan.itis.bikmukhametov.theme.Spacing
-import kotlinx.coroutines.flow.collect
 
 /* Экран логина */
 @Composable
@@ -42,7 +45,7 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit,
 ) {
     val viewModel: LoginViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState(initial = LoginUiState())
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.events.collect { event ->
@@ -74,9 +77,9 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 
-        /* Ввод логина */
+        /* Ввод email */
         AppTextField(
-            value = state.username,
+            value = state.email,
             onValueChange = {
                 viewModel.onAction(LoginAction.OnUsernameChanged(it))
             },
@@ -111,6 +114,17 @@ fun LoginScreen(
                 )
             }
         }
+
+        Spacer(modifier = Modifier.height(Spacing.paddingMedium))
+
+        /* Yandex Smart Captcha: при успехе токен уходит в state. key() пересоздаёт виджет после ошибки (токен одноразовый). */
+        key(state.captchaWidgetKey) {
+            YandexCaptchaWidget(
+                siteKey = YANDEX_CAPTCHA_SITE_KEY_PLACEHOLDER,
+                onToken = { viewModel.onAction(LoginAction.OnCaptchaTokenReceived(it)) }
+            )
+        }
+
 
         Spacer(modifier = Modifier.height(Spacing.paddingLarge))
 

@@ -1,5 +1,3 @@
-import org.gradle.kotlin.dsl.implementation
-import org.gradle.kotlin.dsl.project
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -7,6 +5,7 @@ plugins {
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.serializationPlugin)
 }
 
 kotlin {
@@ -31,6 +30,7 @@ kotlin {
 
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
+            implementation(project(":shared:core:network"))
             implementation(project(":shared:feature:auth:api"))
 
             implementation(libs.compose.runtime)
@@ -43,7 +43,15 @@ kotlin {
             implementation(libs.koin.compose)
             implementation(libs.koin.compose.viewmodel)
 
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.napier)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.serialization)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
+        }
+        androidMain.dependencies {
+            
         }
     }
 }

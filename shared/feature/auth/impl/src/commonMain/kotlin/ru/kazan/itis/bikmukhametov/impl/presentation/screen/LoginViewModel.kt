@@ -20,31 +20,41 @@ internal class LoginViewModel(
 
     override fun onAction(action: LoginAction) {
         when (action) {
-            is LoginAction.OnUsernameChanged -> updateUsername(action.username)
+            is LoginAction.OnUsernameChanged -> updateUsername(action.email)
             is LoginAction.OnPasswordChanged -> updatePassword(action.password)
+            is LoginAction.OnCaptchaTokenReceived -> updateCaptchaToken(action.token)
             is LoginAction.Submit -> tryLogin()
         }
     }
 
-    // Ввод юзернейма
-    private fun updateUsername(username: String) {
+    private fun isFormValid(email: String, password: String, captchaToken: String) =
+        email.isNotBlank() && password.isNotBlank() && captchaToken.isNotBlank()
+
+    private fun updateUsername(email: String) {
         updateState {
-            val newIsActive = username.isNotBlank() && password.isNotBlank()
             copy(
-                username = username,
-                isLoginButtonActive = newIsActive,
+                email = email,
+                isLoginButtonActive = isFormValid(email, password, captchaToken),
                 error = null
             )
         }
     }
 
-    // Ввод пароля
     private fun updatePassword(password: String) {
         updateState {
-            val newIsActive = username.isNotBlank() && password.isNotBlank()
             copy(
                 password = password,
-                isLoginButtonActive = newIsActive,
+                isLoginButtonActive = isFormValid(email, password, captchaToken),
+                error = null
+            )
+        }
+    }
+
+    private fun updateCaptchaToken(token: String) {
+        updateState {
+            copy(
+                captchaToken = token,
+                isLoginButtonActive = isFormValid(email, password, token),
                 error = null
             )
         }
@@ -58,12 +68,20 @@ internal class LoginViewModel(
             updateState { copy(isLoading = true, error = null) }
 
             loginUseCase(
-                username = current.username,
-                password = current.password
+                email = current.email,
+                password = current.password,
+                captchaToken = current.captchaToken
             ).onSuccess {
                 _events.emit(LoginUiEvent.LoginSuccessEvent) // навигация на экран main
             }.onFailure { error ->
-                updateState { copy(error = error.message) }
+                // Токен капчи одноразовый; сбрасываем и пересоздаём виджет (captchaWidgetKey)
+                updateState {
+                    copy(
+                        error = error.message,
+                        captchaToken = "",
+                        captchaWidgetKey = captchaWidgetKey + 1
+                    )
+                }
             }
 
             updateState { copy(isLoading = false) }

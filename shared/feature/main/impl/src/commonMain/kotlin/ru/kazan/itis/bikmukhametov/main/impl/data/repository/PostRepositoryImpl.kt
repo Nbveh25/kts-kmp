@@ -7,7 +7,7 @@ import ru.kazan.itis.bikmukhametov.main.api.repository.PostRepository
 internal class PostRepositoryImpl(
     private val postDataSource: PostDataSource
 ) : PostRepository {
-    override suspend fun getPosts(): List<PostModel> {
+    override suspend fun getPosts(): List<PostModel> { // TODO() RESULT
         return postDataSource.getPosts()
     }
 

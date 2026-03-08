@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.MainListItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -16,7 +17,7 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 @Composable
 fun MainScreen() {
     val viewModel: MainViewModel = koinViewModel()
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LazyColumn(
         modifier = Modifier

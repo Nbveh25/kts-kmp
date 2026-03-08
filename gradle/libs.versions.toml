@@ -48,6 +48,10 @@ buildKonfigVersion = "0.17.1"
 # Datastore
 datastoreVersion = "1.2.0"
 
+# Yandex Captcha
+smartcaptchaAndroid = "1.0.1"
+yandexCaptchaVersion = "0.1.0"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -104,6 +108,9 @@ ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVers
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastoreVersion" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVersion" }
 
+# Yandex Captcha
+smartcaptcha-android = { module = "com.yandex.smartcaptcha:smartcaptcha-android", version.ref = "smartcaptchaAndroid" }
+yandex-captcha = { module = "ru.yandex.mobile.captcha:captcha-android", version.ref = "yandexCaptchaVersion" }
 
 
 
