@@ -12,6 +12,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.contentType
 import ru.kazan.itis.bikmukhametov.api.datasource.remote.LoginDataSource
+import ru.kazan.itis.bikmukhametov.impl.BuildKonfig
 
 /* Авторизация по кукам: бэкенд отдаёт Set-Cookie, Ktor + PersistentCookieStorage сохраняют,
  * в последующие запросы кука подставляется автоматически, при 401 — логаут.
@@ -26,7 +27,7 @@ internal class LoginDataSourceImpl(
         captchaToken: String
     ): Result<Unit> {
         return runCatching {
-            val response = httpClient.post("https://auth.smartbotpro.ru/api/auth/login") {
+            val response = httpClient.post(BuildKonfig.AUTH_BASE_URL + "/api/auth/login") {
 
                 contentType(ContentType.Application.Json)
 

@@ -28,6 +28,12 @@ buildkonfig {
             name = "YANDEX_CAPTCHA_SITE_KEY",
             value = localProperty("YANDEX_CAPTCHA_SITE_KEY")
         )
+
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "AUTH_BASE_URL",
+            value = "https://auth.smartbotpro.ru"
+        )
     }
 }
 

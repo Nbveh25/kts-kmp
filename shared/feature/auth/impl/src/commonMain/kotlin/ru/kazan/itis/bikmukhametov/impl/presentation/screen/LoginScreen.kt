@@ -114,7 +114,8 @@ fun LoginScreen(
 
         Spacer(modifier = Modifier.height(Spacing.paddingMedium))
 
-        /* Yandex Smart Captcha: при успехе токен уходит в state. key() пересоздаёт виджет после ошибки (токен одноразовый). */
+        /* Yandex Smart Captcha: при успехе токен уходит в state. 
+        key() пересоздаёт виджет после ошибки (токен одноразовый). */
         key(state.captchaWidgetKey) {
             YandexCaptchaWidget(
                 siteKey = BuildKonfig.YANDEX_CAPTCHA_SITE_KEY,
