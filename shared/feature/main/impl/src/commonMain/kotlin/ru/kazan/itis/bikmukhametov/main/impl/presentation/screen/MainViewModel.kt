@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ChatCardUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SocialBadge
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SpaceUi
 
@@ -16,8 +17,13 @@ internal class MainViewModel : androidx.lifecycle.ViewModel() {
     private fun createInitialState(): MainUiState {
         val spaces = listOf(
             SpaceUi("1", "Компания А"),
-            SpaceUi("2", "Проект Б"),
+            SpaceUi("2", "Компания Б"),
             SpaceUi("3", "Стартап В")
+        )
+        val projects = listOf(
+            ProjectUi("1", "Проект 1"),
+            ProjectUi("2", "Проект 2"),
+            ProjectUi("3", "Поддержка")
         )
         val chats = listOf(
             ChatCardUi(
@@ -60,6 +66,8 @@ internal class MainViewModel : androidx.lifecycle.ViewModel() {
         return MainUiState(
             currentSpace = spaces.first(),
             spaces = spaces,
+            currentProject = projects.first(),
+            projects = projects,
             chats = chats
         )
     }
@@ -71,6 +79,12 @@ internal class MainViewModel : androidx.lifecycle.ViewModel() {
             }
             is MainAction.SelectSpace -> updateState {
                 copy(currentSpace = action.space, spaceDropdownExpanded = false)
+            }
+            MainAction.ToggleProjectDropdown -> updateState {
+                copy(projectDropdownExpanded = !projectDropdownExpanded)
+            }
+            is MainAction.SelectProject -> updateState {
+                copy(currentProject = action.project, projectDropdownExpanded = false)
             }
             MainAction.ToggleSearch -> updateState {
                 copy(searchExpanded = !searchExpanded)
@@ -89,6 +103,10 @@ internal class MainViewModel : androidx.lifecycle.ViewModel() {
 
     fun onSpaceDropdownChange(expanded: Boolean) {
         updateState { copy(spaceDropdownExpanded = expanded) }
+    }
+
+    fun onProjectDropdownChange(expanded: Boolean) {
+        updateState { copy(projectDropdownExpanded = expanded) }
     }
 
     fun onDismissFilterSheet() {
