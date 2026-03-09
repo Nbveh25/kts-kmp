@@ -21,7 +21,7 @@ fun localProperty(key: String): String {
 }
 
 buildkonfig {
-    packageName = "ru.kazan.itis.bikmukhametov.impl"
+    packageName = "ru.kazan.itis.bikmukhametov.auth.impl"
     defaultConfigs {
         buildConfigField(
             type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
@@ -33,6 +33,18 @@ buildkonfig {
             type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             name = "AUTH_BASE_URL",
             value = "https://auth.smartbotpro.ru"
+        )
+
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "CABINET_DOMAIN",
+            value = localProperty("CABINET_DOMAIN")
+        )
+
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "BASE_URL",
+            value = "https://${localProperty("CABINET_DOMAIN")}.smartbotpro.ru"
         )
     }
 }

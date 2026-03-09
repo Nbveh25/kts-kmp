@@ -5,11 +5,12 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.api.usecase.LoginUseCase
+import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginUiEvent.LoginSuccessEvent
 import ru.kazan.itis.bikmukhametov.ui.util.BasicViewModel
 
 /* Вьюмодель экрана входа */
 internal class LoginViewModel(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
 ) : BasicViewModel<LoginUiState, LoginAction>(LoginUiState()) {
 
     private val _events = MutableSharedFlow<LoginUiEvent>(
@@ -71,17 +72,20 @@ internal class LoginViewModel(
                 email = current.email,
                 password = current.password,
                 captchaToken = current.captchaToken
-            ).onSuccess {
-                _events.emit(LoginUiEvent.LoginSuccessEvent) // навигация на экран main
-            }.onFailure { error ->
-                updateState {
-                    copy(
-                        error = error.message,
-                        captchaToken = "",
-                        captchaWidgetKey = captchaWidgetKey + 1 // пересоздаю токен капчи
-                    )
+            ).fold(
+                onSuccess = {
+                    _events.emit(LoginSuccessEvent)
+                },
+                onFailure = { error ->
+                    updateState {
+                        copy(
+                            error = error.message,
+                            captchaToken = "",
+                            captchaWidgetKey = captchaWidgetKey + 1
+                        )
+                    }
                 }
-            }
+            )
 
             updateState { copy(isLoading = false) }
         }

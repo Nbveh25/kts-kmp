@@ -1,18 +1,33 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ChatCardUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SocialBadge
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SpaceUi
 
-internal class MainViewModel : androidx.lifecycle.ViewModel() {
+internal class MainViewModel(
+    private val getCabinetUseCase: GetCabinetUseCase
+) : ViewModel() {
 
     private val _state = MutableStateFlow(createInitialState())
     val state = _state.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            getCabinetUseCase().onSuccess { cabinet ->
+                print("cabinet: ${cabinet.id}")
+                print("name: ${cabinet.name}")
+            }.onFailure {
+
+            }
+        }
+    }
 
     private fun createInitialState(): MainUiState {
         val spaces = listOf(

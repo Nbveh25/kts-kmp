@@ -4,6 +4,7 @@ plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.buildKonfigPlugin)
+    alias(libs.plugins.serializationPlugin)
 }
 
 buildkonfig {
@@ -14,6 +15,11 @@ buildkonfig {
             type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
             name = "BASE_URL",
             value = "https://${cabinetDomain}.smartbotpro.ru/api"
+        )
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "CABINET_DOMAIN",
+            value = cabinetDomain
         )
     }
 }

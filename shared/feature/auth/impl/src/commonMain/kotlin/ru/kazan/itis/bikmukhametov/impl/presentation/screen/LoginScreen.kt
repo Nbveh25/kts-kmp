@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.viewmodel.koinViewModel
+import ru.kazan.itis.bikmukhametov.auth.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.theme.Dimensions
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_example_mail
@@ -34,7 +35,6 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_signin
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_title
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.AppTextField
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.PasswordTextField
-import ru.kazan.itis.bikmukhametov.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.YandexCaptchaWidget
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 

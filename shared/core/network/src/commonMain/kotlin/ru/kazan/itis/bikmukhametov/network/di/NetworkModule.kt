@@ -3,13 +3,13 @@ package ru.kazan.itis.bikmukhametov.network.di
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.client.plugins.cookies.HttpCookies
 import io.ktor.client.plugins.defaultRequest
 import io.ktor.client.plugins.logging.LogLevel
 import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
+import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
@@ -24,8 +24,8 @@ import org.koin.dsl.module
 import ru.kazan.itis.bikmukhametov.network.BuildKonfig
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
-import ru.kazan.itis.bikmukhametov.network.cookie.api.CookiePersistence
 import ru.kazan.itis.bikmukhametov.network.cookie.impl.PersistentCookieStorage
+import ru.kazan.itis.bikmukhametov.network.error.ErrorResponse
 import ru.kazan.itis.bikmukhametov.network.space.impl.SpaceProviderImpl
 
 /* модуль для сети */
@@ -38,19 +38,19 @@ val networkModule = module {
     // провайдер пространств их топаппбара
     single<SpaceProvider> { SpaceProviderImpl(get(named(PlatformDataStoreNames.SPACE)), get()) }
 
-    // хранение куков
-    single<CookiesStorage> { PersistentCookieStorage(get()) }
+    // хранение куков — регистрируем конкретный тип, чтобы использовать clear() при логауте
+    single { PersistentCookieStorage(get()) }
 
     single {
 
         val spaceProvider = get<SpaceProvider>()
-        val cookiePersistence = get<CookiePersistence>()
+        val cookieStorage = get<PersistentCookieStorage>()
         val logoutBus = get<LogoutEventBus>()
         val appScope = get<CoroutineScope>()
 
         HttpClient {
 
-            install(HttpCookies) { storage = get() }
+            install(HttpCookies) { storage = cookieStorage }
 
             install(ContentNegotiation) {
                 json(Json {
@@ -60,7 +60,10 @@ val networkModule = module {
                 })
             }
             
-            install(Logging) { level = LogLevel.ALL }
+            install(Logging) {
+                level = LogLevel.ALL
+            }
+
             install(WebSockets)
 
             // Базовый URL
@@ -78,13 +81,36 @@ val networkModule = module {
             HttpResponseValidator {
                 validateResponse { response ->
                     if (response.status == HttpStatusCode.Unauthorized) {
-                        val path = response.call.request.url.encodedPath
-                        // Не сбрасывать сессию при 401 на самом запросе логина (неверные данные)
+                        val url = response.call.request.url
+                        val path = url.encodedPath
+
+                        // Читаем тело ошибки как строку
+                        val errorBodyText = response.bodyAsText()
+
+                        // Пытаемся распарсить сообщение
+                        val serverMessage = runCatching {
+                            Json.decodeFromString<ErrorResponse>(errorBodyText).message
+                        }.getOrNull() ?: "No message from server"
+
+                        // Логируем все заголовки запроса, который вернул 401
+                        val requestHeaders = response.call.request.headers.entries()
+                        println("401 REQUEST HEADERS for $url: $requestHeaders")
+
                         if (!path.contains("auth") && !path.contains("login")) {
+                            println("--- AUTH ERROR ---")
+                            println("URL: $url")
+                            println("Status: ${response.status}")
+                            println("Server Message: $serverMessage") // ВОТ ЛОГ ОШИБКИ
+                            println("Full Body: $errorBodyText")
+                            println("------------------")
+
                             appScope.launch {
-                                cookiePersistence.clear()
+                                cookieStorage.clear()
                                 logoutBus.trigger()
                             }
+                        } else {
+                            // Если это сам запрос логина и пришел 401
+                            println("Login failed: $serverMessage")
                         }
                     }
                 }

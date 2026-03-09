@@ -3,14 +3,17 @@ package ru.kazan.itis.bikmukhametov.network.cookie.impl
 import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.Cookie
 import io.ktor.http.Url
-import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.kazan.itis.bikmukhametov.network.cookie.api.CookiePersistence
 
 /*
- * Обрабатывает Set-Cookie от бека, сохраняет в сторадж и подставляет куку в запросы.
- * при 401 нужно очищать сторадж и делать логаут.
+ * Хранит куки в памяти (основной источник) + персистит в DataStore для восстановления
+ * после перезапуска приложения.
+ *
+ * Ktor вызывает addCookie() из receivePipeline (после ответа сервера) и
+ * get() из sendPipeline (перед отправкой запроса). In-memory кэш гарантирует,
+ * что get() сразу видит куки, сохранённые в addCookie() — без ожидания DataStore.
  */
 internal class PersistentCookieStorage(
     private val persistence: CookiePersistence
@@ -18,31 +21,50 @@ internal class PersistentCookieStorage(
 
     private val mutex = Mutex()
 
+    // Основное хранилище — память. Ключ — имя куки.
+    private val memCache = mutableMapOf<String, Cookie>()
+
+    // Загружаем из DataStore один раз при первом обращении.
+    private var loaded = false
+
+    private suspend fun ensureLoaded() {
+        if (loaded) return
+        val header = persistence.getCookieHeader()
+        if (!header.isNullOrBlank()) {
+            parseCookieHeader(header).forEach { memCache[it.name] = it }
+        }
+        loaded = true
+        println("COOKIE_STORAGE loaded from DataStore: keys=${memCache.keys}")
+    }
+
     override suspend fun get(requestUrl: Url): List<Cookie> = mutex.withLock {
-        val header = persistence.getCookieHeader() ?: return emptyList()
-        parseCookieHeader(header)
-            .filter { isCookieValidForUrl(it) }
+        ensureLoaded()
+        val cookies = memCache.values.filter { isCookieValid(it) }
+        println("COOKIE_STORAGE get(${requestUrl.host}): returning ${cookies.map { it.name }}")
+        cookies
     }
 
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie) = mutex.withLock {
-        val header = persistence.getCookieHeader()
-        val current = parseCookieHeader(header.orEmpty()).associateBy { it.name }.toMutableMap()
-        current[cookie.name] = cookie
-        persistence.setCookieHeader(serializeCookies(current.values))
+        ensureLoaded()
+        println("COOKIE_STORAGE addCookie: name=${cookie.name}, value=${cookie.value.take(20)}…")
+        memCache[cookie.name] = cookie
+        persistence.setCookieHeader(serializeCookies(memCache.values))
+        println("COOKIE_STORAGE cache now: ${memCache.keys}")
     }
 
-    override fun close() {
-        // заглушка(
-    }
-
-    /* Очистить куки (логаут / 401). */
-    private suspend fun clear() = mutex.withLock {
+    /* Вызывать при логауте / 401 — очищает и память, и DataStore. */
+    suspend fun clear() = mutex.withLock {
+        memCache.clear()
+        loaded = false
         persistence.clear()
+        println("COOKIE_STORAGE cleared")
     }
+
+    override fun close() = Unit
 
     private fun parseCookieHeader(header: String): List<Cookie> {
         if (header.isBlank()) return emptyList()
-        return header.split(COOKIE_SEPARATOR)
+        return header.split(SEPARATOR)
             .map { it.trim() }
             .filter { it.isNotEmpty() }
             .mapNotNull { part ->
@@ -55,16 +77,15 @@ internal class PersistentCookieStorage(
             }
     }
 
-    private fun isCookieValidForUrl(cookie: Cookie): Boolean {
-        // При протухании бекенд вернёт 401 — делаем логаут; здесь только базовая проверка
+    private fun serializeCookies(cookies: Collection<Cookie>): String =
+        cookies.joinToString(SEPARATOR) { "${it.name}=${it.value}" }
+
+    private fun isCookieValid(cookie: Cookie): Boolean {
         val expires = cookie.expires ?: return true
         return expires.timestamp > System.currentTimeMillis()
     }
 
-    private fun serializeCookies(cookies: Collection<Cookie>): String =
-        cookies.joinToString(COOKIE_SEPARATOR) { "${it.name}=${it.value}" }
-
     companion object {
-        private const val COOKIE_SEPARATOR = "; "
+        private const val SEPARATOR = "; "
     }
 }

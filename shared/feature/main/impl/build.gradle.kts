@@ -1,10 +1,41 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.io.FileInputStream
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.androidLibrary)
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
+    alias(libs.plugins.serializationPlugin)
+    alias(libs.plugins.secretGradlePlugin)
+    alias(libs.plugins.buildKonfigPlugin)
+}
+
+fun localProperty(key: String): String {
+    val file = rootProject.file("local.properties")
+    if (!file.isFile) return ""
+    val props = Properties()
+    FileInputStream(file).use { props.load(it) }
+    return props.getProperty(key) ?: ""
+}
+
+buildkonfig {
+    packageName = "ru.kazan.itis.bikmukhametov.main.impl"
+    defaultConfigs {
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "CABINET_DOMAIN",
+            value = localProperty("CABINET_DOMAIN")
+        )
+
+        buildConfigField(
+            type = com.codingfeline.buildkonfig.compiler.FieldSpec.Type.STRING,
+            name = "BASE_URL",
+            value = "https://${localProperty("CABINET_DOMAIN")}.smartbotpro.ru"
+        )
+
+    }
 }
 
 kotlin {
@@ -27,6 +58,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared:feature:main:api"))
+            implementation(project(":shared:core:network"))
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
 
@@ -44,6 +76,9 @@ kotlin {
 
             implementation(libs.coil.compose)
             implementation(libs.coil.network.ktor)
+
+            implementation(libs.ktor.client.core)
+            implementation(libs.kotlinx.serialization.json)
         }
 
         androidMain.dependencies {
