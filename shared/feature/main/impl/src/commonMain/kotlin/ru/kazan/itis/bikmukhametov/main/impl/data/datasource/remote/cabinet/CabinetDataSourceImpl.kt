@@ -18,9 +18,12 @@ class CabinetDataSourceImpl(
     override suspend fun getCabinet(): Result<CabinetModel> { // TODO потом список сделать
         val rawResult = runCatching {
             val response = httpClient.get(
-                BuildKonfig.BASE_URL +
-                    "/api/cabinets/get_by_domain?domain=${BuildKonfig.CABINET_DOMAIN}"
+                urlString = BuildKonfig.BASE_URL + "/api/cabinets/get_by_domain"
             ) {
+                url {
+                    parameters.append("domain", BuildKonfig.CABINET_DOMAIN)
+                }
+
                 contentType(ContentType.Application.Json)
                 header("Accept", "application/json, text/plain, */*")
             }

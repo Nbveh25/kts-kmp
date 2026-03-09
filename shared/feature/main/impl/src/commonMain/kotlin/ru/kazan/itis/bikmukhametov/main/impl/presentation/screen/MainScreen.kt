@@ -12,9 +12,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatCard
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTabs
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConvesationCardUI
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.MainBottomNav
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -73,7 +73,7 @@ fun MainScreen() {
                     items = state.chats,
                     key = { it.id }
                 ) { chat ->
-                    ChatCard(
+                    ConvesationCardUI(
                         chat = chat,
                         modifier = Modifier.padding(
                             horizontal = Spacing.paddingMedium,

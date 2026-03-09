@@ -1,9 +1,9 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
 import androidx.compose.runtime.Immutable
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ChatCardUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.CabinetUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
 
 /** Вкладка под Topbar: Все обращения / Ждут ответа */
 enum class ChatListTab {
@@ -28,5 +28,5 @@ internal data class MainUiState(
 
     val selectedTab: ChatListTab = ChatListTab.ALL,
 
-    val chats: List<ChatCardUi> = emptyList()
+    val chats: List<ConversationCardItem> = emptyList()
 )

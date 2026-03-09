@@ -7,16 +7,16 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ChatCardUi
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SocialBadge
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toUi
 import kotlin.collections.emptyList
 
 internal class MainViewModel(
     private val getCabinetUseCase: GetCabinetUseCase,
-    private val getProjectListUseCase: GetProjectListUseCase
+    private val getProjectListUseCase: GetProjectListUseCase,
+    private val getConversationListUseCase: GetConversationListUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(createInitialState())
@@ -28,9 +28,11 @@ internal class MainViewModel(
 
             val cabinetDeferred = async { getCabinetUseCase() }
             val projectListDeferred = async { getProjectListUseCase() }
+            val conversationListDeferred = async { getConversationListUseCase() }
 
             val cabinetResult = cabinetDeferred.await()
             val projectListResult = projectListDeferred.await()
+            val conversationListResult = conversationListDeferred.await()
 
             cabinetResult.onSuccess { cabinetModel ->
                 val cabinetUi = cabinetModel.toUi()
@@ -55,57 +57,28 @@ internal class MainViewModel(
             }.onFailure {
                 // экран ошибка
             }
+
+            conversationListResult.onSuccess { conversationModels ->
+                val conversatioCardListUI = conversationModels.map { it.toConversationCardItem() }
+                updateState {
+                    copy(
+                        chats = conversatioCardListUI
+                    )
+                }
+            }.onFailure {
+                // экран ошибка - перезагрузить
+            }
             
         }
     }
 
     private fun createInitialState(): MainUiState {
-        val chats = listOf(
-            ChatCardUi(
-                id = "1",
-                avatarUrl = null,
-                socialBadge = SocialBadge.TG,
-                name = "Иван Петров",
-                lastMessageText = "Добрый день, подскажите по тарифу",
-                timeOrDate = "12:30",
-                unreadCount = 2
-            ),
-            ChatCardUi(
-                id = "2",
-                avatarUrl = null,
-                socialBadge = SocialBadge.WA,
-                name = "Мария Сидорова",
-                lastMessageText = "Спасибо, всё получила!",
-                timeOrDate = "Вчера",
-                unreadCount = 0
-            ),
-            ChatCardUi(
-                id = "3",
-                avatarUrl = null,
-                socialBadge = SocialBadge.TG,
-                name = "Чат поддержки",
-                lastMessageText = "Оператор подключится в течение 5 минут",
-                timeOrDate = "Пн",
-                unreadCount = 5
-            ),
-            ChatCardUi(
-                id = "4",
-                avatarUrl = null,
-                socialBadge = SocialBadge.WA,
-                name = "Алексей К.",
-                lastMessageText = "Когда будет готов отчёт?",
-                timeOrDate = "09:15",
-                unreadCount = 1
-            )
-        )
-        // На момент инициализации _state ещё нет, поэтому используем только константные значения.
-        // Кабинеты подтянутся асинхронно в init{} через usecase.
         return MainUiState(
             currentCabinet = null,
             cabinets = emptyList(),
             currentProject = null,
             projects = emptyList(),
-            chats = chats
+            chats = emptyList()
         )
     }
 

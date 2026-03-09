@@ -16,15 +16,17 @@ internal class ProjectDataSourceImpl(
     private val httpClient: HttpClient
 ): ProjectDataSource {
 
-    override suspend fun getProject(): Result<List<ProjectModel>> {
+    override suspend fun getProjectList(): Result<List<ProjectModel>> {
         val rawResult = runCatching {
-            val response = httpClient.get(BuildKonfig.BASE_URL + "/api/projects/list") {
+            val response = httpClient.get(
+                urlString = BuildKonfig.BASE_URL + "/api/projects/list"
+            ) {
                 contentType(ContentType.Application.Json)
                 header("Accept", "application/json, text/plain, */*")
             }
             
             val rawBody = response.body<String>()
-            println("🔍 RAW API Response: $rawBody")
+            println("RAW API Response: $rawBody")
 
             response.body<ProjectResponse>()
 

@@ -11,7 +11,7 @@ internal class ProjectRepositoryImpl(
 ) : ProjectRepository {
 
     override suspend fun getProject(): Result<List<ProjectModel>> =
-        projectDataSource.getProject()
+        projectDataSource.getProjectList()
             .onSuccess { projectModels ->
                 projectModels.firstOrNull()?.let { first ->
                     val currentCabinet = spaceProvider.cabinet.value ?: ""

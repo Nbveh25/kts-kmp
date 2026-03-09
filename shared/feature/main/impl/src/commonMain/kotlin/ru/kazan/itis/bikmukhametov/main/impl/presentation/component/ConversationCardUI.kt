@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -24,15 +23,15 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ChatCardUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SocialBadge
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Elevation
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
-internal fun ChatCard(
-    chat: ChatCardUi,
+internal fun ConvesationCardUI(
+    chat: ConversationCardItem,
     modifier: Modifier = Modifier
 ) {
     Card(
