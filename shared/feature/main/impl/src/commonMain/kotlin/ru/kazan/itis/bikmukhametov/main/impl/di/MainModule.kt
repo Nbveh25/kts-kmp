@@ -7,13 +7,14 @@ import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.ProjectDataSource
 import ru.kazan.itis.bikmukhametov.main.api.repository.CabinetRepository
 import ru.kazan.itis.bikmukhametov.main.api.repository.ProjectRepository
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
-import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.cabinet.CabinetDataSourceImpl
-import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.ProjectDataSourceImpl
+import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.project.ProjectDataSourceImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.repository.CabinetRepositoryImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.repository.ProjectRepositoryImpl
+import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetCabinetUseCaseImpl
-import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetProjectUseCaseImpl
+import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetProjectListUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainViewModel
 
 /*
@@ -23,14 +24,14 @@ val mainModule = module {
 
     // Data layer
     single<CabinetDataSource> { CabinetDataSourceImpl(get()) }
-    single<CabinetRepository> { CabinetRepositoryImpl(get()) }
+    single<CabinetRepository> { CabinetRepositoryImpl(get(), get<SpaceProvider>()) }
 
-    single<ProjectDataSource> { ProjectDataSourceImpl() }
-    single<ProjectRepository> { ProjectRepositoryImpl(get()) }
+    single<ProjectDataSource> { ProjectDataSourceImpl(get()) }
+    single<ProjectRepository> { ProjectRepositoryImpl(get(), get<SpaceProvider>()) }
 
     // Domain Layer
     single<GetCabinetUseCase> { GetCabinetUseCaseImpl(get()) }
-    //single<GetProjectUseCase> { GetProjectUseCaseImpl(get()) }
+    single<GetProjectListUseCase> { GetProjectListUseCaseImpl(get()) }
 
     // Presentation layer
     viewModelOf(::MainViewModel)

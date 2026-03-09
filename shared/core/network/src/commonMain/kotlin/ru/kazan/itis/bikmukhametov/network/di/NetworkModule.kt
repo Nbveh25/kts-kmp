@@ -74,8 +74,12 @@ val networkModule = module {
                 header("Accept", "application/json")
 
                 // X-SPro-Cabinet, X-SPro-Project — из выбранного пространства (Topbar)
-                spaceProvider.cabinet.value?.let { header("X-SPro-Cabinet", it) }
-                spaceProvider.project.value?.let { header("X-SPro-Project", it) }
+                spaceProvider.cabinet.value
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { header("X-SPro-Cabinet", it) }
+                spaceProvider.project.value
+                    ?.takeIf { it.isNotBlank() }
+                    ?.let { header("X-SPro-Project", it) }
             }
 
             HttpResponseValidator {

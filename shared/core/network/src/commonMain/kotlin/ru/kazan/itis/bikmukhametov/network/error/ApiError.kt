@@ -9,7 +9,6 @@ import kotlinx.serialization.Serializable
 
 /**
  * Стандартное тело ошибки от backend:
- * { "code": "...", "status": "...", "message": "..." }
  */
 @Serializable
 data class ApiErrorBody(
@@ -19,7 +18,7 @@ data class ApiErrorBody(
 )
 
 /**
- * Преобразует Ktor-исключение в человеко-читаемое [Exception] с сообщением из ApiErrorBody.
+ * Преобразует Ktor-исключение в человеко-читаемое Exception с сообщением из ApiErrorBody.
  */
 suspend fun Throwable.toApiException(
     defaultMessage: String = "Произошла ошибка, попробуйте позже"
@@ -27,7 +26,7 @@ suspend fun Throwable.toApiException(
     return when (this) {
         is ClientRequestException,
         is ServerResponseException -> {
-            val response = (this as ResponseException).response
+            val response = this.response
             val message = runCatching { response.body<ApiErrorBody>().message }
                 .getOrNull()
                 ?: response.status.description
@@ -39,7 +38,7 @@ suspend fun Throwable.toApiException(
 }
 
 /**
- * Хелпер для приведения [Result] к человеку-читаемой ошибке.
+ * Хелпер для приведения Result к человеку-читаемой ошибке.
  */
 suspend fun <T> Result<T>.mapApiError(
     defaultMessage: String = "Произошла ошибка, попробуйте позже"

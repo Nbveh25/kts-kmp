@@ -8,9 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -32,16 +30,16 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_filter_24
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_search_24
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SpaceUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.CabinetUi
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
 internal fun ChatListTopBar(
-    currentSpace: SpaceUi?,
-    spaces: List<SpaceUi>,
-    spaceDropdownExpanded: Boolean,
-    onSpaceDropdownChange: (Boolean) -> Unit,
-    onSpaceSelect: (SpaceUi) -> Unit,
+    currentCabinet: CabinetUi?,
+    cabinets: List<CabinetUi>,
+    cabinetDropdownExpanded: Boolean,
+    onCabinetDropdownChange: (Boolean) -> Unit,
+    onCabinetSelect: (CabinetUi) -> Unit,
     currentProject: ProjectUi?,
     projects: List<ProjectUi>,
     projectDropdownExpanded: Boolean,
@@ -69,12 +67,12 @@ internal fun ChatListTopBar(
                     Box {
                         Row(
                             modifier = Modifier
-                                .clickable { onSpaceDropdownChange(!spaceDropdownExpanded) }
+                                .clickable { onCabinetDropdownChange(!cabinetDropdownExpanded) }
                                 .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = currentSpace?.displayName ?: "Пространство",
+                                text = currentCabinet?.displayName ?: "Пространство",
                                 style = MaterialTheme.typography.titleMedium,
                                 color = MaterialTheme.colorScheme.onSurface
                             )
@@ -86,15 +84,15 @@ internal fun ChatListTopBar(
                             )
                         }
                         DropdownMenu(
-                            expanded = spaceDropdownExpanded,
-                            onDismissRequest = { onSpaceDropdownChange(false) }
+                            expanded = cabinetDropdownExpanded,
+                            onDismissRequest = { onCabinetDropdownChange(false) }
                         ) {
-                            spaces.forEach { space ->
+                            cabinets.forEach { space ->
                                 DropdownMenuItem(
                                     text = { Text(space.displayName) },
                                     onClick = {
-                                        onSpaceSelect(space)
-                                        onSpaceDropdownChange(false)
+                                        onCabinetSelect(space)
+                                        onCabinetDropdownChange(false)
                                     }
                                 )
                             }

@@ -8,7 +8,6 @@ import kotlinx.coroutines.flow.StateFlow
  * StateFlow — для синхронного доступа в defaultRequest (не suspend).
  */
 interface SpaceProvider {
-
     val cabinet: StateFlow<String?>
     val project: StateFlow<String?>
 

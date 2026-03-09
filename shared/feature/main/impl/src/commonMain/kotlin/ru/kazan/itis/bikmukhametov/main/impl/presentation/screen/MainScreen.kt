@@ -30,11 +30,11 @@ fun MainScreen() {
             .imePadding(),
         topBar = {
             ChatListTopBar(
-                currentSpace = state.currentSpace,
-                spaces = state.spaces,
-                spaceDropdownExpanded = state.spaceDropdownExpanded,
-                onSpaceDropdownChange = viewModel::onSpaceDropdownChange,
-                onSpaceSelect = { viewModel.onAction(MainAction.SelectSpace(it)) },
+                currentCabinet = state.currentCabinet,
+                cabinets = state.cabinets,
+                cabinetDropdownExpanded = state.cabinetDropdownExpanded,
+                onCabinetDropdownChange = viewModel::onSpaceDropdownChange,
+                onCabinetSelect = { viewModel.onAction(MainAction.SelectCabinet(it)) },
                 currentProject = state.currentProject,
                 projects = state.projects,
                 projectDropdownExpanded = state.projectDropdownExpanded,

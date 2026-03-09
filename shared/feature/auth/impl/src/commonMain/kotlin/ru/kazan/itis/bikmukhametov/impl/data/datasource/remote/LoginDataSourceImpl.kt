@@ -54,24 +54,6 @@ internal class LoginDataSourceImpl(
             )
 
             // Set-Cookie обработает HttpCookies + PersistentCookieStorage
-
-            // Сразу после успешного логина дергаем /api/auth/info на кабинете,
-            // чтобы подтвердить сессию и инициализировать серверные структуры.
-            // Здесь нам важен сам факт 200; тело пока не разбираем.
-            val authInfoResponse = httpClient.get(BuildKonfig.BASE_URL + "/api/auth/info") {
-                contentType(ContentType.Application.Json)
-                header(HttpHeaders.Accept, "application/json, text/plain, */*")
-            }
-
-            println(
-                """
-                --> AUTH HTTP GET ${authInfoResponse.request.url}
-                AUTH Status: ${authInfoResponse.status}
-                AUTH Request Headers: ${authInfoResponse.request.headers.entries()}
-                AUTH Body: ${authInfoResponse.bodyAsText()}
-                <-- END HTTP (auth/info)
-                """.trimIndent()
-            )
         }
 
         return rawResult

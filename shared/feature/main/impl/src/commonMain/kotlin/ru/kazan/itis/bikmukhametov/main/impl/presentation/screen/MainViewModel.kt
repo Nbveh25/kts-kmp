@@ -2,44 +2,64 @@ package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ChatCardUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SocialBadge
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SpaceUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toUi
+import kotlin.collections.emptyList
 
 internal class MainViewModel(
-    private val getCabinetUseCase: GetCabinetUseCase
+    private val getCabinetUseCase: GetCabinetUseCase,
+    private val getProjectListUseCase: GetProjectListUseCase
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(createInitialState())
     val state = _state.asStateFlow()
 
     init {
+        // экран - загрузка
         viewModelScope.launch {
-            getCabinetUseCase().onSuccess { cabinet ->
-                print("cabinet: ${cabinet.id}")
-                print("name: ${cabinet.name}")
-            }.onFailure {
 
+            val cabinetDeferred = async { getCabinetUseCase() }
+            val projectListDeferred = async { getProjectListUseCase() }
+
+            val cabinetResult = cabinetDeferred.await()
+            val projectListResult = projectListDeferred.await()
+
+            cabinetResult.onSuccess { cabinetModel ->
+                val cabinetUi = cabinetModel.toUi()
+                updateState {
+                    copy(
+                        currentCabinet = cabinetUi,
+                        cabinets = listOf(cabinetUi)
+                    )
+                }
+            }.onFailure {
+                // экран ошибка
             }
+
+            projectListResult.onSuccess { projectModels ->
+                val projectsListUi = projectModels.map { it.toUi() }
+                updateState {
+                    copy(
+                        currentProject = projectsListUi.first(), // подумать о null
+                        projects = projectsListUi
+                    )
+                }
+            }.onFailure {
+                // экран ошибка
+            }
+            
         }
     }
 
     private fun createInitialState(): MainUiState {
-        val spaces = listOf(
-            SpaceUi("1", "Компания А"),
-            SpaceUi("2", "Компания Б"),
-            SpaceUi("3", "Стартап В")
-        )
-        val projects = listOf(
-            ProjectUi("1", "Проект 1"),
-            ProjectUi("2", "Проект 2"),
-            ProjectUi("3", "Поддержка")
-        )
         val chats = listOf(
             ChatCardUi(
                 id = "1",
@@ -78,38 +98,47 @@ internal class MainViewModel(
                 unreadCount = 1
             )
         )
+        // На момент инициализации _state ещё нет, поэтому используем только константные значения.
+        // Кабинеты подтянутся асинхронно в init{} через usecase.
         return MainUiState(
-            currentSpace = spaces.first(),
-            spaces = spaces,
-            currentProject = projects.first(),
-            projects = projects,
+            currentCabinet = null,
+            cabinets = emptyList(),
+            currentProject = null,
+            projects = emptyList(),
             chats = chats
         )
     }
 
     fun onAction(action: MainAction) {
         when (action) {
-            MainAction.ToggleSpaceDropdown -> updateState {
-                copy(spaceDropdownExpanded = !spaceDropdownExpanded)
+            MainAction.ToggleCabinetDropdown -> updateState {
+                copy(cabinetDropdownExpanded = !cabinetDropdownExpanded)
             }
-            is MainAction.SelectSpace -> updateState {
-                copy(currentSpace = action.space, spaceDropdownExpanded = false)
+
+            is MainAction.SelectCabinet -> updateState {
+                copy(currentCabinet = action.cabinet, cabinetDropdownExpanded = false)
             }
+
             MainAction.ToggleProjectDropdown -> updateState {
                 copy(projectDropdownExpanded = !projectDropdownExpanded)
             }
+
             is MainAction.SelectProject -> updateState {
                 copy(currentProject = action.project, projectDropdownExpanded = false)
             }
+
             MainAction.ToggleSearch -> updateState {
                 copy(searchExpanded = !searchExpanded)
             }
+
             is MainAction.SearchQueryChanged -> updateState {
                 copy(searchQuery = action.query)
             }
+
             MainAction.ToggleFilterSheet -> updateState {
                 copy(filterSheetVisible = !filterSheetVisible)
             }
+
             is MainAction.SelectTab -> updateState {
                 copy(selectedTab = action.tab)
             }
@@ -117,7 +146,7 @@ internal class MainViewModel(
     }
 
     fun onSpaceDropdownChange(expanded: Boolean) {
-        updateState { copy(spaceDropdownExpanded = expanded) }
+        updateState { copy(cabinetDropdownExpanded = expanded) }
     }
 
     fun onProjectDropdownChange(expanded: Boolean) {
