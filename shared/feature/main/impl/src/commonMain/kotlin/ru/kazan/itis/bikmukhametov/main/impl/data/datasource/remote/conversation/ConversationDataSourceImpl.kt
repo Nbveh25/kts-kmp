@@ -30,24 +30,16 @@ class ConversationDataSourceImpl(
                     parameters.append("limit", limit.toString())
                     parameters.append("offset", offset.toString())
 
-                    // fromId может быть null, добавляем только если он не null
-                    fromId?.let {
-                        parameters.append("fromId", it)
-                    }
+                    fromId?.let { parameters.append("fromId", it) }
                 }
-                
                 contentType(ContentType.Application.Json)
                 header("Accept", "application/json, text/plain, */*")
             }
-            
-            val rawBody = response.body<String>()
-            println("CONVERSATION RAW API Response: $rawBody")
 
             response.body<ConversationResponse>()
         }.map { response ->
-            response.data.conversations.map { conversationDto ->
-                conversationDto.toModel()
-            }
+            println("CONVERSATION API: loaded ${response.data.conversations.size} items")
+            response.data.conversations.map { it.toModel() }
         }
 
         return rawResult.mapApiError("Ошибка загрузки чатов")

@@ -51,6 +51,9 @@ datastoreVersion = "1.2.0"
 # Secret gradle plugin
 secretGradlePlugin = "2.0.1"
 
+# Date/time (KMP)
+kotlinx-datetime = "0.6.1"
+
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -106,6 +109,9 @@ ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVers
 # Datastore
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastoreVersion" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVersion" }
+
+# Date/time (KMP)
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
 
 
 

@@ -92,11 +92,11 @@ data class ConversationStateDto(
 data class LastMessageDto(
     @SerialName("id") val id: String,
     @SerialName("conversation_id") val conversationId: Long,
-    @SerialName("text") val text: String?,
-    @SerialName("kind") val kind: String?, // "bot", "user", "service"
-    @SerialName("block_id") val blockId: String?,
-    @SerialName("scenario_id") val scenarioId: String?,
-    @SerialName("bucket") val bucket: String?,
+    @SerialName("text") val text: String? = null,
+    @SerialName("kind") val kind: String? = null,
+    @SerialName("block_id") val blockId: String? = null,
+    @SerialName("scenario_id") val scenarioId: String? = null,
+    @SerialName("bucket") val bucket: String? = null,
     @SerialName("date_created") val dateCreated: String,
     // Опциональные поля из Postman-схемы (могут отсутствовать в реальном ответе)
     @SerialName("attachments") val attachments: AttachmentDto? = null,

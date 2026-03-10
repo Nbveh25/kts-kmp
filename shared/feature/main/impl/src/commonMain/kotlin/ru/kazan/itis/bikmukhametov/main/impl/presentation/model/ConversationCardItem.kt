@@ -3,6 +3,7 @@ package ru.kazan.itis.bikmukhametov.main.impl.presentation.model
 import androidx.compose.runtime.Immutable
 import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
 import ru.kazan.itis.bikmukhametov.main.api.model.ConversationModel
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.util.formatTimeForUi
 
 /** Бейдж соцсети в карточке чата */
 enum class SocialBadge {
@@ -46,8 +47,8 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
     // Текст последнего сообщения или пустая строка
     val lastMessageText = lastMessage?.text ?: ""
 
-    // Время последнего обновления (пока просто строка из API)
-    val timeOrDate = dateUpdated
+    // Время последнего обновления — форматируем для UI (12:30, Вчера, Пн, 09.03.24)
+    val timeOrDate = formatTimeForUi(dateUpdated)
 
     // Количество непрочитанных: если диалог не прочитан, считаем 1 (иначе 0)
     // Это временное решение, так как API не возвращает точное число непрочитанных

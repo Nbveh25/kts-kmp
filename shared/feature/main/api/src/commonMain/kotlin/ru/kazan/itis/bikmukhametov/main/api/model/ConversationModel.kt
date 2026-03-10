@@ -10,7 +10,7 @@ data class ConversationModel(
     val state: ConversationStateModel,
     val isRead: Boolean,
     val lastMessage: LastMessageModel?,
-    val dateUpdated: String // или Instant, если парсинг будет позже
+    val dateUpdated: String
 )
 
 /**
@@ -77,7 +77,7 @@ data class LastMessageModel(
     val blockId: String?,
     val scenarioId: String?,
     val bucket: String?,
-    val dateCreated: String, // или Instant
+    val dateCreated: String,
     val attachments: AttachmentModel?,
     val managerEmail: String?,
     val isRead: Boolean?,

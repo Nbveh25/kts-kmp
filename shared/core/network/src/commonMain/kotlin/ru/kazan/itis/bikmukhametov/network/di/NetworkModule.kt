@@ -66,12 +66,16 @@ val networkModule = module {
 
             install(WebSockets)
 
-            // Базовый URL
+            // Базовый URL и заголовки (в т.ч. Cookie — ручная подстановка для всех поддоменов)
             defaultRequest {
                 url(BuildKonfig.BASE_URL)
 
                 header(HttpHeaders.ContentType, ContentType.Application.Json)
                 header("Accept", "application/json")
+
+                cookieStorage.getCookieHeaderForRequestSync()?.let {
+                    header("Cookie", it)
+                }
 
                 // X-SPro-Cabinet, X-SPro-Project — из выбранного пространства (Topbar)
                 spaceProvider.cabinet.value

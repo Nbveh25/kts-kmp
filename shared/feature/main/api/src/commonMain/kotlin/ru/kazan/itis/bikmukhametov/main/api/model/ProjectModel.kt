@@ -1,7 +1,5 @@
 package ru.kazan.itis.bikmukhametov.main.api.model
 
-import kotlin.time.Instant
-
 data class ProjectModel(
     val id: String,
     val name: String,

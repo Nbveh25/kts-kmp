@@ -13,6 +13,9 @@ enum class ChatListTab {
 
 @Immutable
 internal data class MainUiState(
+    val isLoading: Boolean = true,
+    val loadError: String? = null,
+
     val currentCabinet: CabinetUi? = null,
     val cabinets: List<CabinetUi> = emptyList(),
     val cabinetDropdownExpanded: Boolean = false,
@@ -28,5 +31,10 @@ internal data class MainUiState(
 
     val selectedTab: ChatListTab = ChatListTab.ALL,
 
-    val chats: List<ConversationCardItem> = emptyList()
+    val chats: List<ConversationCardItem> = emptyList(),
+
+    /**
+     * Флаг для нижнего лоадера при пагинации.
+     */
+    val isLoadingMore: Boolean = false
 )

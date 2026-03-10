@@ -27,6 +27,9 @@ internal class PersistentCookieStorage(
     // Загружаем из DataStore один раз при первом обращении.
     private var loaded = false
 
+    /** Кэш строки Cookie для defaultRequest (не suspend). Обновляется в ensureLoaded/addCookie/clear. */
+    private var cachedCookieHeader: String? = null
+
     private suspend fun ensureLoaded() {
         if (loaded) return
         val header = persistence.getCookieHeader()
@@ -34,28 +37,48 @@ internal class PersistentCookieStorage(
             parseCookieHeader(header).forEach { memCache[it.name] = it }
         }
         loaded = true
+        cachedCookieHeader = serializeCookies(memCache.values).takeIf { memCache.isNotEmpty() }
         println("COOKIE_STORAGE loaded from DataStore: keys=${memCache.keys}")
     }
 
     override suspend fun get(requestUrl: Url): List<Cookie> = mutex.withLock {
         ensureLoaded()
         val cookies = memCache.values.filter { isCookieValid(it) }
-        println("COOKIE_STORAGE get(${requestUrl.host}): returning ${cookies.map { it.name }}")
-        cookies
+        // Куки с auth.smartbotpro.ru должны уходить на metac-92.smartbotpro.ru — задаём домен верхнего уровня.
+        val domain = rootDomain(requestUrl.host)
+        val withDomain = cookies.map { it.copy(domain = domain) }
+        println("COOKIE_STORAGE get(${requestUrl.host}), domain=$domain: returning ${withDomain.map { it.name }}")
+        withDomain
     }
 
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie) = mutex.withLock {
         ensureLoaded()
-        println("COOKIE_STORAGE addCookie: name=${cookie.name}, value=${cookie.value.take(20)}…")
-        memCache[cookie.name] = cookie
-        persistence.setCookieHeader(serializeCookies(memCache.values))
+        val domain = rootDomain(requestUrl.host)
+        val normalized = cookie.copy(domain = domain)
+        println("COOKIE_STORAGE addCookie: name=${normalized.name}, domain=$domain")
+        memCache[normalized.name] = normalized
+        val serialized = serializeCookies(memCache.values)
+        persistence.setCookieHeader(serialized)
+        cachedCookieHeader = serialized
         println("COOKIE_STORAGE cache now: ${memCache.keys}")
     }
+
+    /** Строка для заголовка Cookie для данного URL (для ручной подстановки, если плагин не ставит). */
+    suspend fun getCookieHeaderString(requestUrl: Url): String? = mutex.withLock {
+        ensureLoaded()
+        val cookies = memCache.values.filter { isCookieValid(it) }
+        if (cookies.isEmpty()) return null
+        return cookies.joinToString(SEPARATOR) { "${it.name}=${it.value}" }
+    }
+
+    /** Синхронно возвращает строку для заголовка Cookie (для defaultRequest). */
+    fun getCookieHeaderForRequestSync(): String? = cachedCookieHeader
 
     /* Вызывать при логауте / 401 — очищает и память, и DataStore. */
     suspend fun clear() = mutex.withLock {
         memCache.clear()
         loaded = false
+        cachedCookieHeader = null
         persistence.clear()
         println("COOKIE_STORAGE cleared")
     }
@@ -83,6 +106,12 @@ internal class PersistentCookieStorage(
     private fun isCookieValid(cookie: Cookie): Boolean {
         val expires = cookie.expires ?: return true
         return expires.timestamp > System.currentTimeMillis()
+    }
+
+    /** Домен верхнего уровня (metac-92.smartbotpro.ru → smartbotpro.ru), чтобы куки шли на все поддомены. */
+    private fun rootDomain(host: String): String {
+        val parts = host.split('.')
+        return if (parts.size >= 2) parts.takeLast(2).joinToString(".") else host
     }
 
     companion object {

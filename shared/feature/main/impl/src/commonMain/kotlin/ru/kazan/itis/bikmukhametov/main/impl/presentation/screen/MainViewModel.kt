@@ -19,57 +19,16 @@ internal class MainViewModel(
     private val getConversationListUseCase: GetConversationListUseCase
 ) : ViewModel() {
 
+    private val pageSize = 20
+    private var currentOffset = 0
+    private var isPageLoading = false
+    private var isEndReached = false
+
     private val _state = MutableStateFlow(createInitialState())
     val state = _state.asStateFlow()
 
     init {
-        // экран - загрузка
-        viewModelScope.launch {
-
-            val cabinetDeferred = async { getCabinetUseCase() }
-            val projectListDeferred = async { getProjectListUseCase() }
-            val conversationListDeferred = async { getConversationListUseCase() }
-
-            val cabinetResult = cabinetDeferred.await()
-            val projectListResult = projectListDeferred.await()
-            val conversationListResult = conversationListDeferred.await()
-
-            cabinetResult.onSuccess { cabinetModel ->
-                val cabinetUi = cabinetModel.toUi()
-                updateState {
-                    copy(
-                        currentCabinet = cabinetUi,
-                        cabinets = listOf(cabinetUi)
-                    )
-                }
-            }.onFailure {
-                // экран ошибка
-            }
-
-            projectListResult.onSuccess { projectModels ->
-                val projectsListUi = projectModels.map { it.toUi() }
-                updateState {
-                    copy(
-                        currentProject = projectsListUi.first(), // подумать о null
-                        projects = projectsListUi
-                    )
-                }
-            }.onFailure {
-                // экран ошибка
-            }
-
-            conversationListResult.onSuccess { conversationModels ->
-                val conversatioCardListUI = conversationModels.map { it.toConversationCardItem() }
-                updateState {
-                    copy(
-                        chats = conversatioCardListUI
-                    )
-                }
-            }.onFailure {
-                // экран ошибка - перезагрузить
-            }
-            
-        }
+        loadDataSequentially()
     }
 
     private fun createInitialState(): MainUiState {
@@ -118,6 +77,14 @@ internal class MainViewModel(
         }
     }
 
+    fun onListEndReached() {
+        if (isEndReached || isPageLoading) return
+
+        viewModelScope.launch {
+            loadConversations()
+        }
+    }
+
     fun onSpaceDropdownChange(expanded: Boolean) {
         updateState { copy(cabinetDropdownExpanded = expanded) }
     }
@@ -128,6 +95,109 @@ internal class MainViewModel(
 
     fun onDismissFilterSheet() {
         updateState { copy(filterSheetVisible = false) }
+    }
+
+    private fun loadDataSequentially() {
+        viewModelScope.launch {
+            if (!loadCabinet()) return@launch
+            if (!loadProjects()) return@launch
+            currentOffset = 0
+            isEndReached = false
+            loadConversations(reset = true)
+        }
+    }
+
+    private suspend fun loadCabinet(): Boolean {
+        return getCabinetUseCase().fold(
+            onSuccess = { cabinetModel ->
+                val cabinetUi = cabinetModel.toUi()
+                updateState {
+                    copy(
+                        currentCabinet = cabinetUi,
+                        cabinets = listOf(cabinetUi)
+                    )
+                }
+                true // успех
+            },
+            onFailure = { error ->
+                // обработка ошибки для кабинета (например, показать сообщение)
+                false // прерываем выполнение
+            }
+        )
+    }
+
+    private suspend fun loadProjects(): Boolean {
+        return getProjectListUseCase().fold(
+            onSuccess = { projectModels ->
+                val projectsListUi = projectModels.map { it.toUi() }
+                updateState {
+                    copy(
+                        currentProject = projectsListUi.firstOrNull(),
+                        projects = projectsListUi
+                    )
+                }
+                true
+            },
+            onFailure = { error ->
+                // обработка ошибки для проектов
+                false
+            }
+        )
+    }
+
+    private suspend fun loadConversations(reset: Boolean = false) {
+        if (isPageLoading) return
+
+        val offsetToLoad = if (reset) 0 else currentOffset
+
+        isPageLoading = true
+        updateState {
+            if (offsetToLoad == 0) {
+                copy(isLoading = true, loadError = null)
+            } else {
+                copy(isLoadingMore = true, loadError = null)
+            }
+        }
+
+        val conversationListResult = getConversationListUseCase(
+            limit = pageSize,
+            offset = offsetToLoad
+        )
+
+        conversationListResult
+            .onSuccess { conversationModels ->
+                val newItems = conversationModels.map { it.toConversationCardItem() }
+
+                if (newItems.size < pageSize) {
+                    isEndReached = true
+                }
+
+                currentOffset = offsetToLoad + newItems.size
+
+                updateState {
+                    copy(
+                        chats = if (offsetToLoad == 0) {
+                            newItems
+                        } else {
+                            chats + newItems
+                        },
+                        isLoading = false,
+                        isLoadingMore = false,
+                        loadError = null
+                    )
+                }
+            }
+            .onFailure { error ->
+                updateState {
+                    copy(
+                        isLoading = false,
+                        isLoadingMore = false,
+                        loadError = error.message
+                    )
+                }
+            }
+
+        isPageLoading = false
     }
 
     private fun updateState(block: MainUiState.() -> MainUiState) {
