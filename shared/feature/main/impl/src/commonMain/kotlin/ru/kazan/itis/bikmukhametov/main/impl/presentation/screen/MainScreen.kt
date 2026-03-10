@@ -79,56 +79,15 @@ fun MainScreen() {
 
             // Успех
             else -> {
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                ) {
-                    ChatListTabs(
-                        selectedTab = state.selectedTab,
-                        onTabSelect = { viewModel.onAction(MainAction.SelectTab(it)) },
-                        modifier = Modifier.padding(
-                            horizontal = Spacing.paddingMedium,
-                            vertical = Spacing.paddingSmall
-                        )
-                    )
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize()
-                    ) {
-                        itemsIndexed(
-                            items = state.chats,
-                            key = { _, item -> item.id }
-                        ) { index, chat ->
-                            ConvesationCardUI(
-                                chat = chat,
-                                modifier = Modifier.padding(
-                                    horizontal = Spacing.paddingMedium,
-                                    vertical = Spacing.paddingExtraSmall
-                                )
-                            )
-
-                            if (index == state.chats.lastIndex) {
-                                LaunchedEffect(state.chats.size) {
-                                    viewModel.onListEndReached()
-                                }
-                            }
-                        }
-
-                        if (state.isLoadingMore) {
-                            item {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .padding(vertical = Spacing.paddingMedium),
-                                    contentAlignment = Alignment.Center
-                                ) {
-                                    CircularProgressIndicator()
-                                }
-                            }
-                        }
-                    }
-                }
+                ContentScreen(
+                    modifier = Modifier.padding(paddingValues),
+                    selectedTab = state.selectedTab,
+                    onTabSelect = { viewModel.onAction(MainAction.SelectTab(it)) },
+                    chats = state.chats,
+                    isLoadingMore = state.isLoadingMore,
+                    onListEndReached = viewModel::onListEndReached,
+                    onChatClick = { chat -> /* навигация */ } // при необходимости
+                )
             }
         }
     }

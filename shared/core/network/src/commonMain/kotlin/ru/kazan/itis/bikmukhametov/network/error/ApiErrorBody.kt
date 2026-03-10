@@ -2,7 +2,6 @@ package ru.kazan.itis.bikmukhametov.network.error
 
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.plugins.ResponseException
 import io.ktor.client.plugins.ServerResponseException
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

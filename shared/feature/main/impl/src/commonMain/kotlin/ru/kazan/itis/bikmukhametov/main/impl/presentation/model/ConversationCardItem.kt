@@ -12,7 +12,7 @@ enum class SocialBadge {
 }
 
 @Immutable
-internal data class ConversationCardItem(
+data class ConversationCardItem(
     val id: String,
     val avatarUrl: String? = null,
     val socialBadge: SocialBadge,

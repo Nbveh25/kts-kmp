@@ -63,14 +63,6 @@ internal class PersistentCookieStorage(
         println("COOKIE_STORAGE cache now: ${memCache.keys}")
     }
 
-    /** Строка для заголовка Cookie для данного URL (для ручной подстановки, если плагин не ставит). */
-    suspend fun getCookieHeaderString(requestUrl: Url): String? = mutex.withLock {
-        ensureLoaded()
-        val cookies = memCache.values.filter { isCookieValid(it) }
-        if (cookies.isEmpty()) return null
-        return cookies.joinToString(SEPARATOR) { "${it.name}=${it.value}" }
-    }
-
     /** Синхронно возвращает строку для заголовка Cookie (для defaultRequest). */
     fun getCookieHeaderForRequestSync(): String? = cachedCookieHeader
 

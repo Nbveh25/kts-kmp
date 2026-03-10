@@ -23,7 +23,6 @@ internal class MainViewModel(
     private val getConversationListUseCase: GetConversationListUseCase
 ) : ViewModel() {
 
-    private val pageSize = 20
     private var currentOffset = 0
     private var isPageLoading = false
     private var isEndReached = false
@@ -85,7 +84,7 @@ internal class MainViewModel(
 
     private fun observeSearchQuery() {
         searchQueryFlow
-            .debounce(400)
+            .debounce(SEARCH_DEBOUNCE_MS)
             .distinctUntilChanged()
             .flatMapLatest { query ->
                 flow {
@@ -104,7 +103,7 @@ internal class MainViewModel(
                     }
 
                     val conversationListResult = getConversationListUseCase(
-                        limit = pageSize,
+                        limit = PAGE_SIZE,
                         offset = offsetToLoad
                     )
 
@@ -127,7 +126,7 @@ internal class MainViewModel(
                 result
                     .onSuccess { items ->
                         isPageLoading = false
-                        isEndReached = items.size < pageSize
+                        isEndReached = items.size < PAGE_SIZE
                         currentOffset = items.size
 
                         updateState {
@@ -254,7 +253,7 @@ internal class MainViewModel(
         }
 
         val conversationListResult = getConversationListUseCase(
-            limit = pageSize,
+            limit = PAGE_SIZE,
             offset = offsetToLoad
         )
 
@@ -262,7 +261,7 @@ internal class MainViewModel(
             .onSuccess { conversationModels ->
                 val newItems = conversationModels.map { it.toConversationCardItem() }
 
-                if (newItems.size < pageSize) {
+                if (newItems.size < PAGE_SIZE) {
                     isEndReached = true
                 }
 
@@ -296,5 +295,10 @@ internal class MainViewModel(
 
     private fun updateState(block: MainUiState.() -> MainUiState) {
         _state.value = _state.value.block()
+    }
+
+    companion object {
+        private const val SEARCH_DEBOUNCE_MS = 400L
+        private const val PAGE_SIZE = 20
     }
 }
