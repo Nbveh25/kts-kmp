@@ -19,10 +19,15 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
-      # Даем права на выполнение Gradle
       - name: Make gradlew executable
         run: chmod +x gradlew
 
-      # Запуск Detekt
+      - name: Create local.properties for CI
+        run: |
+          cat <<EOF > local.properties
+          CABINET_DOMAIN=dummy   
+          YANDEX_CAPTCHA_SITE_KEY=dummy
+          EOF
+
       - name: Run Detekt
         run: ./gradlew detekt
