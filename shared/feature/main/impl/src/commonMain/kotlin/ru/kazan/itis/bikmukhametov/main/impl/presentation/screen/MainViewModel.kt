@@ -2,7 +2,6 @@ package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -11,7 +10,6 @@ import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toUi
-import kotlin.collections.emptyList
 
 internal class MainViewModel(
     private val getCabinetUseCase: GetCabinetUseCase,
@@ -24,21 +22,11 @@ internal class MainViewModel(
     private var isPageLoading = false
     private var isEndReached = false
 
-    private val _state = MutableStateFlow(createInitialState())
+    private val _state = MutableStateFlow(MainUiState())
     val state = _state.asStateFlow()
 
     init {
         loadDataSequentially()
-    }
-
-    private fun createInitialState(): MainUiState {
-        return MainUiState(
-            currentCabinet = null,
-            cabinets = emptyList(),
-            currentProject = null,
-            projects = emptyList(),
-            chats = emptyList()
-        )
     }
 
     fun onAction(action: MainAction) {
@@ -97,8 +85,16 @@ internal class MainViewModel(
         updateState { copy(filterSheetVisible = false) }
     }
 
+    fun onRetryClick() {
+        currentOffset = 0
+        isEndReached = false
+        loadDataSequentially()
+    }
+
     private fun loadDataSequentially() {
         viewModelScope.launch {
+            updateState { copy(isLoading = true, loadError = null) }
+
             if (!loadCabinet()) return@launch
             if (!loadProjects()) return@launch
             currentOffset = 0
@@ -120,8 +116,13 @@ internal class MainViewModel(
                 true // успех
             },
             onFailure = { error ->
-                // обработка ошибки для кабинета (например, показать сообщение)
-                false // прерываем выполнение
+                updateState {
+                    copy(
+                        isLoading = false,
+                        loadError = error.message ?: "Ошибка загрузки кабинета"
+                    )
+                }
+                false
             }
         )
     }
@@ -139,7 +140,12 @@ internal class MainViewModel(
                 true
             },
             onFailure = { error ->
-                // обработка ошибки для проектов
+                updateState {
+                    copy(
+                        isLoading = false,
+                        loadError = error.message ?: "Ошибка загрузки проектов"
+                    )
+                }
                 false
             }
         )

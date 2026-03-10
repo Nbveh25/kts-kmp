@@ -24,6 +24,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTabs
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConvesationCardUI
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConversationCardShimmer
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.MainBottomNav
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -64,48 +65,98 @@ fun MainScreen() {
             )
         }
     ) { paddingValues ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            ChatListTabs(
-                selectedTab = state.selectedTab,
-                onTabSelect = { viewModel.onAction(MainAction.SelectTab(it)) },
-                modifier = Modifier.padding(horizontal = Spacing.paddingMedium, vertical = Spacing.paddingSmall)
-            )
-
-            LazyColumn(
-                modifier = Modifier.fillMaxSize()
-            ) {
-                itemsIndexed(
-                    items = state.chats,
-                    key = { _, item -> item.id }
-                ) { index, chat ->
-                    ConvesationCardUI(
-                        chat = chat,
-                        modifier = Modifier.padding(
-                            horizontal = Spacing.paddingMedium,
-                            vertical = Spacing.paddingExtraSmall
+        when {
+            state.isLoading && state.chats.isEmpty() && state.loadError == null -> {
+                // Шиммеры вместо классического спиннера
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                        .padding(horizontal = Spacing.paddingMedium, vertical = Spacing.paddingSmall),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    repeat(6) { index ->
+                        ConversationCardShimmer(
+                            modifier = Modifier.padding(
+                                vertical = if (index == 0) Spacing.paddingExtraSmall else Spacing.paddingExtraSmall
+                            )
                         )
-                    )
+                    }
+                }
+            }
 
-                    if (index == state.chats.lastIndex) {
-                        LaunchedEffect(state.chats.size) {
-                            viewModel.onListEndReached()
+            state.loadError != null && state.chats.isEmpty() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(Spacing.paddingMedium)
+                    ) {
+                        Text(
+                            text = state.loadError ?: "Произошла ошибка",
+                            style = MaterialTheme.typography.bodyLarge,
+                            textAlign = TextAlign.Center
+                        )
+                        Button(onClick = { viewModel.onRetryClick() }) {
+                            Text(text = "Повторить")
                         }
                     }
                 }
+            }
 
-                if (state.isLoadingMore) {
-                    item {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .padding(vertical = Spacing.paddingMedium),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            CircularProgressIndicator()
+            else -> {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    ChatListTabs(
+                        selectedTab = state.selectedTab,
+                        onTabSelect = { viewModel.onAction(MainAction.SelectTab(it)) },
+                        modifier = Modifier.padding(
+                            horizontal = Spacing.paddingMedium,
+                            vertical = Spacing.paddingSmall
+                        )
+                    )
+
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        itemsIndexed(
+                            items = state.chats,
+                            key = { _, item -> item.id }
+                        ) { index, chat ->
+                            ConvesationCardUI(
+                                chat = chat,
+                                modifier = Modifier.padding(
+                                    horizontal = Spacing.paddingMedium,
+                                    vertical = Spacing.paddingExtraSmall
+                                )
+                            )
+
+                            if (index == state.chats.lastIndex) {
+                                LaunchedEffect(state.chats.size) {
+                                    viewModel.onListEndReached()
+                                }
+                            }
+                        }
+
+                        if (state.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxSize()
+                                        .padding(vertical = Spacing.paddingMedium),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    CircularProgressIndicator()
+                                }
+                            }
                         }
                     }
                 }

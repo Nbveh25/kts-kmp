@@ -33,8 +33,6 @@ internal data class MainUiState(
 
     val chats: List<ConversationCardItem> = emptyList(),
 
-    /**
-     * Флаг для нижнего лоадера при пагинации.
-     */
+    // Флаг для нижнего лоадера при пагинации.
     val isLoadingMore: Boolean = false
 )
