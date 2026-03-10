@@ -1,6 +1,5 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -8,23 +7,18 @@ import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTabs
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConvesationCardUI
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConversationCardShimmer
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.MainBottomNav
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -66,49 +60,24 @@ fun MainScreen() {
         }
     ) { paddingValues ->
         when {
+
+            // Загрузка
             state.isLoading && state.chats.isEmpty() && state.loadError == null -> {
-                // Шиммеры вместо классического спиннера
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                        .padding(horizontal = Spacing.paddingMedium, vertical = Spacing.paddingSmall),
-                    verticalArrangement = Arrangement.Top,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    repeat(6) { index ->
-                        ConversationCardShimmer(
-                            modifier = Modifier.padding(
-                                vertical = if (index == 0) Spacing.paddingExtraSmall else Spacing.paddingExtraSmall
-                            )
-                        )
-                    }
-                }
+                ShimmerScreen(
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
 
+            // Ошибка
             state.loadError != null && state.chats.isEmpty() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(Spacing.paddingMedium)
-                    ) {
-                        Text(
-                            text = state.loadError ?: "Произошла ошибка",
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Center
-                        )
-                        Button(onClick = { viewModel.onRetryClick() }) {
-                            Text(text = "Повторить")
-                        }
-                    }
-                }
+                ErrorScreen(
+                    modifier = Modifier.padding(paddingValues),
+                    errorMessage = state.loadError,
+                    onRetry = viewModel::onRetryClick
+                )
             }
 
+            // Успех
             else -> {
                 Column(
                     modifier = Modifier
