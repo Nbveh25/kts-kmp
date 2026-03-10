@@ -4,6 +4,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
@@ -25,7 +31,10 @@ internal class MainViewModel(
     private val _state = MutableStateFlow(MainUiState())
     val state = _state.asStateFlow()
 
+    private val searchQueryFlow = MutableStateFlow("")
+
     init {
+        observeSearchQuery()
         loadDataSequentially()
     }
 
@@ -47,12 +56,21 @@ internal class MainViewModel(
                 copy(currentProject = action.project, projectDropdownExpanded = false)
             }
 
-            MainAction.ToggleSearch -> updateState {
-                copy(searchExpanded = !searchExpanded)
+            MainAction.ToggleSearch -> {
+                updateState {
+                    copy(
+                        searchExpanded = !searchExpanded,
+                        searchQuery = if (searchExpanded) "" else searchQuery
+                    )
+                }
+                searchQueryFlow.value = ""
             }
 
-            is MainAction.SearchQueryChanged -> updateState {
-                copy(searchQuery = action.query)
+            is MainAction.SearchQueryChanged -> {
+                updateState {
+                    copy(searchQuery = action.query)
+                }
+                searchQueryFlow.value = action.query
             }
 
             MainAction.ToggleFilterSheet -> updateState {
@@ -63,6 +81,76 @@ internal class MainViewModel(
                 copy(selectedTab = action.tab)
             }
         }
+    }
+
+    private fun observeSearchQuery() {
+        searchQueryFlow
+            .debounce(400)
+            .distinctUntilChanged()
+            .flatMapLatest { query ->
+                flow {
+                    val offsetToLoad = 0
+
+                    isPageLoading = true
+                    isEndReached = false
+                    currentOffset = 0
+
+                    updateState {
+                        copy(
+                            isLoading = true,
+                            isLoadingMore = false,
+                            loadError = null
+                        )
+                    }
+
+                    val conversationListResult = getConversationListUseCase(
+                        limit = pageSize,
+                        offset = offsetToLoad
+                    )
+
+                    val mappedResult = conversationListResult.map { conversationModels ->
+                        val items = conversationModels.map { it.toConversationCardItem() }
+                        if (query.isBlank()) {
+                            items
+                        } else {
+                            items.filter { item ->
+                                item.name.contains(query, ignoreCase = true) ||
+                                        item.lastMessageText.contains(query, ignoreCase = true)
+                            }
+                        }
+                    }
+
+                    emit(mappedResult)
+                }
+            }
+            .onEach { result ->
+                result
+                    .onSuccess { items ->
+                        isPageLoading = false
+                        isEndReached = items.size < pageSize
+                        currentOffset = items.size
+
+                        updateState {
+                            copy(
+                                chats = items,
+                                isLoading = false,
+                                isLoadingMore = false,
+                                loadError = null
+                            )
+                        }
+                    }
+                    .onFailure { error ->
+                        isPageLoading = false
+                        updateState {
+                            copy(
+                                isLoading = false,
+                                isLoadingMore = false,
+                                loadError = error.message
+                            )
+                        }
+                    }
+            }
+            .launchIn(viewModelScope)
     }
 
     fun onListEndReached() {
