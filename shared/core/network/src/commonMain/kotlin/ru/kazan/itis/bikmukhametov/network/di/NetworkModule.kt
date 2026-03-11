@@ -13,17 +13,21 @@ import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
+import io.github.aakira.napier.Napier
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.kazan.itis.bikmukhametov.network.BuildKonfig
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
+import ru.kazan.itis.bikmukhametov.network.auth.SessionChecker
+import ru.kazan.itis.bikmukhametov.network.auth.SessionCheckerImpl
 import ru.kazan.itis.bikmukhametov.network.cookie.impl.PersistentCookieStorage
 import ru.kazan.itis.bikmukhametov.network.error.ErrorResponse
 import ru.kazan.itis.bikmukhametov.network.space.impl.SpaceProviderImpl
@@ -40,6 +44,9 @@ val networkModule = module {
 
     // хранение куков — регистрируем конкретный тип, чтобы использовать clear() при логауте
     single { PersistentCookieStorage(get()) }
+
+    // Проверка валидности сессии через /auth/info
+    single<SessionChecker> { SessionCheckerImpl(get()) }
 
     single {
 
@@ -59,19 +66,18 @@ val networkModule = module {
                     encodeDefaults = true
                 })
             }
-            
+
             install(Logging) {
                 level = LogLevel.ALL
             }
 
             install(WebSockets)
 
-            // Базовый URL и заголовки (в т.ч. Cookie — ручная подстановка для всех поддоменов)
             defaultRequest {
                 url(BuildKonfig.BASE_URL)
 
-                header(HttpHeaders.ContentType, ContentType.Application.Json)
-                header("Accept", "application/json")
+                contentType(ContentType.Application.Json)
+                header("Accept", "application/json, text/plain, */*")
 
                 cookieStorage.getCookieHeaderForRequestSync()?.let {
                     header("Cookie", it)
@@ -102,23 +108,19 @@ val networkModule = module {
 
                         // Логируем все заголовки запроса, который вернул 401
                         val requestHeaders = response.call.request.headers.entries()
-                        println("401 REQUEST HEADERS for $url: $requestHeaders")
+                        Napier.e(tag = "Network") { "401 REQUEST HEADERS for $url: $requestHeaders" }
 
                         if (!path.contains("auth") && !path.contains("login")) {
-                            println("--- AUTH ERROR ---")
-                            println("URL: $url")
-                            println("Status: ${response.status}")
-                            println("Server Message: $serverMessage") // ВОТ ЛОГ ОШИБКИ
-                            println("Full Body: $errorBodyText")
-                            println("------------------")
-
+                            Napier.e(tag = "Network") {
+                                "AUTH ERROR - URL: $url, Status: ${response.status}, " +
+                                        "Server Message: $serverMessage, Body: $errorBodyText"
+                            }
                             appScope.launch {
                                 cookieStorage.clear()
                                 logoutBus.trigger()
                             }
                         } else {
-                            // Если это сам запрос логина и пришел 401
-                            println("Login failed: $serverMessage")
+                            Napier.w(tag = "Network") { "Login failed: $serverMessage" }
                         }
                     }
                 }

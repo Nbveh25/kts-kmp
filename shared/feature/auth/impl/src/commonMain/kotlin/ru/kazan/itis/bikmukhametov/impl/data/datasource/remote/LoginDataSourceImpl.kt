@@ -1,16 +1,10 @@
 package ru.kazan.itis.bikmukhametov.impl.data.datasource.remote
 
-import io.ktor.client.call.body
-import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.request.header
 import io.ktor.client.HttpClient
-import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
-import io.ktor.http.ContentType
-import io.ktor.http.HttpHeaders
-import io.ktor.http.contentType
+import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.api.datasource.remote.LoginDataSource
 import ru.kazan.itis.bikmukhametov.auth.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
@@ -30,10 +24,6 @@ internal class LoginDataSourceImpl(
         val rawResult = runCatching {
             val response = httpClient.post(BuildKonfig.AUTH_BASE_URL + "/api/auth/login") {
 
-                contentType(ContentType.Application.Json)
-
-                header(HttpHeaders.Accept, "application/json, text/plain, */*")
-
                 setBody(
                     LoginRequest(
                         email = email,
@@ -43,15 +33,9 @@ internal class LoginDataSourceImpl(
                 )
             }
 
-            println(
-                """
-                --> HTTP POST ${response.request.url}
-                Status: ${response.status}
-                Headers: ${response.headers.entries()}
-                Body: ${response.bodyAsText()}
-                <-- END HTTP
-                """.trimIndent()
-            )
+            Napier.d(tag = "Login") {
+                "POST ${response.request.url} Status: ${response.status}, Headers: ${response.headers.entries()}}"
+            }
 
             // Set-Cookie обработает HttpCookies + PersistentCookieStorage
         }

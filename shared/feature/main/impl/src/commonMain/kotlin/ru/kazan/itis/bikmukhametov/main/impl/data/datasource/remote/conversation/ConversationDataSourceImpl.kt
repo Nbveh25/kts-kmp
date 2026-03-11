@@ -6,6 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.ConversationDataSource
 import ru.kazan.itis.bikmukhametov.main.api.model.ConversationModel
 import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
@@ -32,13 +33,15 @@ class ConversationDataSourceImpl(
 
                     fromId?.let { parameters.append("fromId", it) }
                 }
-                contentType(ContentType.Application.Json)
-                header("Accept", "application/json, text/plain, */*")
+                //contentType(ContentType.Application.Json)
+                //header("Accept", "application/json, text/plain, */*")
             }
 
             response.body<ConversationResponse>()
         }.map { response ->
-            println("CONVERSATION API: loaded ${response.data.conversations.size} items")
+            Napier.d(tag = "ConversationApi") {
+                "loaded ${response.data.conversations.size} items"
+            }
             response.data.conversations.map { it.toModel() }
         }
 

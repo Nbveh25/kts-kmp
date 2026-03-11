@@ -6,6 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.CabinetDataSource
 import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
@@ -31,11 +32,11 @@ class CabinetDataSourceImpl(
             response.body<CabinetResponse>()
 
         }.map { response ->
-            println("cabinetName: ${response.data.cabinet.name}")
+            Napier.d(tag = "CabinetApi") { "cabinetName: ${response.data.cabinet.name}" }
             response.data.cabinet.toModel()
         }
 
-        println("cabinet: $rawResult.")
+        Napier.d(tag = "CabinetApi") { "result: $rawResult" }
 
         return rawResult.mapApiError("Ошибка загрузки кабинета")
     }

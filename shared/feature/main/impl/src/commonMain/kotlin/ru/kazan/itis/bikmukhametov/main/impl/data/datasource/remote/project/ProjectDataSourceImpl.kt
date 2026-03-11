@@ -6,6 +6,7 @@ import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.ProjectDataSource
 import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
 import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
@@ -20,13 +21,12 @@ internal class ProjectDataSourceImpl(
         val rawResult = runCatching {
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/api/projects/list"
-            ) {
-                contentType(ContentType.Application.Json)
-                header("Accept", "application/json, text/plain, */*")
-            }
-            
+            )
             val rawBody = response.body<String>()
-            println("RAW API Response: $rawBody")
+
+            Napier.d(tag = "ProjectApi") {
+                "RAW API Response: $rawBody"
+            }
 
             response.body<ProjectResponse>()
 
@@ -36,7 +36,7 @@ internal class ProjectDataSourceImpl(
             }
         }
 
-        println("project: $rawResult.")
+        Napier.d(tag = "ProjectApi") { "result: $rawResult" }
 
         return rawResult.mapApiError("Ошибка загрузки проекта")
     }

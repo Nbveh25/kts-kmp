@@ -74,6 +74,8 @@ kotlin {
             implementation(project(":shared:core:network"))
             implementation(project(":shared:feature:auth:api"))
 
+            implementation(libs.napier)
+
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)
             implementation(libs.compose.foundation)

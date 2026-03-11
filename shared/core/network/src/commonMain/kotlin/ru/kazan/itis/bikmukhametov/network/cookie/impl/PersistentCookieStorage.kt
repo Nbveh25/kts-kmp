@@ -3,6 +3,7 @@ package ru.kazan.itis.bikmukhametov.network.cookie.impl
 import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.Cookie
 import io.ktor.http.Url
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.kazan.itis.bikmukhametov.network.cookie.api.CookiePersistence
@@ -38,7 +39,7 @@ internal class PersistentCookieStorage(
         }
         loaded = true
         cachedCookieHeader = serializeCookies(memCache.values).takeIf { memCache.isNotEmpty() }
-        println("COOKIE_STORAGE loaded from DataStore: keys=${memCache.keys}")
+        Napier.d(tag = "CookieStorage") { "loaded from DataStore: keys=${memCache.keys}" }
     }
 
     override suspend fun get(requestUrl: Url): List<Cookie> = mutex.withLock {
@@ -47,7 +48,9 @@ internal class PersistentCookieStorage(
         // Куки с auth.smartbotpro.ru должны уходить на metac-92.smartbotpro.ru — задаём домен верхнего уровня.
         val domain = rootDomain(requestUrl.host)
         val withDomain = cookies.map { it.copy(domain = domain) }
-        println("COOKIE_STORAGE get(${requestUrl.host}), domain=$domain: returning ${withDomain.map { it.name }}")
+        Napier.d(tag = "CookieStorage") {
+            "get(${requestUrl.host}), domain=$domain: returning ${withDomain.map { it.name }}"
+        }
         withDomain
     }
 
@@ -55,12 +58,12 @@ internal class PersistentCookieStorage(
         ensureLoaded()
         val domain = rootDomain(requestUrl.host)
         val normalized = cookie.copy(domain = domain)
-        println("COOKIE_STORAGE addCookie: name=${normalized.name}, domain=$domain")
+        Napier.d(tag = "CookieStorage") { "addCookie: name=${normalized.name}, domain=$domain" }
         memCache[normalized.name] = normalized
         val serialized = serializeCookies(memCache.values)
         persistence.setCookieHeader(serialized)
         cachedCookieHeader = serialized
-        println("COOKIE_STORAGE cache now: ${memCache.keys}")
+        Napier.d(tag = "CookieStorage") { "cache now: ${memCache.keys}" }
     }
 
     /** Синхронно возвращает строку для заголовка Cookie (для defaultRequest). */
@@ -72,7 +75,7 @@ internal class PersistentCookieStorage(
         loaded = false
         cachedCookieHeader = null
         persistence.clear()
-        println("COOKIE_STORAGE cleared")
+        Napier.d(tag = "CookieStorage") { "cleared" }
     }
 
     override fun close() = Unit
