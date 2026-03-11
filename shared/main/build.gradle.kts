@@ -31,6 +31,7 @@ kotlin {
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
             implementation(project(":shared:core:network"))
+            implementation(project(":shared:core:database"))
 
             implementation(project(":shared:feature:onboarding"))
             

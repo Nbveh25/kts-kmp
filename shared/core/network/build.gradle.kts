@@ -44,6 +44,7 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":shared:core:database"))
             implementation(libs.napier)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
@@ -52,8 +53,6 @@ kotlin {
             implementation(libs.ktor.client.websockets)
 
             implementation(libs.koin.core)
-
-            implementation(libs.datastore.preferences.core)
         }
         androidMain.dependencies {
             implementation(libs.ktor.client.okhttp)

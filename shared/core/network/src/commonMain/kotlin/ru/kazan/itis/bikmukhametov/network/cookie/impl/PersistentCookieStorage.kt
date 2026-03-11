@@ -7,7 +7,7 @@ import io.ktor.http.Url
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import ru.kazan.itis.bikmukhametov.network.cookie.api.CookiePersistence
+import ru.kazan.itis.bikmukhametov.database.cookie.CookiePersistence
 
 /**
  * Хранит куки в DataStore через CookiePersistence.
@@ -32,12 +32,14 @@ internal class PersistentCookieStorage(
         }
         withDomain
     }
+
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie) = mutex.withLock {
         // Читаем текущие куки из DataStore
         val currentHeader = persistence.getCookieHeader().orEmpty()
         val currentCookies = parseCookieHeader(currentHeader)
             .associateBy { it.name }
             .toMutableMap()
+
         // Нормализуем домен и обновляем/добавляем куку
         val domain = rootDomain(requestUrl.host)
         val normalized = cookie.copy(domain = domain)
