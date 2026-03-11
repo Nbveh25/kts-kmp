@@ -2,50 +2,29 @@ package ru.kazan.itis.bikmukhametov.network.cookie.impl
 
 import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.Cookie
+import io.ktor.http.CookieEncoding
 import io.ktor.http.Url
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.kazan.itis.bikmukhametov.network.cookie.api.CookiePersistence
 
-/*
- * Хранит куки в памяти (основной источник) + персистит в DataStore для восстановления
- * после перезапуска приложения.
+/**
+ * Хранит куки в DataStore через CookiePersistence.
  *
- * Ktor вызывает addCookie() из receivePipeline (после ответа сервера) и
- * get() из sendPipeline (перед отправкой запроса). In-memory кэш гарантирует,
- * что get() сразу видит куки, сохранённые в addCookie() — без ожидания DataStore.
+ * На каждый get/addCookie:
+ * - читает строку Cookie из DataStore
+ * - парсит/обновляет
+ * - записывает обратно.
  */
 internal class PersistentCookieStorage(
     private val persistence: CookiePersistence
 ) : CookiesStorage {
-
     private val mutex = Mutex()
 
-    // Основное хранилище — память. Ключ — имя куки.
-    private val memCache = mutableMapOf<String, Cookie>()
-
-    // Загружаем из DataStore один раз при первом обращении.
-    private var loaded = false
-
-    /** Кэш строки Cookie для defaultRequest (не suspend). Обновляется в ensureLoaded/addCookie/clear. */
-    private var cachedCookieHeader: String? = null
-
-    private suspend fun ensureLoaded() {
-        if (loaded) return
-        val header = persistence.getCookieHeader()
-        if (!header.isNullOrBlank()) {
-            parseCookieHeader(header).forEach { memCache[it.name] = it }
-        }
-        loaded = true
-        cachedCookieHeader = serializeCookies(memCache.values).takeIf { memCache.isNotEmpty() }
-        Napier.d(tag = "CookieStorage") { "loaded from DataStore: keys=${memCache.keys}" }
-    }
-
     override suspend fun get(requestUrl: Url): List<Cookie> = mutex.withLock {
-        ensureLoaded()
-        val cookies = memCache.values.filter { isCookieValid(it) }
-        // Куки с auth.smartbotpro.ru должны уходить на metac-92.smartbotpro.ru — задаём домен верхнего уровня.
+        val header = persistence.getCookieHeader().orEmpty()
+        val cookies = parseCookieHeader(header).filter { isCookieValid(it) }
         val domain = rootDomain(requestUrl.host)
         val withDomain = cookies.map { it.copy(domain = domain) }
         Napier.d(tag = "CookieStorage") {
@@ -53,33 +32,36 @@ internal class PersistentCookieStorage(
         }
         withDomain
     }
-
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie) = mutex.withLock {
-        ensureLoaded()
+        // Читаем текущие куки из DataStore
+        val currentHeader = persistence.getCookieHeader().orEmpty()
+        val currentCookies = parseCookieHeader(currentHeader)
+            .associateBy { it.name }
+            .toMutableMap()
+        // Нормализуем домен и обновляем/добавляем куку
         val domain = rootDomain(requestUrl.host)
         val normalized = cookie.copy(domain = domain)
-        Napier.d(tag = "CookieStorage") { "addCookie: name=${normalized.name}, domain=$domain" }
-        memCache[normalized.name] = normalized
-        val serialized = serializeCookies(memCache.values)
+
+        Napier.d(tag = "CookieStorage") {
+            "addCookie: name=${normalized.name}, domain=$domain"
+        }
+
+        currentCookies[normalized.name] = normalized
+
+        // Сохраняем обновлённый набор обратно в DataStore
+        val serialized = serializeCookies(currentCookies.values)
         persistence.setCookieHeader(serialized)
-        cachedCookieHeader = serialized
-        Napier.d(tag = "CookieStorage") { "cache now: ${memCache.keys}" }
+
+        Napier.d(tag = "CookieStorage") {
+            "stored to DataStore: keys=${currentCookies.keys}"
+        }
     }
-
-    /** Синхронно возвращает строку для заголовка Cookie (для defaultRequest). */
-    fun getCookieHeaderForRequestSync(): String? = cachedCookieHeader
-
-    /* Вызывать при логауте / 401 — очищает и память, и DataStore. */
+    /** Вызывать при логауте / 401 — очищает DataStore. */
     suspend fun clear() = mutex.withLock {
-        memCache.clear()
-        loaded = false
-        cachedCookieHeader = null
         persistence.clear()
         Napier.d(tag = "CookieStorage") { "cleared" }
     }
-
     override fun close() = Unit
-
     private fun parseCookieHeader(header: String): List<Cookie> {
         if (header.isBlank()) return emptyList()
         return header.split(SEPARATOR)
@@ -91,7 +73,7 @@ internal class PersistentCookieStorage(
                 val name = part.take(eq).trim()
                 val value = part.substring(eq + 1).trim()
                 if (name.isEmpty()) return@mapNotNull null
-                Cookie(name = name, value = value)
+                Cookie(name = name, value = value, encoding = CookieEncoding.RAW)
             }
     }
 

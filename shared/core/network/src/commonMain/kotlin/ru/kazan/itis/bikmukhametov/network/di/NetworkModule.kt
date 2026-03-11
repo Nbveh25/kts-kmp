@@ -79,10 +79,6 @@ val networkModule = module {
                 contentType(ContentType.Application.Json)
                 header("Accept", "application/json, text/plain, */*")
 
-                cookieStorage.getCookieHeaderForRequestSync()?.let {
-                    header("Cookie", it)
-                }
-
                 // X-SPro-Cabinet, X-SPro-Project — из выбранного пространства (Topbar)
                 spaceProvider.cabinet.value
                     ?.takeIf { it.isNotBlank() }
