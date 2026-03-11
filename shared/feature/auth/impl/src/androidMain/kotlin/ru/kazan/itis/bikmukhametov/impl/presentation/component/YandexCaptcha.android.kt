@@ -25,7 +25,7 @@ actual fun YandexCaptchaWidget(
     AndroidView(
         modifier = modifier
             .fillMaxWidth()
-            .height(100.dp),
+            .height(110.dp),
         factory = { context ->
             WebView(context).apply {
                 settings.javaScriptEnabled = true
