@@ -27,7 +27,7 @@ import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
 import ru.kazan.itis.bikmukhametov.network.auth.SessionChecker
 import ru.kazan.itis.bikmukhametov.network.auth.SessionCheckerImpl
-import ru.kazan.itis.bikmukhametov.network.cookie.impl.PersistentCookieStorage
+import ru.kazan.itis.bikmukhametov.network.cookie.PersistentCookieStorage
 import ru.kazan.itis.bikmukhametov.network.error.ErrorResponse
 import ru.kazan.itis.bikmukhametov.network.space.impl.SpaceProviderImpl
 
@@ -93,15 +93,12 @@ val networkModule = module {
                         val url = response.call.request.url
                         val path = url.encodedPath
 
-                        // Читаем тело ошибки как строку
                         val errorBodyText = response.bodyAsText()
 
-                        // Пытаемся распарсить сообщение
                         val serverMessage = runCatching {
                             Json.decodeFromString<ErrorResponse>(errorBodyText).message
                         }.getOrNull() ?: "No message from server"
 
-                        // Логируем все заголовки запроса, который вернул 401
                         val requestHeaders = response.call.request.headers.entries()
                         Napier.e(tag = "Network") { "401 REQUEST HEADERS for $url: $requestHeaders" }
 

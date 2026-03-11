@@ -1,10 +1,10 @@
-package ru.kazan.itis.bikmukhametov.network.cookie.impl
+package ru.kazan.itis.bikmukhametov.network.cookie
 
+import io.github.aakira.napier.Napier
 import io.ktor.client.plugins.cookies.CookiesStorage
 import io.ktor.http.Cookie
 import io.ktor.http.CookieEncoding
 import io.ktor.http.Url
-import io.github.aakira.napier.Napier
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import ru.kazan.itis.bikmukhametov.database.cookie.CookiePersistence
@@ -34,13 +34,11 @@ internal class PersistentCookieStorage(
     }
 
     override suspend fun addCookie(requestUrl: Url, cookie: Cookie) = mutex.withLock {
-        // Читаем текущие куки из DataStore
         val currentHeader = persistence.getCookieHeader().orEmpty()
         val currentCookies = parseCookieHeader(currentHeader)
             .associateBy { it.name }
             .toMutableMap()
 
-        // Нормализуем домен и обновляем/добавляем куку
         val domain = rootDomain(requestUrl.host)
         val normalized = cookie.copy(domain = domain)
 
@@ -50,7 +48,6 @@ internal class PersistentCookieStorage(
 
         currentCookies[normalized.name] = normalized
 
-        // Сохраняем обновлённый набор обратно в DataStore
         val serialized = serializeCookies(currentCookies.values)
         persistence.setCookieHeader(serialized)
 
@@ -58,12 +55,15 @@ internal class PersistentCookieStorage(
             "stored to DataStore: keys=${currentCookies.keys}"
         }
     }
-    /** Вызывать при логауте / 401 — очищает DataStore. */
+
+    /* Вызывать при логауте / 401 — очищает DataStore. */
     suspend fun clear() = mutex.withLock {
         persistence.clear()
         Napier.d(tag = "CookieStorage") { "cleared" }
     }
+
     override fun close() = Unit
+
     private fun parseCookieHeader(header: String): List<Cookie> {
         if (header.isBlank()) return emptyList()
         return header.split(SEPARATOR)
@@ -87,7 +87,7 @@ internal class PersistentCookieStorage(
         return expires.timestamp > System.currentTimeMillis()
     }
 
-    /** Домен верхнего уровня (metac-92.smartbotpro.ru → smartbotpro.ru), чтобы куки шли на все поддомены. */
+    /* Домен верхнего уровня (metac-92.smartbotpro.ru → smartbotpro.ru), чтобы куки шли на все поддомены. */
     private fun rootDomain(host: String): String {
         val parts = host.split('.')
         return if (parts.size >= 2) parts.takeLast(2).joinToString(".") else host

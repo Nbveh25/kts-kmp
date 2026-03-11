@@ -2,10 +2,13 @@ package ru.kazan.itis.bikmukhametov.kts.presentation.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.navigation.NavHostController
+import kotlinx.coroutines.launch
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import org.koin.compose.koinInject
+import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
 import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
@@ -15,10 +18,21 @@ import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScr
 @Composable
 fun AppNavigation(
     navController: NavHostController,
-    startDestination: Route = Route.Login // TODO потом надо запоминать что открывал онбординг
+    startDestination: Route = Route.Onboarding,
 ) {
+    val scope = rememberCoroutineScope()
     val logoutEventBus = koinInject<LogoutEventBus>()
     val sessionChecker = koinInject<SessionChecker>()
+    val onboardingRepository = koinInject<OnboardingCompletedRepository>()
+
+    // если онбординг уже пройден — сразу на логин
+    LaunchedEffect(Unit) {
+        if (onboardingRepository.isOnboardingCompleted()) {
+            navController.navigate(Route.Login) {
+                popUpTo(Route.Onboarding) { inclusive = true }
+            }
+        }
+    }
 
     // куки протухли — триггерим логаут и навигируем на логин
     LaunchedEffect(logoutEventBus) {
@@ -46,8 +60,11 @@ fun AppNavigation(
         composable<Route.Onboarding> {
             OnboardingScreen(
                 onOnboardingComplete = {
-                    navController.navigate(Route.Login) {
-                        popUpTo(Route.Onboarding) { inclusive = true }
+                    scope.launch {
+                        onboardingRepository.setOnboardingCompleted(true)
+                        navController.navigate(Route.Login) {
+                            popUpTo(Route.Onboarding) { inclusive = true }
+                        }
                     }
                 }
             )

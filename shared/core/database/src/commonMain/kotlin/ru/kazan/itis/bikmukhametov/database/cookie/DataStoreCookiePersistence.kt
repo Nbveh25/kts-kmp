@@ -7,11 +7,9 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-/**
- * Реализация CookiePersistence через DataStore Preferences (multiplatform core).
- * Экземпляр DataStore создаётся на платформе (Android — файл, iOS — при наличии драйвера).
- */
-class DataStoreCookiePersistence(
+
+// Реализация CookiePersistence через DataStore
+internal class DataStoreCookiePersistence(
     private val dataStore: DataStore<Preferences>,
 ) : CookiePersistence {
 
