@@ -12,4 +12,7 @@ sealed interface Route {
 
     @Serializable
     object Main : Route
+
+    @Serializable
+    object Profile : Route
 }

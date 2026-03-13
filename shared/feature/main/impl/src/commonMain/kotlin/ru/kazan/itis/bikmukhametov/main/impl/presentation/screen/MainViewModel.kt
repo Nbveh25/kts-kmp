@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
@@ -160,7 +161,7 @@ internal class MainViewModel(
         }
     }
 
-    fun onSpaceDropdownChange(expanded: Boolean) {
+    fun onCabinetDropdownChange(expanded: Boolean) {
         updateState { copy(cabinetDropdownExpanded = expanded) }
     }
 

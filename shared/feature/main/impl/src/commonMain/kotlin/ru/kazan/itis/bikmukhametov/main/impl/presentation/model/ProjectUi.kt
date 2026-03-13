@@ -1,13 +1,7 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.model
 
-import androidx.compose.runtime.Immutable
 import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
-
-@Immutable
-data class ProjectUi(
-    val id: String,
-    val displayName: String
-)
+import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
 
 fun ProjectModel.toUi() = ProjectUi(
     id = id,

@@ -37,6 +37,7 @@ kotlin {
             
             implementation(project(":shared:feature:auth:impl"))
             implementation(project(":shared:feature:main:impl"))
+            implementation(project(":shared:feature:profile:impl"))
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

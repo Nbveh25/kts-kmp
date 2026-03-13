@@ -1,30 +1,22 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTabs
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConvesationCardUI
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.MainBottomNav
-import ru.kazan.itis.bikmukhametov.theme.Spacing
+import ru.kazan.itis.bikmukhametov.ui.components.AppBottomNav
 
 @Composable
-fun MainScreen() {
+fun MainScreen(
+    onProfileClick: () -> Unit
+) {
     val viewModel: MainViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
 
@@ -37,13 +29,15 @@ fun MainScreen() {
                 currentCabinet = state.currentCabinet,
                 cabinets = state.cabinets,
                 cabinetDropdownExpanded = state.cabinetDropdownExpanded,
-                onCabinetDropdownChange = viewModel::onSpaceDropdownChange,
+                onCabinetDropdownChange = viewModel::onCabinetDropdownChange,
                 onCabinetSelect = { viewModel.onAction(MainAction.SelectCabinet(it)) },
+
                 currentProject = state.currentProject,
                 projects = state.projects,
                 projectDropdownExpanded = state.projectDropdownExpanded,
                 onProjectDropdownChange = viewModel::onProjectDropdownChange,
                 onProjectSelect = { viewModel.onAction(MainAction.SelectProject(it)) },
+
                 searchExpanded = state.searchExpanded,
                 searchQuery = state.searchQuery,
                 onSearchQueryChange = { viewModel.onAction(MainAction.SearchQueryChanged(it)) },
@@ -52,10 +46,9 @@ fun MainScreen() {
             )
         },
         bottomBar = {
-            MainBottomNav(
+            AppBottomNav(
                 chatsSelected = true,
-                onChatsClick = { },
-                onProfileClick = { }
+                onProfileClick = onProfileClick
             )
         }
     ) { paddingValues ->
@@ -89,6 +82,7 @@ fun MainScreen() {
                     onChatClick = { chat -> /* навигация */ } // при необходимости
                 )
             }
+            
         }
     }
 

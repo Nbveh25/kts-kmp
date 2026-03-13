@@ -1,7 +1,7 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.CabinetUi
+import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
+import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 
 internal sealed interface MainAction {
     data object ToggleCabinetDropdown : MainAction

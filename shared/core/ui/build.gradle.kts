@@ -26,13 +26,19 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
+            implementation(project(":shared:core:theme"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)
             implementation(libs.compose.foundation)
             implementation(libs.compose.material3)
+            implementation(libs.compose.components.resources)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "ru.kazan.itis.bikmukhametov.ui.generated.resources"
 }
 
 android {

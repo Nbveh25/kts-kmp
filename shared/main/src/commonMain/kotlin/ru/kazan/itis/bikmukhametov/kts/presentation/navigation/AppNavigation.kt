@@ -11,9 +11,10 @@ import org.koin.compose.koinInject
 import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
-import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
-import ru.kazan.itis.bikmukhametov.network.auth.SessionChecker
+import ru.kazan.itis.bikmukhametov.network.auth.logout.LogoutEventBus
+import ru.kazan.itis.bikmukhametov.network.auth.session.SessionChecker
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.screens.OnboardingScreen
+import ru.kazan.itis.bikmukhametov.profile.impl.presentation.screen.ProfileScreen
 
 @Composable
 fun AppNavigation(
@@ -79,7 +80,19 @@ fun AppNavigation(
             )
         }
         composable<Route.Main> {
-            MainScreen()
+            MainScreen(
+                onProfileClick = {
+                    navController.navigate(Route.Profile)
+                }
+            )
+        }
+
+        composable<Route.Profile> {
+            ProfileScreen(
+                onChatsClick = {
+                    navController.navigate(Route.Main)
+                }
+            )
         }
     }
 }

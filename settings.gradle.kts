@@ -48,3 +48,7 @@ include(":shared:feature:auth:impl")
 
 include(":shared:feature:main:api")
 include(":shared:feature:main:impl")
+
+include(":shared:feature:profile:api")
+include(":shared:feature:profile:impl")
+

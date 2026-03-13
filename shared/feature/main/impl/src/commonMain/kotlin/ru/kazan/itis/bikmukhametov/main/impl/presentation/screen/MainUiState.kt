@@ -1,8 +1,8 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
 import androidx.compose.runtime.Immutable
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ProjectUi
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.CabinetUi
+import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
+import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
 
 /** Вкладка под Topbar: Все обращения / Ждут ответа */

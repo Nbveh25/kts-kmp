@@ -23,10 +23,14 @@ import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.kazan.itis.bikmukhametov.network.BuildKonfig
+import ru.kazan.itis.bikmukhametov.network.auth.datasource.AuthDataSource
+import ru.kazan.itis.bikmukhametov.network.auth.datasource.AuthDataSourceImpl
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
-import ru.kazan.itis.bikmukhametov.network.auth.LogoutEventBus
-import ru.kazan.itis.bikmukhametov.network.auth.SessionChecker
-import ru.kazan.itis.bikmukhametov.network.auth.SessionCheckerImpl
+import ru.kazan.itis.bikmukhametov.network.auth.logout.LogoutEventBus
+import ru.kazan.itis.bikmukhametov.network.auth.logout.LogoutService
+import ru.kazan.itis.bikmukhametov.network.auth.logout.LogoutServiceImpl
+import ru.kazan.itis.bikmukhametov.network.auth.session.SessionChecker
+import ru.kazan.itis.bikmukhametov.network.auth.session.SessionCheckerImpl
 import ru.kazan.itis.bikmukhametov.network.cookie.PersistentCookieStorage
 import ru.kazan.itis.bikmukhametov.network.error.ErrorResponse
 import ru.kazan.itis.bikmukhametov.network.space.impl.SpaceProviderImpl
@@ -38,13 +42,13 @@ val networkModule = module {
 
     single { LogoutEventBus() }
 
-    // провайдер пространств их топаппбара
     single<SpaceProvider> { SpaceProviderImpl(get(named(PlatformDataStoreNames.SPACE)), get()) }
 
-    // хранение куков — регистрируем конкретный тип, чтобы использовать clear() при логауте
     single { PersistentCookieStorage(get()) }
 
-    // Проверка валидности сессии через /auth/info
+    single<LogoutService> { LogoutServiceImpl(get(), get()) }
+
+    single<AuthDataSource> { AuthDataSourceImpl(get()) }
     single<SessionChecker> { SessionCheckerImpl(get()) }
 
     single {
@@ -117,7 +121,6 @@ val networkModule = module {
                     }
                 }
             }
-
         }
     }
 }

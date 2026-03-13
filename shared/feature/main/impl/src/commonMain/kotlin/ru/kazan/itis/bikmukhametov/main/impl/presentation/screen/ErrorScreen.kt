@@ -14,6 +14,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
+import org.jetbrains.compose.resources.stringResource
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.button_text_retry
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.error_message
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 /**
@@ -30,7 +34,7 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 fun ErrorScreen(
     modifier: Modifier = Modifier,
     errorMessage: String? = null,
-    retryButtonText: String = "Повторить",
+    retryButtonText: String = stringResource(Res.string.button_text_retry),
     contentPadding: PaddingValues = PaddingValues(
         horizontal = Spacing.paddingMedium,
         vertical = Spacing.paddingSmall
@@ -50,7 +54,7 @@ fun ErrorScreen(
             verticalArrangement = Arrangement.spacedBy(verticalSpacing)
         ) {
             Text(
-                text = errorMessage ?: "Произошла ошибка",
+                text = errorMessage ?: stringResource(Res.string.error_message),
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center,
                 color = MaterialTheme.colorScheme.error

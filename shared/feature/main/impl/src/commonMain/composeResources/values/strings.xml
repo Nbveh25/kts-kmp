@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--Error Screen-->
+    <string name="button_text_retry">Повторить</string>
+    <string name="error_message">Произошла ошибка</string>
+
+    <!--MainViewModel-->
+    <string name="project_error_message">Ошибка загрузки проектов</string>
+
+    <!--ChatListTopBar-->
+    <string name="space">Пространство</string>
+    <string name="project">Проект</string>
+    <string name="search">Поиск</string>
+    
+</resources>

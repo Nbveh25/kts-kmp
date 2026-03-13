@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.main.impl.presentation.component
+package ru.kazan.itis.bikmukhametov.ui.components
 
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -7,16 +7,19 @@ import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
-import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_account_circle_24
-import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_chat_24
+import ru.kazan.itis.bikmukhametov.ui.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.ui.generated.resources.app_bottom_nav_chats
+import ru.kazan.itis.bikmukhametov.ui.generated.resources.app_bottom_nav_profile
+import ru.kazan.itis.bikmukhametov.ui.generated.resources.ic_account_circle_24
+import ru.kazan.itis.bikmukhametov.ui.generated.resources.ic_chat_24
 
 @Composable
-internal fun MainBottomNav(
+fun AppBottomNav(
     chatsSelected: Boolean,
-    onChatsClick: () -> Unit,
-    onProfileClick: () -> Unit
+    onChatsClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {}
 ) {
     NavigationBar {
         NavigationBarItem(
@@ -25,10 +28,14 @@ internal fun MainBottomNav(
             icon = {
                 Icon(
                     imageVector = vectorResource(Res.drawable.ic_chat_24),
-                    contentDescription = "Чаты"
+                    contentDescription = stringResource(Res.string.app_bottom_nav_chats)
                 )
             },
-            label = { Text("Чаты") },
+            label = {
+                Text(
+                    text = stringResource(Res.string.app_bottom_nav_chats)
+                )
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 selectedTextColor = MaterialTheme.colorScheme.primary,
@@ -42,10 +49,14 @@ internal fun MainBottomNav(
             icon = {
                 Icon(
                     imageVector = vectorResource(Res.drawable.ic_account_circle_24),
-                    contentDescription = "Профиль"
+                    contentDescription = stringResource(Res.string.app_bottom_nav_profile)
                 )
             },
-            label = { Text("Профиль") },
+            label = {
+                Text(
+                    text = stringResource(Res.string.app_bottom_nav_profile)
+                )
+            },
             colors = NavigationBarItemDefaults.colors(
                 selectedIconColor = MaterialTheme.colorScheme.primary,
                 selectedTextColor = MaterialTheme.colorScheme.primary,

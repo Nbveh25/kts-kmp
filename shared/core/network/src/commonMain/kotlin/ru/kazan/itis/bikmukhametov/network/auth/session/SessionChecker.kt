@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.network.auth
+package ru.kazan.itis.bikmukhametov.network.auth.session
 
 
 // Проверка актуальности сессии пользователя.
