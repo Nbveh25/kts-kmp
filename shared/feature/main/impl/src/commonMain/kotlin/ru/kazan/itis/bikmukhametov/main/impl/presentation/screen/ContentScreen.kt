@@ -57,29 +57,36 @@ fun ContentScreen(
             modifier = Modifier.fillMaxSize(),
             state = listState
         ) {
-            itemsIndexed(
-                items = chats,
-                key = { _, item -> item.id }
-            ) { index, chat ->
-                ConvesationCardUI(
-                    chat = chat,
-                    modifier = Modifier
-                        .padding(
-                            horizontal = Spacing.paddingMedium,
-                            vertical = Spacing.paddingExtraSmall
-                        )
-                        .let { mod ->
-                            if (onChatClick != null) {
-                                mod.clickable { onChatClick(chat) }
-                            } else {
-                                mod
-                            }
-                        }
-                )
+            if (chats.isEmpty()) {
+                item {
+                    EmptySearchState(modifier = Modifier.fillParentMaxSize())
+                }
+            } else {
 
-                if (index == chats.lastIndex) {
-                    LaunchedEffect(chats.size) {
-                        onListEndReached()
+                itemsIndexed(
+                    items = chats,
+                    key = { _, item -> item.id }
+                ) { index, chat ->
+                    ConvesationCardUI(
+                        chat = chat,
+                        modifier = Modifier
+                            .padding(
+                                horizontal = Spacing.paddingMedium,
+                                vertical = Spacing.paddingExtraSmall
+                            )
+                            .let { mod ->
+                                if (onChatClick != null) {
+                                    mod.clickable { onChatClick(chat) }
+                                } else {
+                                    mod
+                                }
+                            }
+                    )
+
+                    if (index == chats.lastIndex) {
+                        LaunchedEffect(chats.size) {
+                            onListEndReached()
+                        }
                     }
                 }
             }

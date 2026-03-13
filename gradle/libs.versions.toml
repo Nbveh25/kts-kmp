@@ -51,8 +51,8 @@ datastoreVersion = "1.2.0"
 # Secret gradle plugin
 secretGradlePlugin = "2.0.1"
 
-# Date/time (KMP)
-kotlinx-datetime = "0.6.1"
+# Lottie
+compottie = "2.1.0"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -110,9 +110,9 @@ ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVers
 datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastoreVersion" }
 datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVersion" }
 
-# Date/time (KMP)
-kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
-
+# Lottie
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
 
 
 

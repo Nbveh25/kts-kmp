@@ -4,14 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
@@ -31,10 +24,7 @@ internal class MainViewModel(
     private val _state = MutableStateFlow(MainUiState())
     val state = _state.asStateFlow()
 
-    private val searchQueryFlow = MutableStateFlow("")
-
     init {
-        observeSearchQuery()
         loadDataSequentially()
     }
 
@@ -56,21 +46,15 @@ internal class MainViewModel(
                 copy(currentProject = action.project, projectDropdownExpanded = false)
             }
 
-            MainAction.ToggleSearch -> {
-                updateState {
-                    copy(
-                        searchExpanded = !searchExpanded,
-                        searchQuery = if (searchExpanded) "" else searchQuery
-                    )
-                }
-                searchQueryFlow.value = ""
+            MainAction.ToggleSearch -> updateState {
+                copy(
+                    searchExpanded = !searchExpanded,
+                    searchQuery = if (searchExpanded) "" else searchQuery
+                ).recomputed()
             }
 
-            is MainAction.SearchQueryChanged -> {
-                updateState {
-                    copy(searchQuery = action.query)
-                }
-                searchQueryFlow.value = action.query
+            is MainAction.SearchQueryChanged -> updateState {
+                copy(searchQuery = action.query).recomputed()
             }
 
             MainAction.ToggleFilterSheet -> updateState {
@@ -78,87 +62,14 @@ internal class MainViewModel(
             }
 
             is MainAction.SelectTab -> updateState {
-                copy(selectedTab = action.tab)
+                copy(selectedTab = action.tab).recomputed()
             }
         }
-    }
-
-    private fun observeSearchQuery() {
-        searchQueryFlow
-            .debounce(SEARCH_DEBOUNCE_MS)
-            .distinctUntilChanged()
-            .flatMapLatest { query ->
-                flow {
-                    val offsetToLoad = 0
-
-                    isPageLoading = true
-                    isEndReached = false
-                    currentOffset = 0
-
-                    updateState {
-                        copy(
-                            isLoading = true,
-                            isLoadingMore = false,
-                            loadError = null
-                        )
-                    }
-
-                    val conversationListResult = getConversationListUseCase(
-                        limit = PAGE_SIZE,
-                        offset = offsetToLoad
-                    )
-
-                    val mappedResult = conversationListResult.map { conversationModels ->
-                        val items = conversationModels.map { it.toConversationCardItem() }
-                        if (query.isBlank()) {
-                            items
-                        } else {
-                            items.filter { item ->
-                                item.name.contains(query, ignoreCase = true) ||
-                                        item.lastMessageText.contains(query, ignoreCase = true)
-                            }
-                        }
-                    }
-
-                    emit(mappedResult)
-                }
-            }
-            .onEach { result ->
-                result
-                    .onSuccess { items ->
-                        isPageLoading = false
-                        isEndReached = items.size < PAGE_SIZE
-                        currentOffset = items.size
-
-                        updateState {
-                            copy(
-                                chats = items,
-                                isLoading = false,
-                                isLoadingMore = false,
-                                loadError = null
-                            )
-                        }
-                    }
-                    .onFailure { error ->
-                        isPageLoading = false
-                        updateState {
-                            copy(
-                                isLoading = false,
-                                isLoadingMore = false,
-                                loadError = error.message
-                            )
-                        }
-                    }
-            }
-            .launchIn(viewModelScope)
     }
 
     fun onListEndReached() {
         if (isEndReached || isPageLoading) return
-
-        viewModelScope.launch {
-            loadConversations()
-        }
+        viewModelScope.launch { loadConversations() }
     }
 
     fun onCabinetDropdownChange(expanded: Boolean) {
@@ -179,10 +90,27 @@ internal class MainViewModel(
         loadDataSequentially()
     }
 
+    // Вычисляет chats из allChats с учётом выбранной вкладки и поискового запроса.
+    // Вызывается на receiver'е состояния, чтобы одним copy() обновить и allChats и chats.
+    private fun MainUiState.recomputed(): MainUiState {
+        val filtered = allChats
+            .filter { chat ->
+                when (selectedTab) {
+                    ChatListTab.ALL -> true
+                    ChatListTab.WAITING -> chat.isWaiting
+                }
+            }
+            .filter { chat ->
+                searchQuery.isBlank() ||
+                        chat.name.contains(searchQuery, ignoreCase = true) ||
+                        chat.lastMessageText.contains(searchQuery, ignoreCase = true)
+            }
+        return copy(chats = filtered)
+    }
+
     private fun loadDataSequentially() {
         viewModelScope.launch {
             updateState { copy(isLoading = true, loadError = null) }
-
             if (!loadCabinet()) return@launch
             if (!loadProjects()) return@launch
             currentOffset = 0
@@ -201,7 +129,7 @@ internal class MainViewModel(
                         cabinets = listOf(cabinetUi)
                     )
                 }
-                true // успех
+                true
             },
             onFailure = { error ->
                 updateState {
@@ -246,39 +174,25 @@ internal class MainViewModel(
 
         isPageLoading = true
         updateState {
-            if (offsetToLoad == 0) {
-                copy(isLoading = true, loadError = null)
-            } else {
-                copy(isLoadingMore = true, loadError = null)
-            }
+            if (offsetToLoad == 0) copy(isLoading = true, loadError = null)
+            else copy(isLoadingMore = true, loadError = null)
         }
 
-        val conversationListResult = getConversationListUseCase(
-            limit = PAGE_SIZE,
-            offset = offsetToLoad
-        )
-
-        conversationListResult
+        getConversationListUseCase(limit = PAGE_SIZE, offset = offsetToLoad)
             .onSuccess { conversationModels ->
                 val newItems = conversationModels.map { it.toConversationCardItem() }
 
-                if (newItems.size < PAGE_SIZE) {
-                    isEndReached = true
-                }
-
+                if (newItems.size < PAGE_SIZE) isEndReached = true
                 currentOffset = offsetToLoad + newItems.size
 
                 updateState {
+                    val updatedAll = if (offsetToLoad == 0) newItems else allChats + newItems
                     copy(
-                        chats = if (offsetToLoad == 0) {
-                            newItems
-                        } else {
-                            chats + newItems
-                        },
+                        allChats = updatedAll,
                         isLoading = false,
                         isLoadingMore = false,
                         loadError = null
-                    )
+                    ).recomputed()
                 }
             }
             .onFailure { error ->
@@ -299,7 +213,6 @@ internal class MainViewModel(
     }
 
     companion object {
-        private const val SEARCH_DEBOUNCE_MS = 400L
         private const val PAGE_SIZE = 20
     }
 }

@@ -31,6 +31,9 @@ internal data class MainUiState(
 
     val selectedTab: ChatListTab = ChatListTab.ALL,
 
+    // Все загруженные чаты (без фильтрации по вкладке и поиску)
+    val allChats: List<ConversationCardItem> = emptyList(),
+    // Отфильтрованные чаты для отображения (по вкладке + поиску)
     val chats: List<ConversationCardItem> = emptyList(),
 
     // Флаг для нижнего лоадера при пагинации.

@@ -19,7 +19,9 @@ data class ConversationCardItem(
     val name: String,
     val lastMessageText: String,
     val timeOrDate: String,
-    val unreadCount: Int = 0
+    val unreadCount: Int = 0,
+    // true = ожидает ответа оператора (клиент написал, оператор не ответил)
+    val isWaiting: Boolean = false,
 )
 
 internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
@@ -54,13 +56,18 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
     // Это временное решение, так как API не возвращает точное число непрочитанных
     val unreadCount = if (!isRead) 1 else 0
 
+    // Ждёт ответа оператора: диалог активен И нет непрочитанного сообщения от оператора
+    // (клиент написал последним, оператор ещё не ответил)
+    val isWaiting = !state.stoppedByManager && !state.hasUnansweredOperatorMessage
+
     return ConversationCardItem(
-        id = id.toString(), // Long -> String
+        id = id.toString(),
         avatarUrl = user.photo?.url,
         socialBadge = socialBadge,
         name = userName,
         lastMessageText = lastMessageText,
         timeOrDate = timeOrDate,
-        unreadCount = unreadCount
+        unreadCount = unreadCount,
+        isWaiting = isWaiting,
     )
 }
