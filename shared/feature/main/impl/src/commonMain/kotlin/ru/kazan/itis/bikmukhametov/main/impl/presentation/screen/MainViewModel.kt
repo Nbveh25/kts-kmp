@@ -30,7 +30,7 @@ internal class MainViewModel(
 
     fun onAction(action: MainAction) {
         when (action) {
-            MainAction.ToggleCabinetDropdown -> updateState {
+            is MainAction.ToggleCabinetDropdown -> updateState {
                 copy(cabinetDropdownExpanded = !cabinetDropdownExpanded)
             }
 
@@ -38,7 +38,7 @@ internal class MainViewModel(
                 copy(currentCabinet = action.cabinet, cabinetDropdownExpanded = false)
             }
 
-            MainAction.ToggleProjectDropdown -> updateState {
+            is MainAction.ToggleProjectDropdown -> updateState {
                 copy(projectDropdownExpanded = !projectDropdownExpanded)
             }
 
@@ -46,7 +46,7 @@ internal class MainViewModel(
                 copy(currentProject = action.project, projectDropdownExpanded = false)
             }
 
-            MainAction.ToggleSearch -> updateState {
+            is MainAction.ToggleSearch -> updateState {
                 copy(
                     searchExpanded = !searchExpanded,
                     searchQuery = if (searchExpanded) "" else searchQuery
@@ -57,13 +57,15 @@ internal class MainViewModel(
                 copy(searchQuery = action.query).recomputed()
             }
 
-            MainAction.ToggleFilterSheet -> updateState {
+            is MainAction.ToggleFilterSheet -> updateState {
                 copy(filterSheetVisible = !filterSheetVisible)
             }
 
             is MainAction.SelectTab -> updateState {
                 copy(selectedTab = action.tab).recomputed()
             }
+
+            is  MainAction.Refresh -> refreshConversations()
         }
     }
 
@@ -88,6 +90,17 @@ internal class MainViewModel(
         currentOffset = 0
         isEndReached = false
         loadDataSequentially()
+    }
+
+    private fun refreshConversations() {
+        viewModelScope.launch {
+            updateState { copy(isRefreshing = true, loadError = null) }
+            currentOffset = 0
+            isEndReached = false
+            isPageLoading = false
+            loadConversations(reset = true)
+            updateState { copy(isRefreshing = false) }
+        }
     }
 
     // Вычисляет chats из allChats с учётом выбранной вкладки и поискового запроса.

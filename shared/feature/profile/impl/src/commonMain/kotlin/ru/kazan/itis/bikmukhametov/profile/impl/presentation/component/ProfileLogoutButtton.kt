@@ -11,6 +11,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.stringResource
+import ru.kazan.itis.bikmukhametov.profile.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.profile.impl.generated.resources.profile_logout
 
 @Composable
 fun ProfileLogoutButton(
@@ -37,7 +40,7 @@ fun ProfileLogoutButton(
             )
         } else {
             Text(
-                text = "Выйти",
+                text = stringResource(Res.string.profile_logout),
                 style = MaterialTheme.typography.labelLarge
             )
         }

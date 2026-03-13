@@ -11,5 +11,8 @@
     <string name="space">Пространство</string>
     <string name="project">Проект</string>
     <string name="search">Поиск</string>
+
+    <!--EmptyState-->
+    <string name="nothing_was_found">Ничего не найдено</string>
     
 </resources>

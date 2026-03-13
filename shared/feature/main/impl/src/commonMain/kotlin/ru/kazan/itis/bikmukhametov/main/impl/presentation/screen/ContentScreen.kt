@@ -10,6 +10,8 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -26,9 +28,12 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
  * @param onTabSelect callback при смене вкладки
  * @param chats список чатов для отображения
  * @param isLoadingMore флаг загрузки следующей страницы (пагинация)
+ * @param isRefreshing флаг активного pull-to-refresh
+ * @param onRefresh callback при pull-to-refresh
  * @param onListEndReached callback при достижении конца списка
  * @param onChatClick callback при клике на чат (опционально)
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ContentScreen(
     modifier: Modifier = Modifier,
@@ -36,12 +41,19 @@ fun ContentScreen(
     onTabSelect: (ChatListTab) -> Unit,
     chats: List<ConversationCardItem>,
     isLoadingMore: Boolean,
+    isRefreshing: Boolean,
+    onRefresh: () -> Unit,
     onListEndReached: () -> Unit,
     onChatClick: ((ConversationCardItem) -> Unit)? = null,
     listState: LazyListState = rememberLazyListState()
 ) {
+    PullToRefreshBox(
+        modifier = modifier.fillMaxSize(),
+        isRefreshing = isRefreshing,
+        onRefresh = onRefresh,
+    ) {
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
     ) {
         ChatListTabs(
@@ -106,4 +118,5 @@ fun ContentScreen(
             }
         }
     }
+    } 
 }

@@ -72,7 +72,7 @@ internal fun OnboardingPageScreen(
                     text = pageContent.title,
                     style = MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = 28.sp // можно вынести в типографику, пока оставим
+                        fontSize = 28.sp
                     ),
                     color = MaterialTheme.colorScheme.onSurface,
                     textAlign = TextAlign.Center,
@@ -82,7 +82,7 @@ internal fun OnboardingPageScreen(
                 Text(
                     text = pageContent.description,
                     style = MaterialTheme.typography.bodyMedium,
-                    lineHeight = 24.sp, // типографика
+                    lineHeight = 24.sp,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.padding(Spacing.paddingMedium)
                 )

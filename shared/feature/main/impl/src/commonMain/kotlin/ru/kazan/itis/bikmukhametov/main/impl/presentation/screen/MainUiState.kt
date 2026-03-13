@@ -37,5 +37,8 @@ internal data class MainUiState(
     val chats: List<ConversationCardItem> = emptyList(),
 
     // Флаг для нижнего лоадера при пагинации.
-    val isLoadingMore: Boolean = false
+    val isLoadingMore: Boolean = false,
+
+    // Флаг для pull-to-refresh индикатора.
+    val isRefreshing: Boolean = false,
 )

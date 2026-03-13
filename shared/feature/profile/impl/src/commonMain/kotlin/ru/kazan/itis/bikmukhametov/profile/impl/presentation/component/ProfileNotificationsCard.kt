@@ -10,6 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import org.jetbrains.compose.resources.stringResource
+import ru.kazan.itis.bikmukhametov.profile.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.profile.impl.generated.resources.profile_notifications
+import ru.kazan.itis.bikmukhametov.profile.impl.generated.resources.profile_push_notifications
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
@@ -23,7 +27,7 @@ fun ProfileNotificationsCard(
         verticalArrangement = Arrangement.spacedBy(Spacing.paddingSmall)
     ) {
         Text(
-            text = "Уведомления",
+            text = stringResource(Res.string.profile_notifications),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
@@ -34,7 +38,7 @@ fun ProfileNotificationsCard(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Звук и push-уведомления",
+                text = stringResource(Res.string.profile_push_notifications),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurface
             )

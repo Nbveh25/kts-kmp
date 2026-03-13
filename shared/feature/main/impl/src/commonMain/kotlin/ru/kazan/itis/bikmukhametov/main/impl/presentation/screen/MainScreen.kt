@@ -78,8 +78,10 @@ fun MainScreen(
                     onTabSelect = { viewModel.onAction(MainAction.SelectTab(it)) },
                     chats = state.chats,
                     isLoadingMore = state.isLoadingMore,
+                    isRefreshing = state.isRefreshing,
+                    onRefresh = { viewModel.onAction(MainAction.Refresh) },
                     onListEndReached = viewModel::onListEndReached,
-                    onChatClick = { chat -> /* навигация */ } // при необходимости
+                    onChatClick = { chat -> /* навигация */ }
                 )
             }
             

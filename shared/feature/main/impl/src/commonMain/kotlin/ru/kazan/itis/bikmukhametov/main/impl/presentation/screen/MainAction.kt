@@ -12,4 +12,5 @@ internal sealed interface MainAction {
     data class SearchQueryChanged(val query: String) : MainAction
     data object ToggleFilterSheet : MainAction
     data class SelectTab(val tab: ChatListTab) : MainAction
+    data object Refresh : MainAction
 }

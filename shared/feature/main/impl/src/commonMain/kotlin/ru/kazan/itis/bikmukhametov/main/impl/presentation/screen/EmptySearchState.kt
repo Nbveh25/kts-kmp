@@ -17,7 +17,9 @@ import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
 import io.github.alexzhirkevich.compottie.rememberLottiePainter
+import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.nothing_was_found
 
 @Composable
 fun EmptySearchState(modifier: Modifier = Modifier) {
@@ -42,7 +44,7 @@ fun EmptySearchState(modifier: Modifier = Modifier) {
         )
         Spacer(modifier = Modifier.height(16.dp))
         Text(
-            text = "Ничего не найдено",
+            text = stringResource(Res.string.nothing_was_found),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
