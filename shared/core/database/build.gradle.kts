@@ -29,6 +29,7 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.koin.core)
             implementation(libs.datastore.preferences.core)
+            implementation(libs.kvault.store)
 
             // Room runtime и sqlite должны быть видны модулям,
             // которые используют AppDatabase (extends RoomDatabase)

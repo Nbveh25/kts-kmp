@@ -23,10 +23,10 @@ internal class ConversationRepositoryImpl(
         remoteDataSource.getConversationList(limit, offset, fromId)
             .onSuccess { conversations ->
                 if (offset == 0) {
-                    localDataSource.replaceConversations(conversations)
                     Napier.d {
                         "Замена в бд: ${conversations.size}"
                     }
+                    localDataSource.replaceConversations(conversations)
                 } else {
                     Napier.d {
                         "Сохранение в бд: ${conversations.size}"
