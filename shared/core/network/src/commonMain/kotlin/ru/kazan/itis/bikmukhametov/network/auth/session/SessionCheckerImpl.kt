@@ -10,7 +10,8 @@ internal class SessionCheckerImpl(
     override suspend fun isSessionValid(): Boolean {
         val result = authDataSource.fetchAuthInfo()
 
-        Napier.d("fetchAuthInfo result: ${if (result.isSuccess) "SUCCESS" else "FAILURE - ${result.exceptionOrNull()?.message}"}")
+        Napier.d("fetchAuthInfo result: ${if (result.isSuccess) "SUCCESS" 
+        else "FAILURE - ${result.exceptionOrNull()?.message}"}")
 
         if (result.isSuccess) {
             result.getOrNull()?.let { authInfo ->

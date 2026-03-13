@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,14 +19,14 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.MainItemUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.MainItem
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Elevation
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
 internal fun MainListItem(
-    ui: MainItemUi
+    ui: MainItem
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),

@@ -12,6 +12,12 @@ kotlin {
         }
     }
 
+    sourceSets {
+        commonMain.dependencies {
+            api(libs.kotlinx.coroutines.core)
+        }
+    }
+
     listOf(
         iosArm64(),
         iosSimulatorArm64()

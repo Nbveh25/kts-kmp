@@ -7,5 +7,4 @@ class LogoutUseCaseImpl(
     private val profileRepository: ProfileRepository
 ) : LogoutUseCase {
     override suspend fun invoke() = profileRepository.logout()
-
 }

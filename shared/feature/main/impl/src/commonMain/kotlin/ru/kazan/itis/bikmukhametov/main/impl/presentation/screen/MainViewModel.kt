@@ -8,13 +8,15 @@ import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toUi
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toItem
 
 internal class MainViewModel(
     private val getCabinetUseCase: GetCabinetUseCase,
     private val getProjectListUseCase: GetProjectListUseCase,
-    private val getConversationListUseCase: GetConversationListUseCase
+    private val getConversationListUseCase: GetConversationListUseCase,
+    private val observeConversationListUseCase: ObserveConversationListUseCase,
 ) : ViewModel() {
 
     private var currentOffset = 0
@@ -25,6 +27,7 @@ internal class MainViewModel(
     val state = _state.asStateFlow()
 
     init {
+        observeConversationsFromCache()
         loadDataSequentially()
     }
 
@@ -65,7 +68,7 @@ internal class MainViewModel(
                 copy(selectedTab = action.tab).recomputed()
             }
 
-            is  MainAction.Refresh -> refreshConversations()
+            is MainAction.Refresh -> refreshConversations()
         }
     }
 
@@ -92,6 +95,23 @@ internal class MainViewModel(
         loadDataSequentially()
     }
 
+    // Подписывается на Room; обновляет allChats при каждом изменении кэша.
+    // Если данные пришли из кэша пока ещё идёт загрузка — снимаем shimmer.
+    private fun observeConversationsFromCache() {
+        viewModelScope.launch {
+            observeConversationListUseCase().collect { conversations ->
+                val newItems = conversations.map { it.toConversationCardItem() }
+                updateState {
+                    val stopLoadingEarly = isLoading && newItems.isNotEmpty()
+                    copy(
+                        allChats = newItems,
+                        isLoading = if (stopLoadingEarly) false else isLoading,
+                    ).recomputed()
+                }
+            }
+        }
+    }
+
     private fun refreshConversations() {
         viewModelScope.launch {
             updateState { copy(isRefreshing = true, loadError = null) }
@@ -104,7 +124,6 @@ internal class MainViewModel(
     }
 
     // Вычисляет chats из allChats с учётом выбранной вкладки и поискового запроса.
-    // Вызывается на receiver'е состояния, чтобы одним copy() обновить и allChats и chats.
     private fun MainUiState.recomputed(): MainUiState {
         val filtered = allChats
             .filter { chat ->
@@ -135,7 +154,7 @@ internal class MainViewModel(
     private suspend fun loadCabinet(): Boolean {
         return getCabinetUseCase().fold(
             onSuccess = { cabinetModel ->
-                val cabinetUi = cabinetModel.toUi()
+                val cabinetUi = cabinetModel.toItem()
                 updateState {
                     copy(
                         currentCabinet = cabinetUi,
@@ -159,7 +178,7 @@ internal class MainViewModel(
     private suspend fun loadProjects(): Boolean {
         return getProjectListUseCase().fold(
             onSuccess = { projectModels ->
-                val projectsListUi = projectModels.map { it.toUi() }
+                val projectsListUi = projectModels.map { it.toItem() }
                 updateState {
                     copy(
                         currentProject = projectsListUi.firstOrNull(),
@@ -193,19 +212,16 @@ internal class MainViewModel(
 
         getConversationListUseCase(limit = PAGE_SIZE, offset = offsetToLoad)
             .onSuccess { conversationModels ->
-                val newItems = conversationModels.map { it.toConversationCardItem() }
-
-                if (newItems.size < PAGE_SIZE) isEndReached = true
-                currentOffset = offsetToLoad + newItems.size
+                // allChats обновляется через Room Flow — здесь только пагинация
+                if (conversationModels.size < PAGE_SIZE) isEndReached = true
+                currentOffset = offsetToLoad + conversationModels.size
 
                 updateState {
-                    val updatedAll = if (offsetToLoad == 0) newItems else allChats + newItems
                     copy(
-                        allChats = updatedAll,
                         isLoading = false,
                         isLoadingMore = false,
-                        loadError = null
-                    ).recomputed()
+                        loadError = null,
+                    )
                 }
             }
             .onFailure { error ->
@@ -213,7 +229,8 @@ internal class MainViewModel(
                     copy(
                         isLoading = false,
                         isLoadingMore = false,
-                        loadError = error.message
+                        // Если в кэше есть данные — не показываем ошибку поверх них
+                        loadError = if (allChats.isEmpty()) error.message else null,
                     )
                 }
             }

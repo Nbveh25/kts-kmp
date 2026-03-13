@@ -59,6 +59,7 @@ kotlin {
         commonMain.dependencies {
             implementation(project(":shared:feature:main:api"))
             implementation(project(":shared:core:network"))
+            implementation(project(":shared:core:database"))
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
 

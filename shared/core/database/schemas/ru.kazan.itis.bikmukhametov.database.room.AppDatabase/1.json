@@ -1,0 +1,204 @@
+{
+  "formatVersion": 1,
+  "database": {
+    "version": 1,
+    "identityHash": "a29eeb380d5955a072b024b1df93fe9c",
+    "entities": [
+      {
+        "tableName": "conversations",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `dateUpdated` TEXT NOT NULL, `isRead` INTEGER NOT NULL, `userId` TEXT NOT NULL, `userUsername` TEXT, `userFirstName` TEXT, `userLastName` TEXT, `userPhotoUrl` TEXT, `userUrl` TEXT, `channelId` TEXT NOT NULL, `channelKind` TEXT NOT NULL, `channelName` TEXT, `channelUrl` TEXT, `stoppedByManager` INTEGER NOT NULL, `operatorTagged` INTEGER NOT NULL, `hasUnansweredOperatorMessage` INTEGER NOT NULL, `lastMessageId` TEXT, `lastMessageConversationId` INTEGER, `lastMessageText` TEXT, `lastMessageKind` TEXT, `lastMessageBlockId` TEXT, `lastMessageScenarioId` TEXT, `lastMessageBucket` TEXT, `lastMessageDateCreated` TEXT, `lastMessageManagerEmail` TEXT, `lastMessageIsRead` INTEGER, `attachmentAsDocument` INTEGER, `attachmentFilename` TEXT, `attachmentPreviewUrl` TEXT, `attachmentSize` INTEGER, `attachmentType` TEXT, `attachmentUrl` TEXT, `attachmentWidth` INTEGER, `attachmentHeight` INTEGER, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "dateUpdated",
+            "columnName": "dateUpdated",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isRead",
+            "columnName": "isRead",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userId",
+            "columnName": "userId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "userUsername",
+            "columnName": "userUsername",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userFirstName",
+            "columnName": "userFirstName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userLastName",
+            "columnName": "userLastName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userPhotoUrl",
+            "columnName": "userPhotoUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "userUrl",
+            "columnName": "userUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "channelId",
+            "columnName": "channelId",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "channelKind",
+            "columnName": "channelKind",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "channelName",
+            "columnName": "channelName",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "channelUrl",
+            "columnName": "channelUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "stoppedByManager",
+            "columnName": "stoppedByManager",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "operatorTagged",
+            "columnName": "operatorTagged",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "hasUnansweredOperatorMessage",
+            "columnName": "hasUnansweredOperatorMessage",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "lastMessageId",
+            "columnName": "lastMessageId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageConversationId",
+            "columnName": "lastMessageConversationId",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "lastMessageText",
+            "columnName": "lastMessageText",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageKind",
+            "columnName": "lastMessageKind",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageBlockId",
+            "columnName": "lastMessageBlockId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageScenarioId",
+            "columnName": "lastMessageScenarioId",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageBucket",
+            "columnName": "lastMessageBucket",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageDateCreated",
+            "columnName": "lastMessageDateCreated",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageManagerEmail",
+            "columnName": "lastMessageManagerEmail",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "lastMessageIsRead",
+            "columnName": "lastMessageIsRead",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "attachmentAsDocument",
+            "columnName": "attachmentAsDocument",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "attachmentFilename",
+            "columnName": "attachmentFilename",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "attachmentPreviewUrl",
+            "columnName": "attachmentPreviewUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "attachmentSize",
+            "columnName": "attachmentSize",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "attachmentType",
+            "columnName": "attachmentType",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "attachmentUrl",
+            "columnName": "attachmentUrl",
+            "affinity": "TEXT"
+          },
+          {
+            "fieldPath": "attachmentWidth",
+            "columnName": "attachmentWidth",
+            "affinity": "INTEGER"
+          },
+          {
+            "fieldPath": "attachmentHeight",
+            "columnName": "attachmentHeight",
+            "affinity": "INTEGER"
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
+      }
+    ],
+    "setupQueries": [
+      "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a29eeb380d5955a072b024b1df93fe9c')"
+    ]
+  }
+}

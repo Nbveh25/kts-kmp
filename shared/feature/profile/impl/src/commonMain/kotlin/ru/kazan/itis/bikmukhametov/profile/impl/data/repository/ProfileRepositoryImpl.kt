@@ -23,7 +23,7 @@ internal class ProfileRepositoryImpl(
             }
 
             authResult.getOrNull()?.toProfileModel()
-                ?: throw IllegalStateException("AuthInfo is null but result is success")
+                ?: error("AuthInfo is null but result is success")
 
         }.onSuccess { profile ->
             Napier.d(tag = "ProfileRepo") {
