@@ -1,9 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
@@ -11,27 +8,25 @@ import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toItem
+import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class MainViewModel(
     private val getCabinetUseCase: GetCabinetUseCase,
     private val getProjectListUseCase: GetProjectListUseCase,
     private val getConversationListUseCase: GetConversationListUseCase,
     private val observeConversationListUseCase: ObserveConversationListUseCase,
-) : ViewModel() {
+) : BaseViewModel<MainUiState, MainAction>(MainUiState()) {
 
     private var currentOffset = 0
     private var isPageLoading = false
     private var isEndReached = false
-
-    private val _state = MutableStateFlow(MainUiState())
-    val state = _state.asStateFlow()
 
     init {
         observeConversationsFromCache()
         loadDataSequentially()
     }
 
-    fun onAction(action: MainAction) {
+    override fun onAction(action: MainAction) {
         when (action) {
             is MainAction.ToggleCabinetDropdown -> updateState {
                 copy(cabinetDropdownExpanded = !cabinetDropdownExpanded)
@@ -236,10 +231,6 @@ internal class MainViewModel(
             }
 
         isPageLoading = false
-    }
-
-    private fun updateState(block: MainUiState.() -> MainUiState) {
-        _state.value = _state.value.block()
     }
 
     companion object {

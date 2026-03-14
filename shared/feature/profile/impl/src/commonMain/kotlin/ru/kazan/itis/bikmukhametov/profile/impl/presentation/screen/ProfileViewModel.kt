@@ -5,12 +5,12 @@ import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.profile.api.usecase.GetProfileInfoUseCase
 import ru.kazan.itis.bikmukhametov.profile.api.usecase.LogoutUseCase
 import ru.kazan.itis.bikmukhametov.profile.impl.presentation.model.toItem
-import ru.kazan.itis.bikmukhametov.ui.util.BasicViewModel
+import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ProfileViewModel(
     private val getProfileInfoUseCase: GetProfileInfoUseCase,
     private val logoutUseCase: LogoutUseCase
-) : BasicViewModel<ProfileUiState, ProfileAction>(ProfileUiState()) {
+) : BaseViewModel<ProfileUiState, ProfileAction>(ProfileUiState()) {
 
     init {
         loadProfile()

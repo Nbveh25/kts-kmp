@@ -6,12 +6,12 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.api.usecase.LoginUseCase
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginUiEvent.LoginSuccessEvent
-import ru.kazan.itis.bikmukhametov.ui.util.BasicViewModel
+import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 /* Вьюмодель экрана входа */
 internal class LoginViewModel(
     private val loginUseCase: LoginUseCase,
-) : BasicViewModel<LoginUiState, LoginAction>(LoginUiState()) {
+) : BaseViewModel<LoginUiState, LoginAction>(LoginUiState()) {
 
     private val _events = MutableSharedFlow<LoginUiEvent>(
         replay = 0,
