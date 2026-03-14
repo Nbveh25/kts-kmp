@@ -2,6 +2,8 @@ package ru.kazan.itis.bikmukhametov.profile.impl.presentation.screen
 
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.profile.api.usecase.GetProfileInfoUseCase
 import ru.kazan.itis.bikmukhametov.profile.api.usecase.LogoutUseCase
 import ru.kazan.itis.bikmukhametov.profile.impl.presentation.model.toItem
@@ -9,25 +11,65 @@ import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ProfileViewModel(
     private val getProfileInfoUseCase: GetProfileInfoUseCase,
-    private val logoutUseCase: LogoutUseCase
+    private val logoutUseCase: LogoutUseCase,
+    private val getCabinetUseCase: GetCabinetUseCase,
+    private val getProjectListUseCase: GetProjectListUseCase,
 ) : BaseViewModel<ProfileUiState, ProfileAction>(ProfileUiState()) {
 
     init {
         loadProfile()
+        loadCabinetAndProjects()
+    }
+
+    private fun loadCabinetAndProjects() {
+        viewModelScope.launch {
+            getCabinetUseCase().onSuccess { cabinet ->
+                val cabinetUi = cabinet.toItem()
+                updateState {
+                    copy(currentCabinet = cabinetUi, cabinets = listOf(cabinetUi))
+                }
+            }
+            getProjectListUseCase().onSuccess { projects ->
+                val projectsUi = projects.map { it.toItem() }
+                updateState {
+                    copy(
+                        currentProject = projectsUi.firstOrNull(),
+                        projects = projectsUi,
+                    )
+                }
+            }
+        }
     }
 
     override fun onAction(action: ProfileAction) {
         when (action) {
+
+            is ProfileAction.Logout -> {
+                logout()
+            }
+
+            is ProfileAction.RetryLoad -> {
+                loadProfile()
+            }
+
             is ProfileAction.ToggleNotifications -> updateState {
                 copy(notificationsEnabled = action.enabled)
             }
 
-            ProfileAction.Logout -> {
-                logout()
+            is ProfileAction.ToggleCabinetDropdown -> updateState {
+                copy(cabinetDropdownExpanded = action.expanded)
             }
 
-            ProfileAction.RetryLoad -> {
-                loadProfile()
+            is ProfileAction.ToggleProjectDropdown -> updateState {
+                copy(projectDropdownExpanded = action.expanded)
+            }
+
+            is ProfileAction.SelectCabinet -> updateState {
+                copy(currentCabinet = action.cabinet, cabinetDropdownExpanded = false)
+            }
+
+            is ProfileAction.SelectProject -> updateState {
+                copy(currentProject = action.project, projectDropdownExpanded = false)
             }
         }
     }
@@ -50,13 +92,5 @@ internal class ProfileViewModel(
             updateState { copy(isLoggingOut = true) }
             logoutUseCase()
         }
-    }
-
-    fun onSpaceDropdownChange(expanded: Boolean) {
-        updateState { copy(cabinetDropdownExpanded = expanded) }
-    }
-
-    fun onProjectDropdownChange(expanded: Boolean) {
-        updateState { copy(projectDropdownExpanded = expanded) }
     }
 }

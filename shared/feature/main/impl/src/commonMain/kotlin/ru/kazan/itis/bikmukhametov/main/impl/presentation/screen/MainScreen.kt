@@ -29,13 +29,13 @@ fun MainScreen(
                 currentCabinet = state.currentCabinet,
                 cabinets = state.cabinets,
                 cabinetDropdownExpanded = state.cabinetDropdownExpanded,
-                onCabinetDropdownChange = viewModel::onCabinetDropdownChange,
+                onCabinetDropdownChange = { viewModel.onAction(MainAction.CabinetDropdownChange(it)) },
                 onCabinetSelect = { viewModel.onAction(MainAction.SelectCabinet(it)) },
 
                 currentProject = state.currentProject,
                 projects = state.projects,
                 projectDropdownExpanded = state.projectDropdownExpanded,
-                onProjectDropdownChange = viewModel::onProjectDropdownChange,
+                onProjectDropdownChange = { viewModel.onAction(MainAction.ProjectDropdownChange(it)) },
                 onProjectSelect = { viewModel.onAction(MainAction.SelectProject(it)) },
 
                 searchExpanded = state.searchExpanded,
@@ -66,7 +66,7 @@ fun MainScreen(
                 ErrorScreen(
                     modifier = Modifier.padding(paddingValues),
                     errorMessage = state.loadError,
-                    onRetry = viewModel::onRetryClick
+                    onRetry = { viewModel.onAction(MainAction.RetryClick) }
                 )
             }
 
@@ -80,7 +80,7 @@ fun MainScreen(
                     isLoadingMore = state.isLoadingMore,
                     isRefreshing = state.isRefreshing,
                     onRefresh = { viewModel.onAction(MainAction.Refresh) },
-                    onListEndReached = viewModel::onListEndReached,
+                    onListEndReached = { viewModel.onAction(MainAction.ListEndReached) },
                     onChatClick = { chat -> /* навигация */ }
                 )
             }
@@ -89,6 +89,6 @@ fun MainScreen(
     }
 
     if (state.filterSheetVisible) {
-        FilterBottomSheet(onDismiss = viewModel::onDismissFilterSheet)
+        FilterBottomSheet(onDismiss = { viewModel.onAction(MainAction.DismissFilterSheet) })
     }
 }

@@ -31,13 +31,21 @@ fun ProfileScreen(
                 currentCabinet = state.currentCabinet,
                 cabinets = state.cabinets,
                 cabinetDropdownExpanded = state.cabinetDropdownExpanded,
-                onCabinetDropdownChange = viewModel::onSpaceDropdownChange,
-                onCabinetSelect = {},
+                onCabinetDropdownChange = { expanded ->
+                    viewModel.onAction(ProfileAction.ToggleCabinetDropdown(expanded))
+                },
+                onCabinetSelect = {
+                    viewModel.onAction(ProfileAction.SelectCabinet(it))
+                },
                 currentProject = state.currentProject,
                 projects = state.projects,
                 projectDropdownExpanded = state.projectDropdownExpanded,
-                onProjectDropdownChange = viewModel::onProjectDropdownChange,
-                onProjectSelect = {},
+                onProjectDropdownChange = { expanded ->
+                    viewModel.onAction(ProfileAction.ToggleProjectDropdown(expanded))
+                },
+                onProjectSelect = {
+                    viewModel.onAction(ProfileAction.SelectProject(it))
+                },
             )
         },
         bottomBar = {

@@ -6,6 +6,7 @@
 
     <!--MainViewModel-->
     <string name="project_error_message">Ошибка загрузки проектов</string>
+    <string name="cabinet_error_message">Ошибка загрузки кабинета</string>
 
     <!--ChatListTopBar-->
     <string name="space">Пространство</string>

@@ -28,16 +28,16 @@ internal class MainViewModel(
 
     override fun onAction(action: MainAction) {
         when (action) {
-            is MainAction.ToggleCabinetDropdown -> updateState {
-                copy(cabinetDropdownExpanded = !cabinetDropdownExpanded)
+            is MainAction.CabinetDropdownChange -> updateState {
+                copy(cabinetDropdownExpanded = action.expanded)
             }
 
             is MainAction.SelectCabinet -> updateState {
                 copy(currentCabinet = action.cabinet, cabinetDropdownExpanded = false)
             }
 
-            is MainAction.ToggleProjectDropdown -> updateState {
-                copy(projectDropdownExpanded = !projectDropdownExpanded)
+            is MainAction.ProjectDropdownChange -> updateState {
+                copy(projectDropdownExpanded = action.expanded)
             }
 
             is MainAction.SelectProject -> updateState {
@@ -59,35 +59,27 @@ internal class MainViewModel(
                 copy(filterSheetVisible = !filterSheetVisible)
             }
 
+            MainAction.DismissFilterSheet -> updateState {
+                copy(filterSheetVisible = false)
+            }
+
             is MainAction.SelectTab -> updateState {
                 copy(selectedTab = action.tab).recomputed()
             }
 
-            is MainAction.Refresh -> refreshConversations()
+            MainAction.Refresh -> refreshConversations()
+
+            MainAction.ListEndReached -> {
+                if (isEndReached || isPageLoading) return@onAction
+                viewModelScope.launch { loadConversations() }
+            }
+
+            MainAction.RetryClick -> {
+                currentOffset = 0
+                isEndReached = false
+                loadDataSequentially()
+            }
         }
-    }
-
-    fun onListEndReached() {
-        if (isEndReached || isPageLoading) return
-        viewModelScope.launch { loadConversations() }
-    }
-
-    fun onCabinetDropdownChange(expanded: Boolean) {
-        updateState { copy(cabinetDropdownExpanded = expanded) }
-    }
-
-    fun onProjectDropdownChange(expanded: Boolean) {
-        updateState { copy(projectDropdownExpanded = expanded) }
-    }
-
-    fun onDismissFilterSheet() {
-        updateState { copy(filterSheetVisible = false) }
-    }
-
-    fun onRetryClick() {
-        currentOffset = 0
-        isEndReached = false
-        loadDataSequentially()
     }
 
     // Подписывается на Room; обновляет allChats при каждом изменении кэша.
@@ -109,12 +101,19 @@ internal class MainViewModel(
 
     private fun refreshConversations() {
         viewModelScope.launch {
-            updateState { copy(isRefreshing = true, loadError = null) }
+            updateState {
+                copy(
+                    isRefreshing = true,
+                    loadError = null
+                )
+            }
             currentOffset = 0
             isEndReached = false
             isPageLoading = false
             loadConversations(reset = true)
-            updateState { copy(isRefreshing = false) }
+            updateState {
+                copy(isRefreshing = false)
+            }
         }
     }
 

@@ -79,16 +79,25 @@ fun CabinetProjectTopBar(
                     }
                     DropdownMenu(
                         expanded = cabinetDropdownExpanded,
-                        onDismissRequest = { onCabinetDropdownChange(false) }
+                        onDismissRequest = {
+                            onCabinetDropdownChange(false)
+                        }
                     ) {
-                        cabinets.forEach { cabinet ->
+                        if (cabinets.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text(cabinet.displayName) },
-                                onClick = {
-                                    onCabinetSelect(cabinet)
-                                    onCabinetDropdownChange(false)
-                                }
+                                text = { Text(stringResource(Res.string.top_bar_space)) },
+                                onClick = { onCabinetDropdownChange(false) }
                             )
+                        } else {
+                            cabinets.forEach { cabinet ->
+                                DropdownMenuItem(
+                                    text = { Text(cabinet.displayName) },
+                                    onClick = {
+                                        onCabinetSelect(cabinet)
+                                        onCabinetDropdownChange(false)
+                                    }
+                                )
+                            }
                         }
                     }
                 }
@@ -114,16 +123,25 @@ fun CabinetProjectTopBar(
                     }
                     DropdownMenu(
                         expanded = projectDropdownExpanded,
-                        onDismissRequest = { onProjectDropdownChange(false) }
+                        onDismissRequest = {
+                            onProjectDropdownChange(false)
+                        }
                     ) {
-                        projects.forEach { project ->
+                        if (projects.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text(project.displayName) },
-                                onClick = {
-                                    onProjectSelect(project)
-                                    onProjectDropdownChange(false)
-                                }
+                                text = { Text(stringResource(Res.string.top_bar_project)) },
+                                onClick = { onProjectDropdownChange(false) }
                             )
+                        } else {
+                            projects.forEach { project ->
+                                DropdownMenuItem(
+                                    text = { Text(project.displayName) },
+                                    onClick = {
+                                        onProjectSelect(project)
+                                        onProjectDropdownChange(false)
+                                    }
+                                )
+                            }
                         }
                     }
                 }

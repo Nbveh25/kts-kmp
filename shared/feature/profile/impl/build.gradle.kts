@@ -28,6 +28,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":shared:feature:profile:api"))
+            implementation(project(":shared:feature:main:api"))
             implementation(project(":shared:core:ui"))
             implementation(project(":shared:core:theme"))
             implementation(project(":shared:core:network"))
