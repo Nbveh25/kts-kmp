@@ -12,13 +12,14 @@ import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
 import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.cabinet.CabinetResponse
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
+import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 internal class ProjectDataSourceImpl(
     private val httpClient: HttpClient
 ): ProjectDataSource {
 
     override suspend fun getProjectList(): Result<List<ProjectModel>> {
-        val rawResult = runCatching {
+        val rawResult = runCatchingCancelable {
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/api/projects/list"
             )

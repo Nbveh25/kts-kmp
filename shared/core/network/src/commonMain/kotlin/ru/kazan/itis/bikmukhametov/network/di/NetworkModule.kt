@@ -46,10 +46,10 @@ val networkModule = module {
 
     single { PersistentCookieStorage(get()) }
 
-    single<LogoutService> { LogoutServiceImpl(get(), get()) }
+    factory<LogoutService> { LogoutServiceImpl(get(), get()) }
 
-    single<AuthDataSource> { AuthDataSourceImpl(get()) }
-    single<SessionChecker> { SessionCheckerImpl(get()) }
+    factory<AuthDataSource> { AuthDataSourceImpl(get()) }
+    factory<SessionChecker> { SessionCheckerImpl(get()) }
 
     single {
 

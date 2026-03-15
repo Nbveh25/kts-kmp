@@ -9,13 +9,14 @@ import ru.kazan.itis.bikmukhametov.network.auth.mapper.toModel
 import ru.kazan.itis.bikmukhametov.network.auth.model.AuthInfoModel
 import ru.kazan.itis.bikmukhametov.network.auth.response.AuthInfoResponse
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
+import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 internal class AuthDataSourceImpl(
     private val httpClient: HttpClient,
 ) : AuthDataSource {
 
     override suspend fun fetchAuthInfo(): Result<AuthInfoModel> {
-        val rawResult = runCatching {
+        val rawResult = runCatchingCancelable {
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/auth/info"
             )

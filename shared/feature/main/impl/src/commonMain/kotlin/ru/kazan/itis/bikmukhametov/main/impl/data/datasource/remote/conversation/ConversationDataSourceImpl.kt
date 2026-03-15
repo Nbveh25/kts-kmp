@@ -13,6 +13,7 @@ import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.project.ProjectResponse
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.project.toModel
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
+import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 class ConversationDataSourceImpl(
     private val httpClient: HttpClient
@@ -23,7 +24,7 @@ class ConversationDataSourceImpl(
         offset: Int,
         fromId: String?
     ): Result<List<ConversationModel>> {
-        val rawResult = runCatching {
+        val rawResult = runCatchingCancelable {
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/api/conversations/list"
             ) {

@@ -7,6 +7,6 @@ import ru.kazan.itis.bikmukhametov.chat.impl.data.repository.ChatRepositoryImpl
 import ru.kazan.itis.bikmukhametov.chat.impl.domain.usecase.GetChatMessagesUseCaseImpl
 
 val chatModule = module {
-    single<ChatRepository> { ChatRepositoryImpl() }
-    single<GetChatMessagesUseCase> { GetChatMessagesUseCaseImpl(get()) }
+    factory<ChatRepository> { ChatRepositoryImpl() }
+    factory<GetChatMessagesUseCase> { GetChatMessagesUseCaseImpl(get()) }
 }

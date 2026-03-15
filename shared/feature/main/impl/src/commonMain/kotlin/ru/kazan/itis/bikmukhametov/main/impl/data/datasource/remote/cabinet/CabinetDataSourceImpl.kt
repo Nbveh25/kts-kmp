@@ -11,13 +11,14 @@ import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.CabinetDataSource
 import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
+import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 class CabinetDataSourceImpl(
     private val httpClient: HttpClient
 ) : CabinetDataSource {
 
     override suspend fun getCabinet(): Result<CabinetModel> { // TODO потом список сделать
-        val rawResult = runCatching {
+        val rawResult = runCatchingCancelable {
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/api/cabinets/get_by_domain"
             ) {
