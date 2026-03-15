@@ -161,7 +161,7 @@ internal class MainViewModel(
                 updateState {
                     copy(
                         isLoading = false,
-                        loadError = error.message ?: "Ошибка загрузки кабинета"
+                        loadError = error.message
                     )
                 }
                 false
@@ -185,7 +185,7 @@ internal class MainViewModel(
                 updateState {
                     copy(
                         isLoading = false,
-                        loadError = error.message ?: "Ошибка загрузки проектов"
+                        loadError = error.message
                     )
                 }
                 false

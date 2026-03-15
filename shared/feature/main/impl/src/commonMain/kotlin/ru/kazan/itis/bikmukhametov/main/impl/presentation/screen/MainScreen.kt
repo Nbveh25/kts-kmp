@@ -15,7 +15,8 @@ import ru.kazan.itis.bikmukhametov.ui.components.AppBottomNav
 
 @Composable
 fun MainScreen(
-    onProfileClick: () -> Unit
+    onProfileClick: () -> Unit,
+    onChatClick: (conversationId: String) -> Unit = {},
 ) {
     val viewModel: MainViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -81,7 +82,7 @@ fun MainScreen(
                     isRefreshing = state.isRefreshing,
                     onRefresh = { viewModel.onAction(MainAction.Refresh) },
                     onListEndReached = { viewModel.onAction(MainAction.ListEndReached) },
-                    onChatClick = { chat -> /* навигация */ }
+                    onChatClick = { chat -> onChatClick(chat.id) }
                 )
             }
             

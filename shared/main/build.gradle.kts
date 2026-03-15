@@ -38,6 +38,7 @@ kotlin {
             implementation(projects.shared.feature.auth.impl)
             implementation(projects.shared.feature.main.impl)
             implementation(projects.shared.feature.profile.impl)
+            implementation(projects.shared.feature.chat.impl)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

@@ -15,4 +15,7 @@ sealed interface Route {
 
     @Serializable
     object Profile : Route
+
+    @Serializable
+    data class Chat(val conversationId: String) : Route
 }
