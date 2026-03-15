@@ -28,16 +28,16 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
 
-            implementation(project(":shared:core:ui"))
-            implementation(project(":shared:core:theme"))
-            implementation(project(":shared:core:network"))
-            implementation(project(":shared:core:database"))
+            implementation(projects.shared.core.ui)
+            implementation(projects.shared.core.theme)
+            implementation(projects.shared.core.network)
+            implementation(projects.shared.core.database)
 
-            implementation(project(":shared:feature:onboarding"))
-            
-            implementation(project(":shared:feature:auth:impl"))
-            implementation(project(":shared:feature:main:impl"))
-            implementation(project(":shared:feature:profile:impl"))
+            implementation(projects.shared.feature.onboarding)
+
+            implementation(projects.shared.feature.auth.impl)
+            implementation(projects.shared.feature.main.impl)
+            implementation(projects.shared.feature.profile.impl)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)

@@ -57,11 +57,11 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":shared:feature:main:api"))
-            implementation(project(":shared:core:network"))
-            implementation(project(":shared:core:database"))
-            implementation(project(":shared:core:ui"))
-            implementation(project(":shared:core:theme"))
+            implementation(projects.shared.feature.main.api)
+            implementation(projects.shared.core.ui)
+            implementation(projects.shared.core.network)
+            implementation(projects.shared.core.database)
+            implementation(projects.shared.core.theme)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)

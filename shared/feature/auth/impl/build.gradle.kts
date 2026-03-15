@@ -68,11 +68,10 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-
-            implementation(project(":shared:core:ui"))
-            implementation(project(":shared:core:theme"))
-            implementation(project(":shared:core:network"))
-            implementation(project(":shared:feature:auth:api"))
+            implementation(projects.shared.core.ui)
+            implementation(projects.shared.core.theme)
+            implementation(projects.shared.core.network)
+            implementation(projects.shared.feature.auth.api)
 
             implementation(libs.napier)
 

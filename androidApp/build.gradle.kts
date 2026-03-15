@@ -40,8 +40,8 @@ android {
 
 dependencies {
     // Модуль зонтик
-    implementation(project(":shared"))
-    implementation(project(":shared:core:database"))
+    implementation(projects.shared)
+    implementation(projects.shared.core.database)
 
     implementation(libs.koin.android)
     implementation(libs.koin.android.ext)

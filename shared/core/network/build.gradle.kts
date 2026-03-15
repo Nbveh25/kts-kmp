@@ -44,7 +44,8 @@ kotlin {
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":shared:core:database"))
+            implementation(projects.shared.core.database)
+            
             implementation(libs.napier)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)

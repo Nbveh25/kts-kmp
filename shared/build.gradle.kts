@@ -27,15 +27,15 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
 
-            api(project(":shared:main"))
+            api(projects.shared.main)
 
-            api(project(":shared:core:ui"))
-            api(project(":shared:core:theme"))
-            api(project(":shared:core:network"))
+            api(projects.shared.core.ui)
+            api(projects.shared.core.theme)
+            api(projects.shared.core.network)
 
-            api(project(":shared:feature:onboarding"))
-            api(project(":shared:feature:auth:impl"))
-            api(project(":shared:feature:main:impl"))
+            api(projects.shared.feature.onboarding)
+            api(projects.shared.feature.auth.impl)
+            api(projects.shared.feature.main.impl)
         }
     }
 
