@@ -1,8 +1,13 @@
 package ru.kazan.itis.bikmukhametov.chat.api.usecase
 
-import ru.kazan.itis.bikmukhametov.chat.api.model.MessageModel
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 
 interface GetChatMessagesUseCase {
 
-    suspend operator fun invoke(conversationId: String, limit: Int, offset: Int): Result<List<MessageModel>>
+    suspend operator fun invoke(
+        conversationId: String,
+        limit: Int,
+        fromId: String? = null,
+        fromDate: String? = null,
+    ): Result<List<ChatMessageModel>>
 }

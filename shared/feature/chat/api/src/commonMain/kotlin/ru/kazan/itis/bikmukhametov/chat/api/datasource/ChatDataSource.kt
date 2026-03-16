@@ -1,11 +1,10 @@
-package ru.kazan.itis.bikmukhametov.chat.api.repository
+package ru.kazan.itis.bikmukhametov.chat.api.datasource
 
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 
-interface ChatRepository {
-
-    suspend fun getMessages(
-        conversationId: String,
+interface ChatDataSource {
+    suspend fun getMessageList(
+        conversationId: Long,
         limit: Int,
         fromId: String? = null,
         fromDate: String? = null,

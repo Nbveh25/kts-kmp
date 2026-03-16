@@ -1,13 +1,33 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.data.repository
 
-import ru.kazan.itis.bikmukhametov.chat.api.model.MessageModel
+import io.github.aakira.napier.Napier
+import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatDataSource
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.repository.ChatRepository
 
-internal class ChatRepositoryImpl : ChatRepository {
+internal class ChatRepositoryImpl(
+    private val chatDataSource: ChatDataSource
+) : ChatRepository {
 
     override suspend fun getMessages(
         conversationId: String,
         limit: Int,
-        offset: Int
-    ): Result<List<MessageModel>> = Result.success(emptyList())
+        fromId: String?,
+        fromDate: String?,
+    ): Result<List<ChatMessageModel>> {
+        val conversationIdLong = conversationId.toLongOrNull()
+            ?: return Result.failure(IllegalArgumentException("Invalid conversationId: $conversationId"))
+
+        return chatDataSource.getMessageList(
+            conversationId = conversationIdLong,
+            limit = limit,
+            fromId = fromId,
+            fromDate = fromDate,
+        )
+            .onFailure { error ->
+                Napier.e(tag = "ChatRepo", throwable = error) {
+                    "Не удалось загрузить сообщения для $conversationId"
+                }
+            }
+    }
 }

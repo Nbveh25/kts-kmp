@@ -13,9 +13,9 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
+        //if (BuildConfig.DEBUG) {
             Napier.base(DebugAntilog(defaultTag = "Smart"))
-        }
+        //}
 
         initKoin(
             config = { androidContext(this@App) },

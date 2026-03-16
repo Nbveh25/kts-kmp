@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.domain.usecase
 
-import ru.kazan.itis.bikmukhametov.chat.api.model.MessageModel
+import io.github.aakira.napier.Napier
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.repository.ChatRepository
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetChatMessagesUseCase
 
@@ -11,6 +12,17 @@ internal class GetChatMessagesUseCaseImpl(
     override suspend fun invoke(
         conversationId: String,
         limit: Int,
-        offset: Int
-    ): Result<List<MessageModel>> = chatRepository.getMessages(conversationId, limit, offset)
+        fromId: String?,
+        fromDate: String?,
+    ): Result<List<ChatMessageModel>> {
+        Napier.d {
+            "$conversationId limit=$limit fromId=$fromId"
+        }
+        return chatRepository.getMessages(
+            conversationId = conversationId,
+            limit = limit,
+            fromId = fromId,
+            fromDate = fromDate,
+        )
+    }
 }

@@ -11,38 +11,34 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_interlocutor_name
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_downward_24
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatInputBar
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatTopBar
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.MessageBubble
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
-
-/** Тип отправителя сообщения для стилизации */
-enum class MessageSender {
-    OPERATOR,
-    CLIENT,
-    SYSTEM
-}
-
-/** Модель сообщения для UI (заглушка под реальные данные) */
-data class ChatMessageUi(
-    val id: String,
-    val text: String,
-    val sender: MessageSender,
-    val imageUrl: String? = null,
-)
 
 @Composable
 fun ChatScreen(
@@ -53,22 +49,26 @@ fun ChatScreen(
     onUserInfoClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var messageText by remember { mutableStateOf("") }
-    var botRunning by remember { mutableStateOf(true) }
-    var menuExpanded by remember { mutableStateOf(false) }
+    val viewModel: ChatViewModel = koinViewModel()
+    val state by viewModel.state.collectAsStateWithLifecycle()
+
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
-    val showScrollDown = listState.firstVisibleItemIndex > 0
+    val showScrollDown by remember {
+        derivedStateOf { listState.firstVisibleItemIndex > 0 }
+    }
+    val loadMoreThreshold = 3
 
-    // Заглушка сообщений для вёрстки
-    val placeholderMessages = remember {
-        listOf(
-            ChatMessageUi("1", "Здравствуйте! Чем могу помочь?", MessageSender.OPERATOR),
-            ChatMessageUi("2", "Хочу уточнить по заказу №12345", MessageSender.CLIENT),
-            ChatMessageUi("3", "Оператор подключён к диалогу", MessageSender.SYSTEM),
-            ChatMessageUi("4", "Проверяю информацию по заказу…", MessageSender.OPERATOR),
-            ChatMessageUi("5", "Спасибо, буду ждать", MessageSender.CLIENT),
-        )
+    LaunchedEffect(listState) {
+        snapshotFlow {
+            val layoutInfo = listState.layoutInfo
+            val totalItems = layoutInfo.totalItemsCount
+            val lastVisible = layoutInfo.visibleItemsInfo.maxOfOrNull { it.index } ?: -1
+            totalItems > 0 && lastVisible >= totalItems - 1 - loadMoreThreshold
+        }
+            .distinctUntilChanged()
+            .filter { it }
+            .collect { viewModel.onAction(ChatAction.ListEndReached) }
     }
 
     Scaffold(
@@ -77,23 +77,34 @@ fun ChatScreen(
             .imePadding(),
         topBar = {
             ChatTopBar(
-                interlocutorName = interlocutorName ?: "Собеседник",
+                interlocutorName = interlocutorName
+                    ?: stringResource(Res.string.chat_interlocutor_name),
                 interlocutorAvatarUrl = interlocutorAvatarUrl,
                 onBack = onBack,
                 onUserInfoClick = onUserInfoClick,
-                botRunning = botRunning,
-                onBotToggle = { botRunning = !botRunning },
-                menuExpanded = menuExpanded,
-                onMenuExpandChange = { menuExpanded = it },
-                onRunScenario = { menuExpanded = false },
+                botRunning = state.botRunning,
+                onBotToggle = { viewModel.onAction(ChatAction.OnBotToggleClick) },
+                menuExpanded = state.menuExpanded,
+                onMenuExpandChange = { expanded ->
+                    viewModel.onAction(ChatAction.OnMenuExpandChange(expanded))
+                },
+                onRunScenario = {
+                    viewModel.onAction(ChatAction.OnMenuExpandChange(false))
+                },
             )
         },
         bottomBar = {
             ChatInputBar(
-                messageText = messageText,
-                onMessageTextChange = { messageText = it },
+                messageText = state.messageText,
+                onMessageTextChange = { text ->
+                    viewModel.onAction(ChatAction.OnMessageTextChange(text))
+                },
                 onAttachClick = { },
-                onSendClick = { if (messageText.isNotBlank()) messageText = "" },
+                onSendClick = {
+                    if (state.messageText.isNotBlank()) {
+                        viewModel.onAction(ChatAction.OnSendMessageClick)
+                    }
+                },
             )
         }
     ) { paddingValues ->
@@ -110,12 +121,13 @@ fun ChatScreen(
                     vertical = Spacing.paddingSmall
                 ),
                 verticalArrangement = Arrangement.spacedBy(Spacing.paddingSmall),
+                reverseLayout = true,
             ) {
                 items(
-                    items = placeholderMessages,
-                    key = { it.id }
-                ) { msg ->
-                    MessageBubble(message = msg)
+                    items = state.messageList.asReversed(),
+                    key = { message -> message.id }
+                ) { messageItem ->
+                    MessageBubble(message = messageItem.toItem())
                 }
             }
 
@@ -127,17 +139,19 @@ fun ChatScreen(
                         }
                     },
                     modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(Spacing.paddingMedium)
+                        .align(Alignment.BottomEnd)
+                        .padding(Spacing.paddingSmall)
                         .background(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            CircleShape
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = CircleShape
                         )
                 ) {
-                    Text("↓", style = MaterialTheme.typography.titleMedium)
+                    Icon(
+                        imageVector = vectorResource(Res.drawable.ic_arrow_downward_24),
+                        contentDescription = "Спуск в конец чата"
+                    )
                 }
             }
         }
     }
 }
-

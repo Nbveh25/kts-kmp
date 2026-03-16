@@ -99,7 +99,9 @@ fun AppNavigation(
                 interlocutorName = null,
                 interlocutorAvatarUrl = null,
                 onBack = { navController.popBackStack() },
-                onUserInfoClick = { /* TODO: п. 7 ТЗ — экран информации о пользователе */ }
+                onUserInfoClick = {
+                    /* TODO: п. 7 ТЗ — экран информации о пользователе */
+                }
             )
         }
 
