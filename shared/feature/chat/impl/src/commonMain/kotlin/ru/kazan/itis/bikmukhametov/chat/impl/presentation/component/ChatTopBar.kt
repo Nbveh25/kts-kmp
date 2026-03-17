@@ -25,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_back_24

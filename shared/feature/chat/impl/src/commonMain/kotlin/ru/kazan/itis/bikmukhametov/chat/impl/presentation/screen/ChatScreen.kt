@@ -31,11 +31,13 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import org.koin.compose.viewmodel.koinViewModel
+import org.koin.core.parameter.parametersOf
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_interlocutor_name
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_downward_24
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatInputBar
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatRow
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatTopBar
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.DateDivider
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.MessageBubble
@@ -44,25 +46,17 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 import ru.kazan.itis.bikmukhametov.ui.util.epochDayOf
 import ru.kazan.itis.bikmukhametov.ui.util.formatDateLabel
 
-private sealed interface ChatRow {
-    /**
-     * @param showAvatar true — это последнее (новейшее) сообщение в группе одного отправителя,
-     *                   рядом с ним отображается аватар.
-     */
-    data class Message(val model: ChatMessageModel, val showAvatar: Boolean) : ChatRow
-    data class DateHeader(val label: String, val epochDay: Long) : ChatRow
-}
-
 @Composable
 fun ChatScreen(
     conversationId: String,
-    interlocutorName: String?,
-    interlocutorAvatarUrl: String?,
     onBack: () -> Unit,
     onUserInfoClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val viewModel: ChatViewModel = koinViewModel()
+    val viewModel: ChatViewModel = koinViewModel(
+        key = "chat-$conversationId",
+        parameters = { parametersOf(conversationId) },
+    )
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     val listState = rememberLazyListState()
@@ -72,16 +66,10 @@ fun ChatScreen(
     }
     val loadMoreThreshold = 3
 
-    // Плоский список: сообщения + разделители дат.
-    // reverseLayout = true → item[0] внизу экрана (новейшее).
-    // Для «showAvatar»: аватар показывается у нижнего (новейшего) сообщения каждой группы.
-    // Это item, перед которым в массиве (= визуально ниже) идёт другой отправитель или разделитель.
     val chatRows: List<ChatRow> = remember(state.messageList) {
-        val messages = state.messageList.asReversed() // новейшие первыми
+        val messages = state.messageList.asReversed()
         buildList {
             messages.forEachIndexed { index, msg ->
-                // showAvatar = true, если предыдущий элемент в списке не является
-                // сообщением от того же отправителя (значит этот — нижний в группе)
                 val showAvatar = lastOrNull().let { prev ->
                     prev !is ChatRow.Message || prev.model.senderType != msg.senderType
                 }
@@ -94,7 +82,12 @@ fun ChatScreen(
                     Long.MIN_VALUE
                 }
                 if (index == messages.lastIndex || currentDay != nextDay) {
-                    add(ChatRow.DateHeader(label = formatDateLabel(msg.createdAt), epochDay = currentDay))
+                    add(
+                        ChatRow.DateHeader(
+                            label = formatDateLabel(msg.createdAt),
+                            epochDay = currentDay
+                        )
+                    )
                 }
             }
         }
@@ -119,9 +112,8 @@ fun ChatScreen(
         topBar = {
             ChatTopBar(
                 interlocutorName = state.interlocutorName
-                    ?: interlocutorName
                     ?: stringResource(Res.string.chat_interlocutor_name),
-                interlocutorAvatarUrl = state.interlocutorAvatarUrl ?: interlocutorAvatarUrl,
+                interlocutorAvatarUrl = state.interlocutorAvatarUrl,
                 onBack = onBack,
                 onUserInfoClick = onUserInfoClick,
                 botRunning = state.botRunning,
@@ -144,7 +136,7 @@ fun ChatScreen(
                 onAttachClick = { },
                 onSendClick = {
                     if (state.messageText.isNotBlank()) {
-                        viewModel.onAction(ChatAction.OnSendMessageClick)
+                        viewModel.onAction(ChatAction.OnSendMessageClick) // TODO: send message
                     }
                 },
             )
@@ -169,17 +161,18 @@ fun ChatScreen(
                     items = chatRows,
                     key = { row ->
                         when (row) {
-                            is ChatRow.Message    -> row.model.id
+                            is ChatRow.Message -> row.model.id
                             is ChatRow.DateHeader -> "header_${row.epochDay}"
                         }
                     }
                 ) { row ->
                     when (row) {
-                        is ChatRow.Message    -> MessageBubble(
+                        is ChatRow.Message -> MessageBubble(
                             message = row.model.toItem(),
                             showAvatar = row.showAvatar,
-                            interlocutorAvatarUrl = state.interlocutorAvatarUrl ?: interlocutorAvatarUrl,
+                            interlocutorAvatarUrl = state.interlocutorAvatarUrl,
                         )
+
                         is ChatRow.DateHeader -> DateDivider(label = row.label)
                     }
                 }

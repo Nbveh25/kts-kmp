@@ -23,7 +23,7 @@ class ConversationRemoteDataSourceImpl(
                 urlString = BuildKonfig.BASE_URL + "/api/conversations/get_conversation"
             ) {
                 url {
-                    parameters.append("conversation_id", conversationId)
+                    parameters.append("id", conversationId)
                 }
             }
             // API: { "status", "data": { id, user, channel, state, ... } }

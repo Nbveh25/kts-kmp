@@ -24,9 +24,9 @@ data class ConversationDto(
 @Serializable
 data class UserDto(
     @SerialName("_id") val id: String,
-    @SerialName("username") val username: String,
-    @SerialName("first_name") val firstName: String,
-    @SerialName("last_name") val lastName: String,
+    @SerialName("username") val username: String?,
+    @SerialName("first_name") val firstName: String?,
+    @SerialName("last_name") val lastName: String?,
     @SerialName("photo") val photo: PhotoDto?,
     @SerialName("url") val profileUrl: String?
 )

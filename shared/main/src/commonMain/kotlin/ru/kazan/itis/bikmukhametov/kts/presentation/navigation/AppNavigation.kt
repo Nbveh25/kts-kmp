@@ -96,11 +96,9 @@ fun AppNavigation(
             val chatRoute: Route.Chat = backStackEntry.toRoute()
             ChatScreen(
                 conversationId = chatRoute.conversationId,
-                interlocutorName = null,
-                interlocutorAvatarUrl = null,
                 onBack = { navController.popBackStack() },
                 onUserInfoClick = {
-                    /* TODO: п. 7 ТЗ — экран информации о пользователе */
+                    /* TODO: экран информации о пользователе */
                 }
             )
         }

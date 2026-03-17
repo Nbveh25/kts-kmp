@@ -1,6 +1,5 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
@@ -9,27 +8,32 @@ import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetConversationByIdUseCase
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ChatViewModel(
+    private val conversationId: String,
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getConversationByIdUseCase: GetConversationByIdUseCase,
-    private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel<ChatUiState, ChatAction>(ChatUiState()) {
-
-    private val conversationId: String =
-        savedStateHandle.get<String>("conversationId") ?: ""
 
     private var isPageLoading = false
     private var isEndReached = false
 
     init {
+        Napier.d(tag = "ChatVM") { "Created for conversationId=$conversationId (instance=${hashCode()})" }
         loadMessages(reset = true)
         loadConversationInfo()
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        Napier.d(tag = "ChatVM") { "Cleared for conversationId=$conversationId (instance=${hashCode()})" }
     }
 
     private fun loadConversationInfo() {
         if (conversationId.isBlank()) return
         viewModelScope.launch {
+            Napier.d(tag = "ChatVM") { "loadConversationInfo → conversationId=$conversationId" }
             getConversationByIdUseCase(conversationId)
                 .onSuccess { conversation ->
+                    Napier.d(tag = "ChatVM") { "loadConversationInfo → userId=${conversation.user.id}, name=${conversation.user.fullName}" }
                     updateState {
                         copy(
                             interlocutorName = conversation.user.fullName,

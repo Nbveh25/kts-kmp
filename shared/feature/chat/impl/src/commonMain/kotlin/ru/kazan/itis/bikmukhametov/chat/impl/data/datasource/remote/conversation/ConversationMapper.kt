@@ -20,9 +20,11 @@ internal fun ConversationDto.toModel() = ConversationModel(
 
 internal fun UserDto.toModel() = UserModel(
     id = id,
-    username = username,
-    // Объединяем имя и фамилию сразу при маппинге
-    fullName = "$firstName $lastName".trim(),
+    username = username.orEmpty(),
+    fullName = listOfNotNull(
+        firstName?.takeIf { it.isNotBlank() },
+        lastName?.takeIf { it.isNotBlank() },
+    ).joinToString(" ").ifBlank { username.orEmpty() },
     avatarUrl = photo?.url,
     profileUrl = profileUrl
 )
