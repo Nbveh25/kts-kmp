@@ -31,4 +31,8 @@ object Dimensions {
     val iconSize: Dp = 20.dp
     val iconButtonSize: Dp = 24.dp
     val onboardingImageSize: Dp = 400.dp
+
+    // Chat / avatars
+    val chatAvatarSize: Dp = 32.dp
+    val chatTopBarAvatarSize: Dp = 40.dp
 }

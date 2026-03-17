@@ -31,6 +31,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_back_2
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_more_vert_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_pause_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_play_arrow_24
+import ru.kazan.itis.bikmukhametov.theme.Dimensions
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
@@ -76,7 +77,7 @@ internal fun ChatTopBar(
                     if (interlocutorAvatarUrl != null) {
                         AsyncImage(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(Dimensions.chatTopBarAvatarSize)
                                 .clip(CircleShape),
                             model = interlocutorAvatarUrl,
                             contentDescription = null,
@@ -85,7 +86,7 @@ internal fun ChatTopBar(
                     } else {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(Dimensions.chatTopBarAvatarSize)
                                 .clip(CircleShape)
                                 .background(MaterialTheme.colorScheme.surfaceVariant),
                             contentAlignment = Alignment.Center,

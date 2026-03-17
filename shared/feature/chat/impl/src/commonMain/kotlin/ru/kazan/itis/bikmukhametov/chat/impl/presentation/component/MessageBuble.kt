@@ -37,9 +37,8 @@ import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_bot
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_manager
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.ChatMessageItem
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
+import ru.kazan.itis.bikmukhametov.theme.Dimensions
 import ru.kazan.itis.bikmukhametov.theme.Spacing
-
-private val AvatarSize = 32.dp
 
 @Composable
 internal fun MessageBubble(
@@ -158,7 +157,7 @@ private fun AvatarSlot(
             interlocutorAvatarUrl = interlocutorAvatarUrl,
         )
     } else {
-        Spacer(modifier = Modifier.size(AvatarSize))
+        Spacer(modifier = Modifier.size(Dimensions.chatAvatarSize))
     }
 }
 
@@ -176,7 +175,7 @@ private fun SenderAvatar(
     modifier: Modifier = Modifier,
 ) {
     val baseModifier = modifier
-        .size(AvatarSize)
+        .size(Dimensions.chatAvatarSize)
         .clip(CircleShape)
 
     when (sender) {
