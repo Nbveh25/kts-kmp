@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote
+package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

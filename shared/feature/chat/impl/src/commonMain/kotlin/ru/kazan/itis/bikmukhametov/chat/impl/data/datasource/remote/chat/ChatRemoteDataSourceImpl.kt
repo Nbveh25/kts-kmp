@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote
+package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat
 
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
@@ -10,7 +10,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
 import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
-internal class ChatDataSourceImpl(
+internal class ChatRemoteDataSourceImpl(
     private val httpClient: HttpClient
 ) : ChatDataSource {
 

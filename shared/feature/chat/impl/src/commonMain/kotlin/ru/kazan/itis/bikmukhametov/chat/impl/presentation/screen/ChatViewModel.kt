@@ -2,12 +2,15 @@ package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import io.github.aakira.napier.Napier
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetChatMessagesUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetConversationByIdUseCase
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ChatViewModel(
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
+    private val getConversationByIdUseCase: GetConversationByIdUseCase,
     private val savedStateHandle: SavedStateHandle
 ) : BaseViewModel<ChatUiState, ChatAction>(ChatUiState()) {
 
@@ -19,6 +22,28 @@ internal class ChatViewModel(
 
     init {
         loadMessages(reset = true)
+        loadConversationInfo()
+    }
+
+    private fun loadConversationInfo() {
+        if (conversationId.isBlank()) return
+        viewModelScope.launch {
+            getConversationByIdUseCase(conversationId)
+                .onSuccess { conversation ->
+                    updateState {
+                        copy(
+                            interlocutorName = conversation.user.fullName,
+                            interlocutorAvatarUrl = conversation.user.avatarUrl,
+                            botRunning = !conversation.state.isStoppedByManager,
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    Napier.e(tag = "ChatVM", throwable = e) {
+                        "loadConversationInfo failed for conversationId=$conversationId"
+                    }
+                }
+        }
     }
 
     override fun onAction(action: ChatAction) {
@@ -65,6 +90,7 @@ internal class ChatViewModel(
         isEndReached = false
         isPageLoading = false
         loadMessages(reset = true)
+        loadConversationInfo()
     }
 
     private fun loadMessages(reset: Boolean = false) {
@@ -73,8 +99,6 @@ internal class ChatViewModel(
         viewModelScope.launch {
             isPageLoading = true
 
-            // Курсор — самое старое загруженное сообщение (первый элемент ascending-списка).
-            // Для первой загрузки (reset) курсор не передаётся.
             val cursor = if (reset) null else state.value.messageList.firstOrNull()
 
             updateState {
@@ -98,8 +122,6 @@ internal class ChatViewModel(
                             messageList = if (reset) {
                                 newMessages
                             } else {
-                                // Старые сообщения идут перед текущими (ascending order),
-                                // чтобы asReversed() в UI правильно отрисовал их сверху.
                                 // distinctBy удаляет дубли на случай перекрытия страниц API.
                                 (newMessages + messageList).distinctBy { it.id }
                             }
@@ -122,6 +144,8 @@ internal class ChatViewModel(
             isPageLoading = false
         }
     }
+
+
 
     private companion object {
         private const val PAGE_SIZE = 20

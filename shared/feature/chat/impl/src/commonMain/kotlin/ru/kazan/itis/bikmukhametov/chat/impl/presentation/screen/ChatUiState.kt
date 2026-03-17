@@ -11,4 +11,8 @@ internal data class ChatUiState(
     val messageText: String = "",
     val botRunning: Boolean = true,
     val menuExpanded: Boolean = false,
+    /** Имя собеседника из API (get_conversation). Если null — использовать переданное в экран. */
+    val interlocutorName: String? = null,
+    /** URL аватара собеседника из API. Если null — использовать переданный в экран. */
+    val interlocutorAvatarUrl: String? = null,
 )
