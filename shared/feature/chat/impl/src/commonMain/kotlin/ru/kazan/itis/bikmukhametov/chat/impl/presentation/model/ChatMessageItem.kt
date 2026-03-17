@@ -9,24 +9,19 @@ import ru.kazan.itis.bikmukhametov.ui.util.formatTimeOnly
 internal data class ChatMessageItem(
     val id: String,
     val text: String,
-    val sender: MessageSender,
+    val sender: SenderType,
     val createdAt: String,   // время в формате "HH:MM"
     val epochDay: Long,      // день (epochMs / 86_400_000) для группировки по датам
+    val managerEmail: String? = null
 )
 
 internal fun ChatMessageModel.toItem(): ChatMessageItem {
-    val sender = when (senderType) {
-        SenderType.USER -> MessageSender.CLIENT
-        SenderType.BOT -> MessageSender.OPERATOR
-        SenderType.SERVICE -> MessageSender.SYSTEM
-        SenderType.UNKNOWN -> MessageSender.SYSTEM
-    }
-
     return ChatMessageItem(
         id = id,
         text = text,
-        sender = sender,
+        sender = senderType,
         createdAt = formatTimeOnly(createdAt),
         epochDay = epochDayOf(createdAt),
+        managerEmail = managerEmail
     )
 }

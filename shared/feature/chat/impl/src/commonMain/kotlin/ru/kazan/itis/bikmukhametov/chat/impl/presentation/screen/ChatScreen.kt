@@ -11,32 +11,31 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_interlocutor_name
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_downward_24
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatInputBar
-import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatRow
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatTopBar
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.DateDivider
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.MessageBubble
@@ -44,6 +43,15 @@ import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 import ru.kazan.itis.bikmukhametov.ui.util.epochDayOf
 import ru.kazan.itis.bikmukhametov.ui.util.formatDateLabel
+
+private sealed interface ChatRow {
+    /**
+     * @param showAvatar true — это последнее (новейшее) сообщение в группе одного отправителя,
+     *                   рядом с ним отображается аватар.
+     */
+    data class Message(val model: ChatMessageModel, val showAvatar: Boolean) : ChatRow
+    data class DateHeader(val label: String, val epochDay: Long) : ChatRow
+}
 
 @Composable
 fun ChatScreen(
@@ -64,13 +72,27 @@ fun ChatScreen(
     }
     val loadMoreThreshold = 3
 
+    // Плоский список: сообщения + разделители дат.
+    // reverseLayout = true → item[0] внизу экрана (новейшее).
+    // Для «showAvatar»: аватар показывается у нижнего (новейшего) сообщения каждой группы.
+    // Это item, перед которым в массиве (= визуально ниже) идёт другой отправитель или разделитель.
     val chatRows: List<ChatRow> = remember(state.messageList) {
-        val messages = state.messageList.asReversed()
+        val messages = state.messageList.asReversed() // новейшие первыми
         buildList {
             messages.forEachIndexed { index, msg ->
-                add(ChatRow.Message(msg))
+                // showAvatar = true, если предыдущий элемент в списке не является
+                // сообщением от того же отправителя (значит этот — нижний в группе)
+                val showAvatar = lastOrNull().let { prev ->
+                    prev !is ChatRow.Message || prev.model.senderType != msg.senderType
+                }
+                add(ChatRow.Message(model = msg, showAvatar = showAvatar))
+
                 val currentDay = epochDayOf(msg.createdAt)
-                val nextDay = if (index < messages.lastIndex) epochDayOf(messages[index + 1].createdAt) else Long.MIN_VALUE
+                val nextDay = if (index < messages.lastIndex) {
+                    epochDayOf(messages[index + 1].createdAt)
+                } else {
+                    Long.MIN_VALUE
+                }
                 if (index == messages.lastIndex || currentDay != nextDay) {
                     add(ChatRow.DateHeader(label = formatDateLabel(msg.createdAt), epochDay = currentDay))
                 }
@@ -147,13 +169,17 @@ fun ChatScreen(
                     items = chatRows,
                     key = { row ->
                         when (row) {
-                            is ChatRow.Message -> row.model.id
+                            is ChatRow.Message    -> row.model.id
                             is ChatRow.DateHeader -> "header_${row.epochDay}"
                         }
                     }
                 ) { row ->
                     when (row) {
-                        is ChatRow.Message -> MessageBubble(message = row.model.toItem())
+                        is ChatRow.Message    -> MessageBubble(
+                            message = row.model.toItem(),
+                            showAvatar = row.showAvatar,
+                            interlocutorAvatarUrl = state.interlocutorAvatarUrl ?: interlocutorAvatarUrl,
+                        )
                         is ChatRow.DateHeader -> DateDivider(label = row.label)
                     }
                 }
