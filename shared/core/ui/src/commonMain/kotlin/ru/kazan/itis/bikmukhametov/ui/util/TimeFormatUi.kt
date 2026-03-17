@@ -1,4 +1,5 @@
-package ru.kazan.itis.bikmukhametov.main.impl.presentation.util
+package ru.kazan.itis.bikmukhametov.ui.util
+
 
 /**
  * Форматирует дату/время для отображения в UI (карточки чатов, списки).
@@ -36,6 +37,64 @@ fun formatTimeForUi(
             parsed.year % 100
         )
     }
+}
+
+/**
+ * Возвращает только время в формате "HH:MM" (для отображения в пузыре сообщения).
+ */
+fun formatTimeOnly(isoOrEpoch: String): String {
+    val epochMs = parseToEpochMillis(isoOrEpoch) ?: return isoOrEpoch
+    val parsed = epochMillisToComponents(epochMs)
+    return "%02d:%02d".format(parsed.hour, parsed.minute)
+}
+
+/**
+ * Возвращает метку даты для разделителя в чате:
+ * - Сегодня → "Сегодня"
+ * - Вчера → "Вчера"
+ * - Тот же год → "16 марта"
+ * - Другой год → "16 марта 2023"
+ */
+fun formatDateLabel(isoOrEpoch: String, nowMs: Long = currentTimeMillis()): String {
+    val epochMs = parseToEpochMillis(isoOrEpoch) ?: return isoOrEpoch
+    val parsed = epochMillisToComponents(epochMs)
+
+    val nowDay = nowMs / MILLIS_PER_DAY
+    val thenDay = epochMs / MILLIS_PER_DAY
+    val diffDays = nowDay - thenDay
+    val nowYear = epochMillisToComponents(nowMs).year
+
+    return when {
+        diffDays == 0L -> "Сегодня"
+        diffDays == 1L -> "Вчера"
+        parsed.year == nowYear -> "${parsed.dayOfMonth} ${monthName(parsed.month)}"
+        else -> "${parsed.dayOfMonth} ${monthName(parsed.month)} ${parsed.year}"
+    }
+}
+
+/**
+ * Возвращает номер дня (epochMs / MILLIS_PER_DAY) для группировки сообщений по датам.
+ * При ошибке парсинга возвращает [Long.MIN_VALUE].
+ */
+fun epochDayOf(isoOrEpoch: String): Long {
+    val epochMs = parseToEpochMillis(isoOrEpoch) ?: return Long.MIN_VALUE
+    return epochMs / MILLIS_PER_DAY
+}
+
+private fun monthName(month: Int): String = when (month) {
+    1 -> "января"
+    2 -> "февраля"
+    3 -> "марта"
+    4 -> "апреля"
+    5 -> "мая"
+    6 -> "июня"
+    7 -> "июля"
+    8 -> "августа"
+    9 -> "сентября"
+    10 -> "октября"
+    11 -> "ноября"
+    12 -> "декабря"
+    else -> "?"
 }
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
@@ -92,9 +151,9 @@ private fun parseIso8601ToEpochMillis(iso: String): Long? {
 private fun utcToEpochMillis(year: Int, month: Int, dayOfMonth: Int, hour: Int, minute: Int, second: Int): Long {
     val days = dateToEpochDays(year, month, dayOfMonth)
     return days * MILLIS_PER_DAY +
-        hour * 3600L * 1000 +
-        minute * 60L * 1000 +
-        second * 1000L
+            hour * 3600L * 1000 +
+            minute * 60L * 1000 +
+            second * 1000L
 }
 
 private fun dateToEpochDays(year: Int, month: Int, dayOfMonth: Int): Long {

@@ -31,14 +31,19 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_interlocutor_name
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_downward_24
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatInputBar
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatRow
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatTopBar
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.DateDivider
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.MessageBubble
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
+import ru.kazan.itis.bikmukhametov.ui.util.epochDayOf
+import ru.kazan.itis.bikmukhametov.ui.util.formatDateLabel
 
 @Composable
 fun ChatScreen(
@@ -58,6 +63,20 @@ fun ChatScreen(
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
     val loadMoreThreshold = 3
+
+    val chatRows: List<ChatRow> = remember(state.messageList) {
+        val messages = state.messageList.asReversed()
+        buildList {
+            messages.forEachIndexed { index, msg ->
+                add(ChatRow.Message(msg))
+                val currentDay = epochDayOf(msg.createdAt)
+                val nextDay = if (index < messages.lastIndex) epochDayOf(messages[index + 1].createdAt) else Long.MIN_VALUE
+                if (index == messages.lastIndex || currentDay != nextDay) {
+                    add(ChatRow.DateHeader(label = formatDateLabel(msg.createdAt), epochDay = currentDay))
+                }
+            }
+        }
+    }
 
     LaunchedEffect(listState) {
         snapshotFlow {
@@ -125,10 +144,18 @@ fun ChatScreen(
                 reverseLayout = true,
             ) {
                 items(
-                    items = state.messageList.asReversed(),
-                    key = { message -> message.id }
-                ) { messageItem ->
-                    MessageBubble(message = messageItem.toItem())
+                    items = chatRows,
+                    key = { row ->
+                        when (row) {
+                            is ChatRow.Message -> row.model.id
+                            is ChatRow.DateHeader -> "header_${row.epochDay}"
+                        }
+                    }
+                ) { row ->
+                    when (row) {
+                        is ChatRow.Message -> MessageBubble(message = row.model.toItem())
+                        is ChatRow.DateHeader -> DateDivider(label = row.label)
+                    }
                 }
             }
 

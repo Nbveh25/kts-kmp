@@ -3,7 +3,7 @@ package ru.kazan.itis.bikmukhametov.main.impl.presentation.model
 import androidx.compose.runtime.Immutable
 import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
 import ru.kazan.itis.bikmukhametov.main.api.model.ConversationModel
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.util.formatTimeForUi
+import ru.kazan.itis.bikmukhametov.ui.util.formatTimeForUi
 
 /** Бейдж соцсети в карточке чата */
 enum class SocialBadge {

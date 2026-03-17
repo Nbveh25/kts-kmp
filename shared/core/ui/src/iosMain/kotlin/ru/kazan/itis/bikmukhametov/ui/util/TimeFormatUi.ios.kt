@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.main.impl.presentation.util
+package ru.kazan.itis.bikmukhametov.ui.util
 
 import platform.Foundation.NSDate
 

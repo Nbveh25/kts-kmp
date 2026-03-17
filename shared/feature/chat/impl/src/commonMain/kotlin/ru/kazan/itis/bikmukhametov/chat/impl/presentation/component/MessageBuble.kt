@@ -2,6 +2,7 @@ package ru.kazan.itis.bikmukhametov.chat.impl.presentation.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,12 +30,14 @@ internal fun MessageBubble(
             Alignment.Start,
             Arrangement.Start,
         )
+
         MessageSender.CLIENT -> Quadruple(
             MaterialTheme.colorScheme.tertiaryContainer,
             MaterialTheme.colorScheme.onTertiaryContainer,
             Alignment.End,
             Arrangement.End,
         )
+
         MessageSender.SYSTEM -> Quadruple(
             MaterialTheme.colorScheme.surfaceVariant,
             MaterialTheme.colorScheme.onSurfaceVariant,
@@ -57,16 +60,35 @@ internal fun MessageBubble(
             color = backgroundColor,
         ) {
             Column(
-                modifier = Modifier.padding(Spacing.paddingMedium),
+                modifier = Modifier.padding(Spacing.paddingSmall),
             ) {
+                // Сообщение
                 Text(
                     text = message.text,
                     style = MaterialTheme.typography.bodyMedium,
                     color = textColor,
                 )
+
+                // Время сообщения
+                Row(
+                    modifier = Modifier
+                        .padding(top = Spacing.paddingExtraSmall),
+                    //horizontalArrangement = horizontalArrangement
+                ) {
+                    Text(
+                        text = message.createdAt,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = textColor.copy(alpha = 0.7f),
+                    )
+                }
             }
         }
     }
 }
 
-private data class Quadruple<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
+private data class Quadruple<A, B, C, D>(
+    val first: A,
+    val second: B,
+    val third: C,
+    val fourth: D
+)
