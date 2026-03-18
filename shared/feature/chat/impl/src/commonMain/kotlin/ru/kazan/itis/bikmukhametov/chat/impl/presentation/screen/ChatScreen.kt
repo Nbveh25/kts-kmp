@@ -142,61 +142,79 @@ fun ChatScreen(
             )
         }
     ) { paddingValues ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                state = listState,
-                contentPadding = PaddingValues(
-                    horizontal = Spacing.paddingMedium,
-                    vertical = Spacing.paddingSmall
-                ),
-                verticalArrangement = Arrangement.spacedBy(Spacing.paddingSmall),
-                reverseLayout = true,
-            ) {
-                items(
-                    items = chatRows,
-                    key = { row ->
-                        when (row) {
-                            is ChatRow.Message -> row.model.id
-                            is ChatRow.DateHeader -> "header_${row.epochDay}"
-                        }
-                    }
-                ) { row ->
-                    when (row) {
-                        is ChatRow.Message -> MessageBubble(
-                            message = row.model.toItem(),
-                            showAvatar = row.showAvatar,
-                            interlocutorAvatarUrl = state.interlocutorAvatarUrl,
-                        )
-
-                        is ChatRow.DateHeader -> DateDivider(label = row.label)
-                    }
-                }
+        when {
+            state.isLoading && state.messageList.isEmpty() && state.loadError == null -> {
+                ChatShimmerScreen(
+                    modifier = Modifier.padding(paddingValues)
+                )
             }
 
-            if (showScrollDown) {
-                IconButton(
-                    onClick = {
-                        scope.launch {
-                            listState.animateScrollToItem(0)
-                        }
-                    },
+            state.loadError != null && state.messageList.isEmpty() -> {
+                ChatErrorScreen(
+                    modifier = Modifier.padding(paddingValues),
+                    errorMessage = state.loadError,
+                    onRetry = { viewModel.onAction(ChatAction.Refresh) }
+                )
+            }
+
+            else -> {
+                Box(
                     modifier = Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(Spacing.paddingSmall)
-                        .background(
-                            color = MaterialTheme.colorScheme.surfaceVariant,
-                            shape = CircleShape
-                        )
+                        .fillMaxSize()
+                        .padding(paddingValues)
                 ) {
-                    Icon(
-                        imageVector = vectorResource(Res.drawable.ic_arrow_downward_24),
-                        contentDescription = "Спуск в конец чата"
-                    )
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        state = listState,
+                        contentPadding = PaddingValues(
+                            horizontal = Spacing.paddingMedium,
+                            vertical = Spacing.paddingSmall
+                        ),
+                        verticalArrangement = Arrangement.spacedBy(Spacing.paddingSmall),
+                        reverseLayout = true,
+                    ) {
+                        items(
+                            items = chatRows,
+                            key = { row ->
+                                when (row) {
+                                    is ChatRow.Message -> row.model.id
+                                    is ChatRow.DateHeader -> "header_${row.epochDay}"
+                                }
+                            }
+                        ) { row ->
+                            when (row) {
+                                is ChatRow.Message -> MessageBubble(
+                                    message = row.model.toItem(),
+                                    showAvatar = row.showAvatar,
+                                    interlocutorAvatarUrl = state.interlocutorAvatarUrl,
+                                )
+
+                                is ChatRow.DateHeader -> DateDivider(label = row.label)
+                            }
+                        }
+                    }
+
+                    if (showScrollDown) {
+                        IconButton(
+                            onClick = {
+                                scope.launch {
+                                    listState.animateScrollToItem(0)
+                                }
+                            },
+                            modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(Spacing.paddingSmall)
+                                .background(
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
+                                    shape = CircleShape
+                                )
+                        ) {
+                            Icon(
+                                imageVector = vectorResource(Res.drawable.ic_arrow_downward_24),
+                                contentDescription = "Спуск в конец чата"
+                            )
+                        }
+                    }
                 }
             }
         }

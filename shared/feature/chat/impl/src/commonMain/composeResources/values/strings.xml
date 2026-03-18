@@ -6,5 +6,7 @@
     <string name="chat_start_bot">Пользователь переведен на бота</string>
     <string name="chat_operator">Оператор</string>
     <string name="chat_bot">Бот</string>
+    <string name="chat_error_message">Не удалось загрузить сообщения</string>
+    <string name="chat_button_retry">Повторить</string>
 
 </resources>
