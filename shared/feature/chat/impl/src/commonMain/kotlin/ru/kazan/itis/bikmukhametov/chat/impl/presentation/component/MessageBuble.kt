@@ -212,9 +212,8 @@ private fun SenderAvatar(
                     } else {
                         painterResource(Res.drawable.ic_bot)
                     },
-                    contentDescription = if (managerEmail != null) stringResource(Res.string.chat_operator) else stringResource(
-                        Res.string.chat_bot
-                    ),
+                    contentDescription = if (managerEmail != null) stringResource(Res.string.chat_operator)
+                    else stringResource(Res.string.chat_bot),
                     tint = Color.Unspecified,
                     modifier = Modifier.size(32.dp),
                 )

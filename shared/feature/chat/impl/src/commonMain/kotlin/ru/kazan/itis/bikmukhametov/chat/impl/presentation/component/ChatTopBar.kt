@@ -119,8 +119,10 @@ internal fun ChatTopBar(
                     )
             ) {
                 Icon(
-                    imageVector = if (botRunning) vectorResource(Res.drawable.ic_play_arrow_24) else vectorResource(Res.drawable.ic_pause_24),
-                    tint = if (botRunning) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.error, //if (botRunning)
+                    imageVector = if (botRunning) vectorResource(Res.drawable.ic_play_arrow_24)
+                    else vectorResource(Res.drawable.ic_pause_24),
+                    tint = if (botRunning) MaterialTheme.colorScheme.onPrimaryContainer
+                    else MaterialTheme.colorScheme.error, //if (botRunning)
                     contentDescription = "Play"
                 )
             }

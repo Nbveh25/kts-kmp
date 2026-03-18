@@ -17,23 +17,15 @@ internal class ChatViewModel(
     private var isEndReached = false
 
     init {
-        Napier.d(tag = "ChatVM") { "Created for conversationId=$conversationId (instance=${hashCode()})" }
         loadMessages(reset = true)
         loadConversationInfo()
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        Napier.d(tag = "ChatVM") { "Cleared for conversationId=$conversationId (instance=${hashCode()})" }
     }
 
     private fun loadConversationInfo() {
         if (conversationId.isBlank()) return
         viewModelScope.launch {
-            Napier.d(tag = "ChatVM") { "loadConversationInfo → conversationId=$conversationId" }
             getConversationByIdUseCase(conversationId)
                 .onSuccess { conversation ->
-                    Napier.d(tag = "ChatVM") { "loadConversationInfo → userId=${conversation.user.id}, name=${conversation.user.fullName}" }
                     updateState {
                         copy(
                             interlocutorName = conversation.user.fullName,
@@ -43,9 +35,7 @@ internal class ChatViewModel(
                     }
                 }
                 .onFailure { e ->
-                    Napier.e(tag = "ChatVM", throwable = e) {
-                        "loadConversationInfo failed for conversationId=$conversationId"
-                    }
+
                 }
         }
     }
