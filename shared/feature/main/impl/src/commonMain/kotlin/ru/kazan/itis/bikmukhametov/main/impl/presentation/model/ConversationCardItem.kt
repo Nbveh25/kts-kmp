@@ -1,21 +1,25 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.model
 
 import androidx.compose.runtime.Immutable
+import org.jetbrains.compose.resources.DrawableResource
 import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
 import ru.kazan.itis.bikmukhametov.main.api.model.ConversationModel
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_generic_chat_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_jivo_chat_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_max_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_telegram_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_viber_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_vk_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_wazzup_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_widget_logo
 import ru.kazan.itis.bikmukhametov.ui.util.formatTimeForUi
-
-/** Бейдж соцсети в карточке чата */
-enum class SocialBadge {
-    TG,
-    WA
-}
 
 @Immutable
 data class ConversationCardItem(
     val id: String,
     val avatarUrl: String? = null,
-    val socialBadge: SocialBadge,
+    val socialBadge: DrawableResource,
     val name: String,
     val lastMessageText: String,
     val timeOrDate: String,
@@ -40,10 +44,15 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
     }
 
     // Преобразуем kind канала в SocialBadge
-    val socialBadge = when (channel.kind) {
-        ChannelKind.TG -> SocialBadge.TG
-        ChannelKind.WA -> SocialBadge.WA
-        ChannelKind.UNKNOWN -> SocialBadge.TG // или можно WA, зависит от контекста
+    val socialBadgeRes = when (channel.kind) {
+        ChannelKind.JIVO -> Res.drawable.ic_jivo_chat_logo
+        ChannelKind.MAX -> Res.drawable.ic_max_logo
+        ChannelKind.TG -> Res.drawable.ic_telegram_logo
+        ChannelKind.VB -> Res.drawable.ic_viber_logo
+        ChannelKind.WZ -> Res.drawable.ic_wazzup_logo
+        ChannelKind.WIDGET -> Res.drawable.ic_widget_logo
+        ChannelKind.VK -> Res.drawable.ic_vk_logo
+        else -> Res.drawable.ic_generic_chat_logo
     }
 
     // Текст последнего сообщения или пустая строка
@@ -63,7 +72,7 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
     return ConversationCardItem(
         id = id.toString(),
         avatarUrl = user.photo?.url,
-        socialBadge = socialBadge,
+        socialBadge = socialBadgeRes,
         name = userName,
         lastMessageText = lastMessageText,
         timeOrDate = timeOrDate,

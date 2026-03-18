@@ -45,14 +45,28 @@ data class ChannelModel(
 /**
  * Типы каналов (можно расширять по мере необходимости)
  */
-enum class ChannelKind {
-    TG, WA, UNKNOWN;
+enum class ChannelKind(val apiValue: String, val displayName: String) {
+    JIVO("jivo", "JivoChat"),
+    MAX("max", "MAX"),
+    TG("tg", "Telegram"),
+    VB("vb", "Viber"),
+    WZ("wz", "Wazzup24"),
+
+    VK("vk", "ВКонтакте"),
+    WA("wa", "WhatsApp"),
+    AVITO("avito", "Авито"),
+    WIDGET("widget", "Виджет"),
+    API("api", "API"),
+    CQ("cq", "Carrot Quest"),
+    OZON("ozon", "Ozon"),
+    WB("wb", "Wildberries"),
+    OK("ok", "Одноклассники"),
+    UNKNOWN("unknown", "Неизвестно");
 
     companion object {
-        fun fromString(value: String): ChannelKind = when (value.lowercase()) {
-            "tg" -> TG
-            "wa" -> WA
-            else -> UNKNOWN
+        fun fromString(value: String?): ChannelKind {
+            val normalized = value?.lowercase() ?: return UNKNOWN
+            return values().find { it.apiValue == normalized } ?: UNKNOWN
         }
     }
 }
