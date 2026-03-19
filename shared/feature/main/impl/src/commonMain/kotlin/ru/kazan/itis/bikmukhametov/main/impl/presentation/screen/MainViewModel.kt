@@ -6,6 +6,7 @@ import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
@@ -15,6 +16,7 @@ internal class MainViewModel(
     private val getProjectListUseCase: GetProjectListUseCase,
     private val getConversationListUseCase: GetConversationListUseCase,
     private val observeConversationListUseCase: ObserveConversationListUseCase,
+    private val setProjectUseCase: SetProjectUseCase,
 ) : BaseViewModel<MainUiState, MainAction>(MainUiState()) {
 
     private var currentOffset = 0
@@ -40,8 +42,28 @@ internal class MainViewModel(
                 copy(projectDropdownExpanded = action.expanded)
             }
 
-            is MainAction.SelectProject -> updateState {
-                copy(currentProject = action.project, projectDropdownExpanded = false)
+            is MainAction.SelectProject -> {
+                val cabinetId = state.value.currentCabinet?.id
+                if (cabinetId != null) {
+                    viewModelScope.launch {
+                        setProjectUseCase(cabinetId, action.project.id)
+                            .onSuccess {
+                                updateState {
+                                    copy(currentProject = action.project, projectDropdownExpanded = false)
+                                }
+                                refreshConversations()
+                            }
+                            .onFailure {
+                                updateState {
+                                    copy(currentProject = action.project, projectDropdownExpanded = false)
+                                }
+                            }
+                    }
+                } else {
+                    updateState {
+                        copy(currentProject = action.project, projectDropdownExpanded = false)
+                    }
+                }
             }
 
             is MainAction.ToggleSearch -> updateState {

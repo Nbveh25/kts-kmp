@@ -13,6 +13,7 @@ import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.local.ConversationLocalDataSource
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.cabinet.CabinetDataSourceImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.conversation.ConversationDataSourceImpl
@@ -24,6 +25,7 @@ import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetCabinetUseCaseImp
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetConversationListUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetProjectListUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.ObserveConversationListUseCaseImpl
+import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.SetProjectUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainViewModel
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 
@@ -46,6 +48,7 @@ val mainModule = module {
     // Domain layer
     factory<GetCabinetUseCase> { GetCabinetUseCaseImpl(get()) }
     factory<GetProjectListUseCase> { GetProjectListUseCaseImpl(get()) }
+    factory<SetProjectUseCase> { SetProjectUseCaseImpl(get()) }
     factory<GetConversationListUseCase> { GetConversationListUseCaseImpl(get()) }
     factory<ObserveConversationListUseCase> { ObserveConversationListUseCaseImpl(get()) }
 
