@@ -9,4 +9,6 @@ interface ChatDataSource {
         fromId: String? = null,
         fromDate: String? = null,
     ): Result<List<ChatMessageModel>>
+
+    suspend fun sendMessage(conversationId: Long, messageText: String): Result<Unit>
 }

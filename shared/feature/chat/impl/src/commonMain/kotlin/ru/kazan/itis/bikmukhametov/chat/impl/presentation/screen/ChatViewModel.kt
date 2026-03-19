@@ -7,6 +7,7 @@ import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetChatMessagesUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetConversationByIdUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.ObserveChatUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.SendMessageUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StartBotUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StopBotUseCase
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
@@ -15,6 +16,7 @@ internal class ChatViewModel(
     private val conversationId: String,
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getConversationByIdUseCase: GetConversationByIdUseCase,
+    private val sendMessageUseCase: SendMessageUseCase,
     private val startBotUseCase: StartBotUseCase,
     private val stopBotUseCase: StopBotUseCase,
     private val observeChatUseCase: ObserveChatUseCase,
@@ -86,11 +88,7 @@ internal class ChatViewModel(
                 updateState { copy(messageText = action.text) }
             }
 
-            is ChatAction.OnSendMessageClick -> {
-                // TODO: отправка сообщения на бэкенд (если понадобится)
-                // Пока просто чистим поле ввода
-                updateState { copy(messageText = "") }
-            }
+            is ChatAction.OnSendMessageClick -> sendMessage()
 
             is ChatAction.OnBotToggleClick -> toggleBot()
 
@@ -108,6 +106,23 @@ internal class ChatViewModel(
         isEndReached = false
         isPageLoading = false
         loadInitialData()
+    }
+
+    private fun sendMessage() {
+        val text = state.value.messageText.trim()
+        if (text.isBlank()) return
+
+        viewModelScope.launch {
+            updateState { copy(messageText = "") }
+            sendMessageUseCase(conversationId, text)
+                .onSuccess {
+                    // Сообщение придёт по WebSocket и отобразится в списке
+                }
+                .onFailure { e ->
+                    Napier.e(message = "Failed to send message", throwable = e)
+                    updateState { copy(messageText = text) }
+                }
+        }
     }
 
     private fun toggleBot() {

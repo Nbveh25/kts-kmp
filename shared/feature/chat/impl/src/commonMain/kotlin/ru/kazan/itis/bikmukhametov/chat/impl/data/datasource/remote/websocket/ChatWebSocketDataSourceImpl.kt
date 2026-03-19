@@ -21,7 +21,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatWebSocketDataSource
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
-import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.MessageRemoteModel
+import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.MessageRemoteDto
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.toModel
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 import kotlin.io.encoding.Base64
@@ -97,7 +97,7 @@ class ChatWebSocketDataSourceImpl(
 
             val sessionError = runCatching {
                 httpClient.webSocket(
-                    urlString = CENTRIFUGO_WS_URL,
+                    urlString = BuildKonfig.WS_BASE_URL,
                     request = {
                         header("Origin", origin)
                         header("Connection", "Upgrade")
@@ -274,11 +274,11 @@ class ChatWebSocketDataSourceImpl(
         val messageElement = (rawData as? JsonObject)?.get("data") ?: rawData
 
         val model = runCatching {
-            json.decodeFromJsonElement(MessageRemoteModel.serializer(), messageElement)
+            json.decodeFromJsonElement(MessageRemoteDto.serializer(), messageElement)
         }.getOrElse { e ->
             Napier.e(
                 tag = TAG,
-                message = "╠══ PUSH: cannot parse MessageRemoteModel: $e  raw=$rawData"
+                message = "╠══ PUSH: cannot parse MessageRemoteDto: $e  raw=$rawData"
             )
             return
         }
@@ -331,7 +331,6 @@ class ChatWebSocketDataSourceImpl(
 
     private companion object {
         private const val TAG = "ChatWebSocket"
-        private const val CENTRIFUGO_WS_URL = "wss://ws.smartbotpro.ru/connection/websocket"
         private const val RECONNECT_DELAY_MS = 3_000L
     }
 }

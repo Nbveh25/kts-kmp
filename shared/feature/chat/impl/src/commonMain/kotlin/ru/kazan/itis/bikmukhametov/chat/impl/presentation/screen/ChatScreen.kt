@@ -155,7 +155,7 @@ fun ChatScreen(
                 onAttachClick = { },
                 onSendClick = {
                     if (state.messageText.isNotBlank()) {
-                        viewModel.onAction(ChatAction.OnSendMessageClick) // TODO: send message
+                        viewModel.onAction(ChatAction.OnSendMessageClick)
                     }
                 },
             )

@@ -30,4 +30,19 @@ internal class ChatRepositoryImpl(
                 }
             }
     }
+
+    override suspend fun sendMessage(conversationId: String, messageText: String): Result<Unit> {
+        val conversationIdLong = conversationId.toLongOrNull()
+            ?: return Result.failure(IllegalArgumentException("Invalid conversationId: $conversationId"))
+
+        return chatDataSource.sendMessage(
+            conversationId = conversationIdLong,
+            messageText = messageText
+        )
+            .onFailure { error ->
+                Napier.e(tag = "ChatRepo", throwable = error) {
+                    "Не удалось отправить сообщение в $conversationId"
+                }
+            }
+    }
 }

@@ -13,11 +13,11 @@ data class ChatMessageResponse(
 
 @Serializable
 data class MessageData(
-    @SerialName("messages") val messages: List<MessageRemoteModel>
+    @SerialName("messages") val messages: List<MessageRemoteDto>
 )
 
 @Serializable
-data class MessageRemoteModel(
+data class MessageRemoteDto(
     @SerialName("id") val id: String,
     @SerialName("conversation_id") val conversationId: Long,
     @SerialName("text") val text: String? = null,
@@ -29,7 +29,7 @@ data class MessageRemoteModel(
     @SerialName("bucket") val bucket: String? = null
 )
 
-internal fun MessageRemoteModel.toModel(): ChatMessageModel {
+internal fun MessageRemoteDto.toModel(): ChatMessageModel {
     val senderType = when (kind.lowercase()) {
         "user" -> SenderType.USER
         "bot" -> SenderType.BOT

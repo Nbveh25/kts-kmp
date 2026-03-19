@@ -37,6 +37,12 @@ buildkonfig {
             value = "https://${localProperty("CABINET_DOMAIN")}.smartbotpro.ru"
         )
 
+        buildConfigField(
+            type = FieldSpec.Type.STRING,
+            name = "WS_BASE_URL",
+            value = "wss://ws.smartbotpro.ru/connection/websocket"
+        )
+
     }
 }
 

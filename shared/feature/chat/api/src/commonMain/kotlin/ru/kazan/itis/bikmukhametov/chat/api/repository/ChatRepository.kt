@@ -10,4 +10,6 @@ interface ChatRepository {
         fromId: String? = null,
         fromDate: String? = null,
     ): Result<List<ChatMessageModel>>
+
+    suspend fun sendMessage(conversationId: String, messageText: String): Result<Unit>
 }

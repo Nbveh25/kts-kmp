@@ -4,15 +4,41 @@ import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatDataSource
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
+import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.sendmessage.SendMessageRequest
+import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.sendmessage.SendMessageResponse
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
 import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 internal class ChatRemoteDataSourceImpl(
     private val httpClient: HttpClient
 ) : ChatDataSource {
+
+    override suspend fun sendMessage(conversationId: Long, messageText: String): Result<Unit> {
+        val rawResult = runCatchingCancelable {
+            val response = httpClient.post(
+                urlString = BuildKonfig.BASE_URL + "/api/conversations/send_message"
+            ) {
+                setBody(
+                    SendMessageRequest(
+                        conversationId = conversationId,
+                        messageText = messageText,
+                        attachments = emptyList()
+                    )
+                )
+            }
+            response.body<SendMessageResponse>()
+        }.map { response ->
+            Napier.d(tag = "ChatApi") {
+                "send_message: status=${response.status} conversationId=$conversationId"
+            }
+        }
+        return rawResult.mapApiError("Ошибка отправки сообщения")
+    }
 
     override suspend fun getMessageList(
         conversationId: Long,

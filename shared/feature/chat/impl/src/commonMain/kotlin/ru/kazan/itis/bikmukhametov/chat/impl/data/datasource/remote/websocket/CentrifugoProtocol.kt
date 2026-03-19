@@ -12,7 +12,6 @@ data class CentrifugoConnectCommand(
     @SerialName("connect") val connect: CentrifugoConnectParams,
 )
 
-/** API возвращает только subscription_token — используем его для connect (сервер отклоняет пустой connect). */
 @Serializable
 data class CentrifugoConnectParams(
     @SerialName("token") val token: String,
