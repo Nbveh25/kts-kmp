@@ -45,7 +45,7 @@ val chatModule = module {
     factory<BotDataSource> { BotRemoteDataSource(get()) }
     factory<BotRepository> { BotRepositoryImpl(get()) }
 
-    factory<ChatWebSocketDataSource> { ChatWebSocketDataSourceImpl(get(), get()) }
+    factory<ChatWebSocketDataSource> { ChatWebSocketDataSourceImpl(get()) }
     factory<ChatWebSocketRepository> { ChatWebSocketRepositoryImpl(get()) }
 
     // Domain

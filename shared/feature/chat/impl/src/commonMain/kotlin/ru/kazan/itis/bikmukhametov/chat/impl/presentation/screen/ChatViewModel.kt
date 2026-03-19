@@ -33,6 +33,32 @@ internal class ChatViewModel(
         observeWebSocket()
     }
 
+    override fun onAction(action: ChatAction) {
+        when (action) {
+            is ChatAction.Refresh -> refresh()
+
+            is ChatAction.ListEndReached -> {
+                if (isEndReached || isPageLoading) return
+                loadMessages()
+            }
+
+            is ChatAction.OnMessageTextChange -> {
+                updateState { copy(messageText = action.text) }
+            }
+
+            is ChatAction.OnSendMessageClick -> sendMessage()
+
+            is ChatAction.OnBotToggleClick -> toggleBot()
+
+            is ChatAction.OnMenuExpandChange -> {
+                updateState {
+                    copy(menuExpanded = action.expanded)
+                }
+            }
+
+        }
+    }
+
     private fun loadInitialData() {
         loadMessages(reset = true)
         loadConversationInfo()
@@ -122,32 +148,6 @@ internal class ChatViewModel(
                         throwable = e
                     )
                 }
-        }
-    }
-
-    override fun onAction(action: ChatAction) {
-        when (action) {
-            is ChatAction.Refresh -> refresh()
-
-            is ChatAction.ListEndReached -> {
-                if (isEndReached || isPageLoading) return
-                loadMessages()
-            }
-
-            is ChatAction.OnMessageTextChange -> {
-                updateState { copy(messageText = action.text) }
-            }
-
-            is ChatAction.OnSendMessageClick -> sendMessage()
-
-            is ChatAction.OnBotToggleClick -> toggleBot()
-
-            is ChatAction.OnMenuExpandChange -> {
-                updateState {
-                    copy(menuExpanded = action.expanded)
-                }
-            }
-
         }
     }
 

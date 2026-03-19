@@ -24,13 +24,11 @@ import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.MessageRemoteDto
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.toModel
-import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 
 class ChatWebSocketDataSourceImpl(
     private val httpClient: HttpClient,
-    private val spaceProvider: SpaceProvider,
 ) : ChatWebSocketDataSource {
 
     private val json = Json {
@@ -47,63 +45,18 @@ class ChatWebSocketDataSourceImpl(
             attempt++
             Napier.w(tag = TAG, message = "╠══ attempt=$attempt conversationId=$conversationId")
 
-            // Токены запрашиваем при каждом attempt — JWT имеет ttl, при реконнекте нужны свежие
-            val tokenData: SubscriptionTokenData? = try {
-                fetchSubscriptionTokens()
+            val ctx = try {
+                obtainWsConnectContext()
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: Exception) {
-                val hint = when {
-                    e::class.simpleName == "UnknownHostException" ||
-                            (e.message?.contains(
-                                "Unable to resolve host",
-                                ignoreCase = true
-                            ) == true) ->
-                        " (проверьте интернет и CABINET_DOMAIN в local.properties)"
-
-                    e::class.simpleName == "ConnectException" ||
-                            (e.message?.contains(
-                                "Connection refused",
-                                ignoreCase = true
-                            ) == true) ->
-                        " (сервер недоступен, проверьте сеть)"
-
-                    else -> ""
-                }
-                Napier.e(tag = TAG, message = "╠══ fetchTokens FAILED$hint", throwable = e)
-                null
             }
 
-            if (tokenData == null) {
+            if (ctx == null) {
                 delay(RECONNECT_DELAY_MS)
                 continue
             }
 
-            val subscriptionToken = tokenData.subscriptionToken
-            // connectToken — только connection JWT (без channel). subscriptionToken — только для subscribe.
-            val connectToken = fetchWsAuthToken()
-                ?: tokenData.connectionToken
-
-            if (connectToken == null) {
-                Napier.e(
-                    tag = TAG,
-                    message = "╠══ no connection token (obtain_ws_auth_token and obtain_subscription_token.token both empty) — skip, retry"
-                )
-                delay(RECONNECT_DELAY_MS)
-                continue
-            }
-
-            val channel = extractChannelFromJwt(subscriptionToken)
-            if (channel == null) {
-                Napier.e(
-                    tag = TAG,
-                    message = "╠══ cannot extract channel from subscription JWT, will retry"
-                )
-                delay(RECONNECT_DELAY_MS)
-                continue
-            }
-
-            Napier.w(tag = TAG, message = "╠══ connecting: channel=$channel")
+            Napier.w(tag = TAG, message = "╠══ connecting: channel=${ctx.channel}")
 
             val sessionError = runCatching {
                 httpClient.webSocket(
@@ -112,59 +65,93 @@ class ChatWebSocketDataSourceImpl(
                         header("Origin", origin)
                         header("Connection", "Upgrade")
                     },
-
-                    ) {
+                ) {
                     Napier.w(tag = TAG, message = "╠══ WS SESSION OPENED")
                     runSession(
                         ws = this,
                         producer = this@channelFlow,
                         conversationId = conversationId,
-                        channel = channel,
-                        subscriptionToken = subscriptionToken,
-                        connectToken = connectToken,
+                        ctx = ctx,
                     )
                 }
             }.exceptionOrNull()
 
-            if (sessionError is CancellationException) {
-                Napier.w(tag = TAG, message = "╚══ WS cancelled — stopping")
-                throw sessionError
-            }
-            if (sessionError != null) {
-                Napier.e(tag = TAG, message = "╠══ session error: $sessionError")
+            when (sessionError) {
+                is CancellationException -> {
+                    Napier.w(tag = TAG, message = "╚══ WS cancelled — stopping")
+                    throw sessionError
+                }
+                null -> Unit
+                else -> Napier.e(tag = TAG, message = "╠══ session error: $sessionError")
             }
 
-            Napier.w(
-                tag = TAG,
-                message = "╠══ reconnecting in ${RECONNECT_DELAY_MS}ms (attempt=$attempt)…"
-            )
+            Napier.w(tag = TAG, message = "╠══ reconnecting in ${RECONNECT_DELAY_MS}ms (attempt=$attempt)…")
             delay(RECONNECT_DELAY_MS)
         }
     }
 
-    // ─── Centrifugo session ──────────────────────────────────────────────────────
+    private data class WsConnectContext(
+        val channel: String,
+        val subscriptionToken: String,
+        val connectToken: String,
+    )
+
+    /** Токены на каждый заход в цикл — JWT с ttl, при реконнекте нужны свежие. */
+    private suspend fun obtainWsConnectContext(): WsConnectContext? {
+        val tokenData = try {
+            fetchSubscriptionTokens()
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            Napier.e(
+                tag = TAG,
+                message = "╠══ fetchTokens FAILED${e.networkHint()}",
+                throwable = e,
+            )
+            return null
+        }
+
+        val connectToken = fetchWsAuthToken() ?: tokenData.connectionToken
+        if (connectToken == null) {
+            Napier.e(
+                tag = TAG,
+                message = "╠══ no connection token (obtain_ws_auth_token and subscription connection_token both empty) — retry",
+            )
+            return null
+        }
+
+        val channel = extractChannelFromJwt(tokenData.subscriptionToken)
+        if (channel == null) {
+            Napier.e(tag = TAG, message = "╠══ cannot extract channel from subscription JWT — retry")
+            return null
+        }
+
+        return WsConnectContext(
+            channel = channel,
+            subscriptionToken = tokenData.subscriptionToken,
+            connectToken = connectToken,
+        )
+    }
 
     private suspend fun runSession(
         ws: DefaultClientWebSocketSession,
         producer: ProducerScope<ChatMessageModel>,
         conversationId: String,
-        channel: String,
-        subscriptionToken: String,
-        connectToken: String,
+        ctx: WsConnectContext,
     ) {
         var commandId = 1
+        val nextId = { commandId++ }
 
-        // 1. Connect — сервер отклоняет пустой connect (3501), используем subscription_token
-        val connectCmd = json.encodeToString(
-            CentrifugoConnectCommand.serializer(),
-            CentrifugoConnectCommand(
-                id = commandId++,
-                connect = CentrifugoConnectParams(token = connectToken),
+        ws.sendLine(
+            json.encodeToString(
+                CentrifugoConnectCommand.serializer(),
+                CentrifugoConnectCommand(
+                    id = nextId(),
+                    connect = CentrifugoConnectParams(token = ctx.connectToken),
+                ),
             ),
-        ) + "\n"
-
-        Napier.w(tag = TAG, message = "╠══ → CONNECT cmd=$connectCmd")
-        ws.send(Frame.Text(connectCmd))
+        )
+        Napier.w(tag = TAG, message = "╠══ → CONNECT sent")
 
         for (frame in ws.incoming) {
             when (frame) {
@@ -173,9 +160,8 @@ class ChatWebSocketDataSourceImpl(
                     ws = ws,
                     producer = producer,
                     conversationId = conversationId,
-                    channel = channel,
-                    subscriptionToken = subscriptionToken,
-                    nextId = { commandId++ },
+                    ctx = ctx,
+                    nextId = nextId,
                 )
 
                 is Frame.Close -> {
@@ -188,10 +174,12 @@ class ChatWebSocketDataSourceImpl(
         }
 
         val closeReason = runCatching { ws.closeReason.await() }.getOrNull()
-        Napier.w(
-            tag = TAG,
-            message = "╠══ CLOSE: code=${closeReason?.code} msg='${closeReason?.message}'"
-        )
+        Napier.w(tag = TAG, message = "╠══ CLOSE: code=${closeReason?.code} msg='${closeReason?.message}'")
+    }
+
+    private suspend fun DefaultClientWebSocketSession.sendLine(payload: String) {
+        val text = if (payload.endsWith('\n')) payload else "$payload\n"
+        send(Frame.Text(text))
     }
 
     private suspend fun handleTextFrame(
@@ -199,72 +187,56 @@ class ChatWebSocketDataSourceImpl(
         ws: DefaultClientWebSocketSession,
         producer: ProducerScope<ChatMessageModel>,
         conversationId: String,
-        channel: String,
-        subscriptionToken: String,
+        ctx: WsConnectContext,
         nextId: () -> Int,
     ) {
         Napier.w(tag = TAG, message = "╠══ ← RAW: $text")
 
-        // Centrifugo шлёт несколько JSON-объектов в одном фрейме, разделённых \n
-        text.split("\n").forEach { line ->
-            if (line.isBlank()) return@forEach
+        for (line in text.lineSequence()) {
+            val trimmed = line.trim()
+            if (trimmed.isEmpty()) continue
 
-            // Centrifugo ping — отвечаем пустым объектом
-            if (line.trim() == "{}") {
-                ws.send(Frame.Text("{}\n"))
+            if (trimmed == "{}") {
+                ws.sendLine("{}")
                 Napier.w(tag = TAG, message = "╠══ ↔ PING/PONG")
-                return@forEach
+                continue
             }
 
-            val msg = runCatching {
-                json.decodeFromString<CentrifugoServerMessage>(line)
-            }.getOrElse { e ->
+            val msg = runCatching { json.decodeFromString<CentrifugoServerMessage>(line) }.getOrElse { e ->
                 Napier.e(tag = TAG, message = "╠══ PARSE ERROR: $e  raw=$line")
-                return@forEach
+                continue
             }
 
             when {
                 msg.connectResult != null -> {
-                    Napier.w(
-                        tag = TAG,
-                        message = "╠══ CONNECT OK: client=${msg.connectResult.client}"
-                    )
-
-                    // 2. Subscribe на канал проекта
-                    val subscribeCmd = json.encodeToString(
-                        CentrifugoSubscribeCommand.serializer(),
-                        CentrifugoSubscribeCommand(
-                            id = nextId(),
-                            subscribe = CentrifugoSubscribeParams(
-                                channel = channel,
-                                token = subscriptionToken,
+                    Napier.w(tag = TAG, message = "╠══ CONNECT OK: client=${msg.connectResult.client}")
+                    ws.sendLine(
+                        json.encodeToString(
+                            CentrifugoSubscribeCommand.serializer(),
+                            CentrifugoSubscribeCommand(
+                                id = nextId(),
+                                subscribe = CentrifugoSubscribeParams(
+                                    channel = ctx.channel,
+                                    token = ctx.subscriptionToken,
+                                ),
                             ),
                         ),
-                    ) + "\n"
-
-                    Napier.w(tag = TAG, message = "╠══ → SUBSCRIBE channel=$channel")
-                    ws.send(Frame.Text(subscribeCmd))
+                    )
+                    Napier.w(tag = TAG, message = "╠══ → SUBSCRIBE channel=${ctx.channel}")
                 }
 
-                msg.subscribeResult != null -> {
+                msg.subscribeResult != null ->
                     Napier.w(
                         tag = TAG,
-                        message = "╠══ SUBSCRIBE OK: recoverable=${msg.subscribeResult.recoverable} ← READY"
+                        message = "╠══ SUBSCRIBE OK: recoverable=${msg.subscribeResult.recoverable} ← READY",
                     )
-                }
 
                 msg.push != null -> handlePush(msg.push, conversationId, producer)
 
-                msg.error != null -> {
-                    Napier.e(
-                        tag = TAG,
-                        message = "╠══ SERVER ERROR: code=${msg.error.code} msg=${msg.error.message}"
-                    )
-                }
+                msg.error != null ->
+                    Napier.e(tag = TAG, message = "╠══ SERVER ERROR: code=${msg.error.code} msg=${msg.error.message}")
 
-                else -> {
-                    Napier.w(tag = TAG, message = "╠══ UNKNOWN frame (id=${msg.id}): $line")
-                }
+                else -> Napier.w(tag = TAG, message = "╠══ UNKNOWN frame (id=${msg.id}): $line")
             }
         }
     }
@@ -274,22 +246,17 @@ class ChatWebSocketDataSourceImpl(
         conversationId: String,
         producer: ProducerScope<ChatMessageModel>,
     ) {
-        val rawData = push.pub?.data
-        if (rawData == null) {
+        val rawData = push.pub?.data ?: run {
             Napier.w(tag = TAG, message = "╠══ PUSH: pub.data is null — skip")
             return
         }
 
-        // Payload может быть {"kind":"chat_message","data":{...}} — парсим вложенный data
         val messageElement = (rawData as? JsonObject)?.get("data") ?: rawData
 
         val model = runCatching {
             json.decodeFromJsonElement(MessageRemoteDto.serializer(), messageElement)
         }.getOrElse { e ->
-            Napier.e(
-                tag = TAG,
-                message = "╠══ PUSH: cannot parse MessageRemoteDto: $e  raw=$rawData"
-            )
+            Napier.e(tag = TAG, message = "╠══ PUSH: cannot parse MessageRemoteDto: $e  raw=$rawData")
             return
         }
 
@@ -297,14 +264,13 @@ class ChatWebSocketDataSourceImpl(
             tag = TAG,
             message = "╠══ PUSH: id=${model.id} convId=${model.conversationId} kind=${model.kind} text=${
                 model.text?.take(80)
-            }"
+            }",
         )
 
-        val msgConvId = model.conversationId.toString()
-        if (msgConvId != conversationId) {
+        if (model.conversationId.toString() != conversationId) {
             Napier.w(
                 tag = TAG,
-                message = "╠══ PUSH filtered: msgConvId=$msgConvId != screenConvId=$conversationId"
+                message = "╠══ PUSH filtered: msgConvId=${model.conversationId} != screenConvId=$conversationId",
             )
             return
         }
@@ -312,8 +278,6 @@ class ChatWebSocketDataSourceImpl(
         Napier.w(tag = TAG, message = "╠══ PUSH ✓ EMITTING id=${model.id}")
         producer.send(model.toModel())
     }
-
-    // ─── Helpers ────────────────────────────────────────────────────────────────
 
     private suspend fun fetchSubscriptionTokens(): SubscriptionTokenData {
         val url = BuildKonfig.BASE_URL + "/api/conversations/obtain_subscription_token"
@@ -330,31 +294,19 @@ class ChatWebSocketDataSourceImpl(
 
     private suspend fun fetchWsAuthToken(): String? = runCatching {
         val url = BuildKonfig.BASE_URL + "/api/auth/obtain_ws_auth_token"
+
         Napier.w(tag = TAG, message = "╠══ GET $url")
+
         val response = httpClient.get(url)
         val statusCode = response.status.value
         val body = response.bodyAsText()
-        Napier.w(tag = TAG, message = "╠══ ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=${(json.parseToJsonElement(body).jsonObject["data"] as? JsonObject)?.keys?.joinToString() ?: "null"}")
+        val dataKeys = (json.parseToJsonElement(body).jsonObject["data"] as? JsonObject)?.keys?.joinToString()
+
+        Napier.w(tag = TAG, message = "╠══ ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=$dataKeys")
 
         if (statusCode != 200) error("obtain_ws_auth_token returned HTTP $statusCode")
 
-        val root = json.parseToJsonElement(body).jsonObject
-        // Поддержка разных структур: token (root), data.token, data.connection_token, data (string)
-        fun String?.isJwt() = this != null && this.startsWith("eyJ")
-        root["token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
-            ?: root["data"]?.let { data ->
-                when (data) {
-                    is JsonPrimitive -> data.content.takeIf { it.isJwt() }
-                    is JsonObject -> {
-                        data["token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
-                            ?: data["connection_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
-                            ?: data["auth_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
-                            ?: data["access_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
-                            ?: data.values.firstNotNullOfOrNull { (it as? JsonPrimitive)?.content?.takeIf { c -> c.isJwt() } }
-                    }
-                    else -> null
-                }
-            }
+        extractConnectJwt(json.parseToJsonElement(body).jsonObject)
     }.getOrElse { e ->
         Napier.e(tag = TAG, message = "╠══ fetchWsAuthToken FAILED", throwable = e)
         null
@@ -374,5 +326,37 @@ class ChatWebSocketDataSourceImpl(
     private companion object {
         private const val TAG = "ChatWebSocket"
         private const val RECONNECT_DELAY_MS = 3_000L
+
+        private fun Throwable.networkHint(): String = when {
+            this::class.simpleName == "UnknownHostException" -> " (проверьте интернет и CABINET_DOMAIN в local.properties)"
+            message?.contains("Unable to resolve host", ignoreCase = true) == true ->
+                " (проверьте интернет и CABINET_DOMAIN в local.properties)"
+
+            this::class.simpleName == "ConnectException" -> " (сервер недоступен, проверьте сеть)"
+            message?.contains("Connection refused", ignoreCase = true) == true ->
+                " (сервер недоступен, проверьте сеть)"
+
+            else -> ""
+        }
+
+        private fun jwtOrNull(raw: String?): String? = raw?.takeIf { it.startsWith("eyJ") }
+
+        /** Разные формы ответа: token в корне, data — строка или объект с token / connection_token / … */
+        private fun extractConnectJwt(root: JsonObject): String? {
+            jwtOrNull(root["token"]?.jsonPrimitive?.content)?.let { return it }
+            when (val data = root["data"]) {
+                is JsonPrimitive -> jwtOrNull(data.content)?.let { return it }
+                is JsonObject -> {
+                    for (key in listOf("token", "connection_token", "auth_token", "access_token")) {
+                        jwtOrNull(data[key]?.jsonPrimitive?.content)?.let { return it }
+                    }
+                    for (v in data.values) {
+                        jwtOrNull((v as? JsonPrimitive)?.content)?.let { return it }
+                    }
+                }
+                else -> Unit
+            }
+            return null
+        }
     }
 }
