@@ -13,8 +13,11 @@ data class ChatMessageResponse(
 
 @Serializable
 data class MessageData(
-    @SerialName("messages") val messages: List<MessageRemoteDto>
-)
+    @SerialName("messages") val messages: List<MessageRemoteDto> = emptyList(),
+    @SerialName("items") val items: List<MessageRemoteDto> = emptyList(),
+) {
+    val messageList: List<MessageRemoteDto> get() = messages.ifEmpty { items }
+}
 
 @Serializable
 data class MessageRemoteDto(

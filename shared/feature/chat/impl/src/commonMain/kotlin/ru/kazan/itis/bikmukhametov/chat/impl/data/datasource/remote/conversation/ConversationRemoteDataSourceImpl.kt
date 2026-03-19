@@ -21,13 +21,15 @@ class ConversationRemoteDataSourceImpl(
         val rawResult = runCatchingCancelable {
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/api/conversations/get_conversation"
-            ) {
+            )             {
                 url {
-                    parameters.append("id", conversationId)
+                    parameters.append("conversation_id", conversationId)
                 }
             }
             // API: { "status", "data": { id, user, channel, state, ... } }
-            response.body<GetConversationApiResponse>().data.toModel()
+            val data = response.body<GetConversationApiResponse>().data
+                ?: throw IllegalArgumentException("get_conversation returned empty data")
+            data.toModel()
         }
 
         Napier.d(tag = "ChatApi") {

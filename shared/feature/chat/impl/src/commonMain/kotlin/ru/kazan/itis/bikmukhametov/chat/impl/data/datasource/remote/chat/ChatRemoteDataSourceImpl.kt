@@ -60,10 +60,11 @@ internal class ChatRemoteDataSourceImpl(
 
             response.body<ChatMessageResponse>()
         }.map { response ->
+            val list = response.data.messageList
             Napier.d(tag = "ChatApi") {
-                "loaded ${response.data.messages.size} messages for conversation $conversationId (fromId=$fromId)"
+                "loaded ${list.size} messages for conversation $conversationId (fromId=$fromId)"
             }
-            response.data.messages.map { it.toModel() }
+            list.map { it.toModel() }
         }
 
         return rawResult

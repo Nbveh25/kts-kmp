@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatWebSocketDataSource
@@ -35,7 +36,6 @@ class ChatWebSocketDataSourceImpl(
     private val json = Json {
         ignoreUnknownKeys = true
         encodeDefaults = true
-        // null-поля не сериализуются — Centrifugo возвращает "bad request" если token=null
         explicitNulls = false
     }
 
@@ -80,8 +80,18 @@ class ChatWebSocketDataSourceImpl(
             }
 
             val subscriptionToken = tokenData.subscriptionToken
-            // connectionToken — для connect, subscriptionToken — для subscribe
-            val connectToken = tokenData.connectionToken ?: subscriptionToken
+            // connectToken — только connection JWT (без channel). subscriptionToken — только для subscribe.
+            val connectToken = fetchWsAuthToken()
+                ?: tokenData.connectionToken
+
+            if (connectToken == null) {
+                Napier.e(
+                    tag = TAG,
+                    message = "╠══ no connection token (obtain_ws_auth_token and obtain_subscription_token.token both empty) — skip, retry"
+                )
+                delay(RECONNECT_DELAY_MS)
+                continue
+            }
 
             val channel = extractChannelFromJwt(subscriptionToken)
             if (channel == null) {
@@ -111,7 +121,7 @@ class ChatWebSocketDataSourceImpl(
                         conversationId = conversationId,
                         channel = channel,
                         subscriptionToken = subscriptionToken,
-                        connectToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI2OWFhZDk0N2EyYWMwNmI0OWRjNjdlOTEiLCJleHAiOjE3ODk0MDg0MzQsImluZm8iOnsiZW1haWwiOiJ0aW1hLmJpa211a2hhbWV0b3ZAaW5ib3gucnUifX0.UEjLofa_I4npRdcPOBhDXcgd9meHgCP_B7mCWdis83E",
+                        connectToken = connectToken,
                     )
                 }
             }.exceptionOrNull()
@@ -316,6 +326,38 @@ class ChatWebSocketDataSourceImpl(
         if (statusCode != 200) error("obtain_subscription_token returned HTTP $statusCode")
 
         return json.decodeFromString<SubscriptionTokenResponse>(body).data
+    }
+
+    private suspend fun fetchWsAuthToken(): String? = runCatching {
+        val url = BuildKonfig.BASE_URL + "/api/auth/obtain_ws_auth_token"
+        Napier.w(tag = TAG, message = "╠══ GET $url")
+        val response = httpClient.get(url)
+        val statusCode = response.status.value
+        val body = response.bodyAsText()
+        Napier.w(tag = TAG, message = "╠══ ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=${(json.parseToJsonElement(body).jsonObject["data"] as? JsonObject)?.keys?.joinToString() ?: "null"}")
+
+        if (statusCode != 200) error("obtain_ws_auth_token returned HTTP $statusCode")
+
+        val root = json.parseToJsonElement(body).jsonObject
+        // Поддержка разных структур: token (root), data.token, data.connection_token, data (string)
+        fun String?.isJwt() = this != null && this.startsWith("eyJ")
+        root["token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
+            ?: root["data"]?.let { data ->
+                when (data) {
+                    is JsonPrimitive -> data.content.takeIf { it.isJwt() }
+                    is JsonObject -> {
+                        data["token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
+                            ?: data["connection_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
+                            ?: data["auth_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
+                            ?: data["access_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
+                            ?: data.values.mapNotNull { (it as? JsonPrimitive)?.content?.takeIf { c -> c.isJwt() } }.firstOrNull()
+                    }
+                    else -> null
+                }
+            }
+    }.getOrElse { e ->
+        Napier.e(tag = TAG, message = "╠══ fetchWsAuthToken FAILED", throwable = e)
+        null
     }
 
     @OptIn(ExperimentalEncodingApi::class)

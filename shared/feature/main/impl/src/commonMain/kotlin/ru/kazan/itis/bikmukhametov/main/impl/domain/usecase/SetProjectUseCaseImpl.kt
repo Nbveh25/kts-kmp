@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.main.impl.domain.usecase
 
 import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
+import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 
 /**
@@ -12,7 +13,7 @@ internal class SetProjectUseCaseImpl(
 ) : SetProjectUseCase {
 
     override suspend fun invoke(cabinetId: String, projectId: String): Result<Unit> {
-        return runCatching {
+        return runCatchingCancelable {
             spaceProvider.setSpace(cabinet = cabinetId, project = projectId)
         }
     }

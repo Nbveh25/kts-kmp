@@ -9,10 +9,10 @@ import ru.kazan.itis.bikmukhametov.chat.api.model.MessageType
 import ru.kazan.itis.bikmukhametov.chat.api.model.UserModel
 
 internal fun ConversationDto.toModel() = ConversationModel(
-    id = id,
-    user = user.toModel(),
-    channel = channel.toModel(),
-    state = state.toModel(),
+    id = if (id != 0L) id else conversationId,
+    user = (user ?: participant ?: UserDto()).toModel(),
+    channel = (channel ?: ChannelDto()).toModel(),
+    state = (state ?: ConversationStateDto()).toModel(),
     lastMessage = lastMessage?.toModel(),
     isRead = isRead,
     updatedAt = dateUpdated

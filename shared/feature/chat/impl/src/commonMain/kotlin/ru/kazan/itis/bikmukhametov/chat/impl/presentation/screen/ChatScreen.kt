@@ -130,7 +130,7 @@ fun ChatScreen(
             .imePadding(),
         topBar = {
             ChatTopBar(
-                interlocutorName = state.interlocutorName
+                interlocutorName = state.interlocutorName?.takeIf { it.isNotBlank() }
                     ?: stringResource(Res.string.chat_interlocutor_name),
                 interlocutorAvatarUrl = state.interlocutorAvatarUrl,
                 onBack = onBack,
