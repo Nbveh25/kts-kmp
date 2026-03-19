@@ -52,71 +52,71 @@ fun ContentScreen(
         isRefreshing = isRefreshing,
         onRefresh = onRefresh,
     ) {
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-    ) {
-        ChatListTabs(
-            selectedTab = selectedTab,
-            onTabSelect = onTabSelect,
-            modifier = Modifier.padding(
-                horizontal = Spacing.paddingMedium,
-                vertical = Spacing.paddingSmall
-            )
-        )
-
-        LazyColumn(
-            modifier = Modifier.fillMaxSize(),
-            state = listState
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
         ) {
-            if (chats.isEmpty()) {
-                item {
-                    EmptySearchState(modifier = Modifier.fillParentMaxSize())
-                }
-            } else {
+            ChatListTabs(
+                selectedTab = selectedTab,
+                onTabSelect = onTabSelect,
+                modifier = Modifier.padding(
+                    horizontal = Spacing.paddingMedium,
+                    vertical = Spacing.paddingSmall
+                )
+            )
 
-                itemsIndexed(
-                    items = chats,
-                    key = { _, item -> item.id }
-                ) { index, chat ->
-                    ConvesationCardUI(
-                        chat = chat,
-                        modifier = Modifier
-                            .padding(
-                                horizontal = Spacing.paddingMedium,
-                                vertical = Spacing.paddingExtraSmall
-                            )
-                            .let { mod ->
-                                if (onChatClick != null) {
-                                    mod.clickable { onChatClick(chat) }
-                                } else {
-                                    mod
+            LazyColumn(
+                modifier = Modifier.fillMaxSize(),
+                state = listState
+            ) {
+                if (chats.isEmpty()) {
+                    item {
+                        EmptySearchState(modifier = Modifier.fillParentMaxSize())
+                    }
+                } else {
+
+                    itemsIndexed(
+                        items = chats,
+                        key = { _, item -> item.id }
+                    ) { index, chat ->
+                        ConvesationCardUI(
+                            chat = chat,
+                            modifier = Modifier
+                                .padding(
+                                    horizontal = Spacing.paddingMedium,
+                                    vertical = Spacing.paddingExtraSmall
+                                )
+                                .let { mod ->
+                                    if (onChatClick != null) {
+                                        mod.clickable { onChatClick(chat) }
+                                    } else {
+                                        mod
+                                    }
                                 }
-                            }
-                    )
+                        )
 
-                    if (index == chats.lastIndex) {
-                        LaunchedEffect(chats.size) {
-                            onListEndReached()
+                        if (index == chats.lastIndex) {
+                            LaunchedEffect(chats.size) {
+                                onListEndReached()
+                            }
                         }
                     }
                 }
-            }
 
-            // Индикатор загрузки внизу при пагинации
-            if (isLoadingMore) {
-                item {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(vertical = Spacing.paddingMedium),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
+                // Индикатор загрузки внизу при пагинации
+                if (isLoadingMore) {
+                    item {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .padding(vertical = Spacing.paddingMedium),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            CircularProgressIndicator()
+                        }
                     }
                 }
             }
         }
     }
-    } 
 }

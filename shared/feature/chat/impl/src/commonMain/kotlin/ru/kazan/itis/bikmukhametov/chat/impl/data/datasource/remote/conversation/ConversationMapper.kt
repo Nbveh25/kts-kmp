@@ -8,8 +8,12 @@ import ru.kazan.itis.bikmukhametov.chat.api.model.LastMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.MessageType
 import ru.kazan.itis.bikmukhametov.chat.api.model.UserModel
 
-internal fun ConversationDto.toModel() = ConversationModel(
-    id = if (id != 0L) id else conversationId,
+internal fun ConversationDto.toModel(fallbackConversationIdFromRequest: String? = null) = ConversationModel(
+    id = when {
+        id != 0L -> id
+        conversationId != 0L -> conversationId
+        else -> fallbackConversationIdFromRequest?.toLongOrNull() ?: 0L
+    },
     user = (user ?: participant ?: UserDto()).toModel(),
     channel = (channel ?: ChannelDto()).toModel(),
     state = (state ?: ConversationStateDto()).toModel(),

@@ -10,6 +10,7 @@ import ru.kazan.itis.bikmukhametov.chat.api.usecase.ObserveChatUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.SendMessageUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StartBotUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StopBotUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ChatViewModel(
@@ -24,8 +25,10 @@ internal class ChatViewModel(
 
     private var isPageLoading = false
     private var isEndReached = false
+    private var hasReceivedBotStateFromWebSocket = false
 
     init {
+        Napier.d { "init conversationId=$conversationId" }
         loadInitialData()
         observeWebSocket()
     }
@@ -43,34 +46,81 @@ internal class ChatViewModel(
                     Napier.e(tag = TAG_VM, message = "▶ observeWebSocket EXCEPTION", throwable = e)
                 }
                 .collect { newMessage ->
-                    Napier.w(tag = TAG_VM, message = "▶ observeWebSocket GOT MESSAGE id=${newMessage.id} text=${newMessage.text.take(60)}")
+                    Napier.w(
+                        tag = TAG_VM,
+                        message = "▶ observeWebSocket GOT MESSAGE id=${newMessage.id} text=${
+                            newMessage.text.take(60)
+                        }"
+                    )
+                    val botRunningUpdate = when {
+                        newMessage.senderType == SenderType.SERVICE && newMessage.text == "start_bot" -> true
+                        newMessage.senderType == SenderType.SERVICE && newMessage.text == "stop_bot" -> false
+                        else -> null
+                    }
+                    if (botRunningUpdate != null) hasReceivedBotStateFromWebSocket = true
                     updateState {
                         if (messageList.any { it.id == newMessage.id }) {
-                            Napier.w(tag = TAG_VM, message = "▶ duplicate id=${newMessage.id} — skip")
-                            return@updateState this
+                            Napier.w(
+                                tag = TAG_VM,
+                                message = "▶ duplicate id=${newMessage.id} — skip"
+                            )
+                            return@updateState if (botRunningUpdate != null) copy(botRunning = botRunningUpdate) else this
                         }
-                        copy(messageList = messageList + listOf(newMessage))
+                        copy(
+                            messageList = messageList + listOf(newMessage),
+                            botRunning = botRunningUpdate ?: botRunning
+                        )
                     }
                 }
-            Napier.w(tag = TAG_VM, message = "▶ observeWebSocket FLOW COMPLETED (no more emissions)")
+            Napier.w(
+                tag = TAG_VM,
+                message = "▶ observeWebSocket FLOW COMPLETED (no more emissions)"
+            )
         }
     }
 
     private fun loadConversationInfo() {
         if (conversationId.isBlank()) return
+        val requestedConversationId = conversationId
+        Napier.d(tag = TAG_VM) {
+            "▶ loadConversationInfo START requestedConvId=$requestedConversationId"
+        }
         viewModelScope.launch {
-            getConversationByIdUseCase(conversationId)
+            getConversationByIdUseCase(requestedConversationId)
                 .onSuccess { conversation ->
+                    val returnedId = conversation.id.toString()
+                    Napier.d(tag = TAG_VM) {
+                        "▶ loadConversationInfo SUCCESS convId=$returnedId userId=${conversation.user.id} fullName=${conversation.user.fullName} avatarUrl=${
+                            conversation.user.avatarUrl?.take(
+                                50
+                            )
+                        }"
+                    }
+                    val requestedLong = requestedConversationId.toLongOrNull()
+                    val sameConversation = returnedId == requestedConversationId ||
+                        (requestedLong != null && requestedLong == conversation.id)
+                    if (!sameConversation) {
+                        Napier.w(
+                            tag = TAG_VM,
+                            message = "▶ loadConversationInfo MISMATCH requested=$requestedConversationId gotConvId=$returnedId — skip UI update",
+                        )
+                        return@onSuccess
+                    }
                     updateState {
+                        val apiBotRunning = !conversation.state.isStoppedByManager
                         copy(
                             interlocutorName = conversation.user.fullName,
                             interlocutorAvatarUrl = conversation.user.avatarUrl,
-                            botRunning = !conversation.state.isStoppedByManager,
+                            botRunning = if (hasReceivedBotStateFromWebSocket) botRunning else apiBotRunning,
                         )
                     }
                 }
                 .onFailure { e ->
-                    Napier.e(message = "Failed to load conversation info", throwable = e)
+                    Napier.e(
+                        tag = TAG_VM,
+                        message = "▶ loadConversationInfo FAILED requestedConvId=$requestedConversationId",
+                        throwable = e
+                    )
                 }
         }
     }
@@ -105,6 +155,7 @@ internal class ChatViewModel(
         updateState { copy(isRefreshing = true, loadError = null) }
         isEndReached = false
         isPageLoading = false
+        hasReceivedBotStateFromWebSocket = false
         loadInitialData()
     }
 
@@ -165,7 +216,8 @@ internal class ChatViewModel(
             )
                 .onSuccess { newMessages ->
                     updateState {
-                        val merged = if (reset) messageList + newMessages else newMessages + messageList
+                        val merged =
+                            if (reset) messageList + newMessages else newMessages + messageList
                         copy(
                             isLoading = false,
                             isLoadingMore = false,

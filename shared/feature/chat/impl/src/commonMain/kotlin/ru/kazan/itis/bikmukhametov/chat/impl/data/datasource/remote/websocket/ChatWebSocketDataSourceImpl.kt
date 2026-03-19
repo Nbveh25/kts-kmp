@@ -350,7 +350,7 @@ class ChatWebSocketDataSourceImpl(
                             ?: data["connection_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
                             ?: data["auth_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
                             ?: data["access_token"]?.jsonPrimitive?.content?.takeIf { it.isJwt() }
-                            ?: data.values.mapNotNull { (it as? JsonPrimitive)?.content?.takeIf { c -> c.isJwt() } }.firstOrNull()
+                            ?: data.values.firstNotNullOfOrNull { (it as? JsonPrimitive)?.content?.takeIf { c -> c.isJwt() } }
                     }
                     else -> null
                 }
