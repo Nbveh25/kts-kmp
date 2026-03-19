@@ -41,7 +41,7 @@ internal fun ChatTopBar(
     interlocutorAvatarUrl: String?,
     onBack: () -> Unit,
     onUserInfoClick: () -> Unit,
-    botRunning: Boolean,
+    botRunning: Boolean?,
     onBotToggle: () -> Unit,
     menuExpanded: Boolean,
     onMenuExpandChange: (Boolean) -> Unit,
@@ -111,19 +111,28 @@ internal fun ChatTopBar(
 
             IconButton(
                 onClick = onBotToggle,
+                enabled = botRunning != null,
                 modifier = Modifier
                     .background(
-                        if (botRunning) MaterialTheme.colorScheme.primaryContainer
-                        else MaterialTheme.colorScheme.errorContainer,
+                        when (botRunning) {
+                            true -> MaterialTheme.colorScheme.primaryContainer
+                            false -> MaterialTheme.colorScheme.errorContainer
+                            null -> MaterialTheme.colorScheme.surfaceVariant
+                        },
                         CircleShape
                     )
             ) {
                 Icon(
-                    imageVector = if (botRunning) vectorResource(Res.drawable.ic_play_arrow_24)
-                    else vectorResource(Res.drawable.ic_pause_24),
-                    tint = if (botRunning) MaterialTheme.colorScheme.onPrimaryContainer
-                    else MaterialTheme.colorScheme.error, //if (botRunning)
-                    contentDescription = "Play"
+                    imageVector = when (botRunning) {
+                        true -> vectorResource(Res.drawable.ic_play_arrow_24)
+                        else -> vectorResource(Res.drawable.ic_pause_24)
+                    },
+                    tint = when (botRunning) {
+                        true -> MaterialTheme.colorScheme.onPrimaryContainer
+                        false -> MaterialTheme.colorScheme.error
+                        null -> MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                    contentDescription = if (botRunning == true) "Бот запущен" else "Бот остановлен"
                 )
             }
 

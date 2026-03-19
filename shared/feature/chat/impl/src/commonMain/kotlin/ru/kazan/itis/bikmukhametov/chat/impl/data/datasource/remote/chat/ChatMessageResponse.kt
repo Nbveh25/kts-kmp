@@ -20,7 +20,7 @@ data class MessageData(
 data class MessageRemoteModel(
     @SerialName("id") val id: String,
     @SerialName("conversation_id") val conversationId: Long,
-    @SerialName("text") val text: String,
+    @SerialName("text") val text: String? = null,
     @SerialName("kind") val kind: String, // "user", "bot", "service"
     @SerialName("date_created") val dateCreated: String,
     @SerialName("manager_email") val managerEmail: String? = null,
@@ -39,7 +39,7 @@ internal fun MessageRemoteModel.toModel(): ChatMessageModel {
 
     return ChatMessageModel(
         id = id,
-        text = text,
+        text = text.orEmpty(),
         senderType = senderType,
         createdAt = dateCreated,
         managerEmail = managerEmail

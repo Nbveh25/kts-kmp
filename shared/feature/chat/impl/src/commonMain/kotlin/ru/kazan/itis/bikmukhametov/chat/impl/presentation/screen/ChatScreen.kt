@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
@@ -17,8 +17,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
@@ -91,6 +93,23 @@ fun ChatScreen(
                 }
             }
         }
+    }
+
+    // Прокрутка к новому сообщению при получении по WebSocket
+    var prevMessageCount by remember { mutableStateOf(0) }
+    LaunchedEffect(state.messageList.size) {
+        if (state.messageList.size > prevMessageCount && chatRows.isNotEmpty()) {
+
+            val firstVisibleIndex = listState.firstVisibleItemIndex
+            val isAtBottom = firstVisibleIndex <= 2
+
+            if (isAtBottom || prevMessageCount == 0) {
+                scope.launch {
+                    listState.animateScrollToItem(0)
+                }
+            }
+        }
+        prevMessageCount = state.messageList.size
     }
 
     LaunchedEffect(listState) {
@@ -173,15 +192,15 @@ fun ChatScreen(
                         verticalArrangement = Arrangement.spacedBy(Spacing.paddingSmall),
                         reverseLayout = true,
                     ) {
-                        items(
+                        itemsIndexed(
                             items = chatRows,
-                            key = { row ->
+                            key = { index, row ->
                                 when (row) {
                                     is ChatRow.Message -> row.model.id
-                                    is ChatRow.DateHeader -> "header_${row.epochDay}"
+                                    is ChatRow.DateHeader -> "header_$index"
                                 }
                             }
-                        ) { row ->
+                        ) { _, row ->
                             when (row) {
                                 is ChatRow.Message -> MessageBubble(
                                     message = row.model.toItem(),

@@ -2,23 +2,56 @@ package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 
 import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetChatMessagesUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetConversationByIdUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.ObserveChatUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.StartBotUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.StopBotUseCase
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ChatViewModel(
     private val conversationId: String,
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getConversationByIdUseCase: GetConversationByIdUseCase,
+    private val startBotUseCase: StartBotUseCase,
+    private val stopBotUseCase: StopBotUseCase,
+    private val observeChatUseCase: ObserveChatUseCase,
 ) : BaseViewModel<ChatUiState, ChatAction>(ChatUiState()) {
 
     private var isPageLoading = false
     private var isEndReached = false
 
     init {
+        loadInitialData()
+        observeWebSocket()
+    }
+
+    private fun loadInitialData() {
         loadMessages(reset = true)
         loadConversationInfo()
+    }
+
+    private fun observeWebSocket() {
+        Napier.w(tag = TAG_VM, message = "▶ observeWebSocket START conversationId=$conversationId")
+        viewModelScope.launch {
+            observeChatUseCase(conversationId)
+                .catch { e ->
+                    Napier.e(tag = TAG_VM, message = "▶ observeWebSocket EXCEPTION", throwable = e)
+                }
+                .collect { newMessage ->
+                    Napier.w(tag = TAG_VM, message = "▶ observeWebSocket GOT MESSAGE id=${newMessage.id} text=${newMessage.text.take(60)}")
+                    updateState {
+                        if (messageList.any { it.id == newMessage.id }) {
+                            Napier.w(tag = TAG_VM, message = "▶ duplicate id=${newMessage.id} — skip")
+                            return@updateState this
+                        }
+                        copy(messageList = messageList + listOf(newMessage))
+                    }
+                }
+            Napier.w(tag = TAG_VM, message = "▶ observeWebSocket FLOW COMPLETED (no more emissions)")
+        }
     }
 
     private fun loadConversationInfo() {
@@ -35,7 +68,7 @@ internal class ChatViewModel(
                     }
                 }
                 .onFailure { e ->
-
+                    Napier.e(message = "Failed to load conversation info", throwable = e)
                 }
         }
     }
@@ -59,11 +92,7 @@ internal class ChatViewModel(
                 updateState { copy(messageText = "") }
             }
 
-            is ChatAction.OnBotToggleClick -> {
-                updateState {
-                    copy(botRunning = !botRunning)
-                }
-            }
+            is ChatAction.OnBotToggleClick -> toggleBot()
 
             is ChatAction.OnMenuExpandChange -> {
                 updateState {
@@ -75,16 +104,29 @@ internal class ChatViewModel(
     }
 
     private fun refresh() {
-        updateState {
-            copy(
-                isRefreshing = true,
-                loadError = null
-            )
-        }
+        updateState { copy(isRefreshing = true, loadError = null) }
         isEndReached = false
         isPageLoading = false
-        loadMessages(reset = true)
-        loadConversationInfo()
+        loadInitialData()
+    }
+
+    private fun toggleBot() {
+        val currentlyRunning = state.value.botRunning ?: return
+        viewModelScope.launch {
+            if (currentlyRunning) {
+                stopBotUseCase(conversationId)
+                    .onSuccess { updateState { copy(botRunning = false) } }
+                    .onFailure { e ->
+                        Napier.e(message = "Failed to stop bot", throwable = e)
+                    }
+            } else {
+                startBotUseCase(conversationId)
+                    .onSuccess { updateState { copy(botRunning = true) } }
+                    .onFailure { e ->
+                        Napier.e(message = "Failed to start bot", throwable = e)
+                    }
+            }
+        }
     }
 
     private fun loadMessages(reset: Boolean = false) {
@@ -108,17 +150,13 @@ internal class ChatViewModel(
             )
                 .onSuccess { newMessages ->
                     updateState {
+                        val merged = if (reset) messageList + newMessages else newMessages + messageList
                         copy(
                             isLoading = false,
                             isLoadingMore = false,
                             isRefreshing = false,
                             loadError = null,
-                            messageList = if (reset) {
-                                newMessages
-                            } else {
-                                // distinctBy удаляет дубли на случай перекрытия страниц API.
-                                (newMessages + messageList).distinctBy { it.id }
-                            }
+                            messageList = merged.distinctBy { it.id }.sortedBy { it.createdAt }
                         )
                     }
 
@@ -140,9 +178,9 @@ internal class ChatViewModel(
     }
 
 
-
     private companion object {
         private const val PAGE_SIZE = 20
+        private const val TAG_VM = "ChatViewModel"
     }
 }
 

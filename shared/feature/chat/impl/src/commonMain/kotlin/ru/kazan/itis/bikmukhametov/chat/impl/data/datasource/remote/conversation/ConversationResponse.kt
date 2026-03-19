@@ -77,7 +77,7 @@ data class MessageDto(
     val kind: String,
 
     @SerialName("manager_email")
-    val managerEmail: String?,
+    val managerEmail: String? = null,
 
     @SerialName("date_created")
     val dateCreated: String
