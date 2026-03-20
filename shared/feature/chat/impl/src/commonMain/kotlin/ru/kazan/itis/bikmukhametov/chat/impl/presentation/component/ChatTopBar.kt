@@ -26,12 +26,19 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_back_desc
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_run_the_script
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_start_bot_desc
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_state_bot_desc
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_stop_bot_desc
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_back_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_more_vert_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_pause_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_play_arrow_24
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.more_desc
 import ru.kazan.itis.bikmukhametov.theme.Dimensions
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
@@ -65,7 +72,7 @@ internal fun ChatTopBar(
                 IconButton(onClick = onBack) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.ic_arrow_back_24),
-                        contentDescription = "Назад"
+                        contentDescription = stringResource(Res.string.chat_back_desc)
                     )
                 }
                 Row(
@@ -115,8 +122,8 @@ internal fun ChatTopBar(
                 modifier = Modifier
                     .background(
                         when (botRunning) {
-                            true -> MaterialTheme.colorScheme.primaryContainer
-                            false -> MaterialTheme.colorScheme.errorContainer
+                            true -> MaterialTheme.colorScheme.errorContainer
+                            false -> MaterialTheme.colorScheme.primaryContainer
                             null -> MaterialTheme.colorScheme.surfaceVariant
                         },
                         CircleShape
@@ -124,15 +131,20 @@ internal fun ChatTopBar(
             ) {
                 Icon(
                     imageVector = when (botRunning) {
-                        true -> vectorResource(Res.drawable.ic_play_arrow_24)
-                        else -> vectorResource(Res.drawable.ic_pause_24)
+                        true -> vectorResource(Res.drawable.ic_pause_24)
+                        false -> vectorResource(Res.drawable.ic_play_arrow_24)
+                        null -> vectorResource(Res.drawable.ic_play_arrow_24)
                     },
                     tint = when (botRunning) {
-                        true -> MaterialTheme.colorScheme.onPrimaryContainer
-                        false -> MaterialTheme.colorScheme.error
+                        true -> MaterialTheme.colorScheme.error
+                        false -> MaterialTheme.colorScheme.onPrimaryContainer
                         null -> MaterialTheme.colorScheme.onSurfaceVariant
                     },
-                    contentDescription = if (botRunning == true) "Бот запущен" else "Бот остановлен"
+                    contentDescription = when (botRunning) {
+                        true -> stringResource(Res.string.chat_stop_bot_desc)
+                        false -> stringResource(Res.string.chat_start_bot_desc)
+                        null -> stringResource(Res.string.chat_state_bot_desc)
+                    }
                 )
             }
 
@@ -140,7 +152,7 @@ internal fun ChatTopBar(
                 IconButton(onClick = { onMenuExpandChange(!menuExpanded) }) {
                     Icon(
                         imageVector = vectorResource(Res.drawable.ic_more_vert_24),
-                        contentDescription = "Ещё"
+                        contentDescription = stringResource(Res.string.more_desc)
                     )
                 }
                 DropdownMenu(
@@ -148,7 +160,7 @@ internal fun ChatTopBar(
                     onDismissRequest = { onMenuExpandChange(false) },
                 ) {
                     DropdownMenuItem(
-                        text = { Text("Запуск сценария (выбор блока)") },
+                        text = { Text(stringResource(Res.string.chat_run_the_script)) },
                         onClick = onRunScenario,
                     )
                 }

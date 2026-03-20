@@ -117,9 +117,7 @@ internal class ChatViewModel(
                     val returnedId = conversation.id.toString()
                     Napier.d(tag = TAG_VM) {
                         "▶ loadConversationInfo SUCCESS convId=$returnedId userId=${conversation.user.id} fullName=${conversation.user.fullName} avatarUrl=${
-                            conversation.user.avatarUrl?.take(
-                                50
-                            )
+                            conversation.user.avatarUrl?.take(50)
                         }"
                     }
                     val requestedLong = requestedConversationId.toLongOrNull()
