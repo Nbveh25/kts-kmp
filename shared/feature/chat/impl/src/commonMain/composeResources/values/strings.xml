@@ -1,13 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!--ContentScreen-->
     <string name="chat_title">Чат</string>
-    <string name="chat_interlocutor_name">Собеседник</string>
     <string name="chat_stop_bot">Бот остановлен и не будет реагировать на сообщения пользователя</string>
     <string name="chat_start_bot">Пользователь переведен на бота</string>
     <string name="chat_operator">Оператор</string>
     <string name="chat_bot">Бот</string>
     <string name="chat_error_message">Не удалось загрузить сообщения</string>
     <string name="chat_button_retry">Повторить</string>
+
+    <!--TopBar-->
+    <string name="chat_interlocutor_name">Собеседник</string>
     <string name="chat_run_the_script">Запустить сценарий</string>
     <string name="chat_back_desc">Назад</string>
     <string name="chat_stop_bot_desc">Пауза — остановить бота</string>
