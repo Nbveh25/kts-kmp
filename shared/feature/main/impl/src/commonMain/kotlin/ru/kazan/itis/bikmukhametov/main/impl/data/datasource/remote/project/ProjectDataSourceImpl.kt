@@ -10,7 +10,6 @@ import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.ProjectDataSource
 import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
 import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
-import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.cabinet.CabinetResponse
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
 import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 

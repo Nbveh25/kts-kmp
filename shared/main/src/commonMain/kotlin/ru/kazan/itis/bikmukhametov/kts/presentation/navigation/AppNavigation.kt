@@ -51,7 +51,10 @@ fun AppNavigation(
         val isValid = runCatching { sessionChecker.isSessionValid() }.getOrDefault(false)
         if (isValid) {
             navController.navigate(Route.Main) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                popUpTo(navController.graph.startDestinationId) {
+                    inclusive = true
+                }
+                launchSingleTop = true
             }
         }
     }

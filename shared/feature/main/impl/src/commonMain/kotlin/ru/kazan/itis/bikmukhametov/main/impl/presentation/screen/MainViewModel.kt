@@ -169,12 +169,12 @@ internal class MainViewModel(
 
     private suspend fun loadCabinet(): Boolean {
         return getCabinetUseCase().fold(
-            onSuccess = { cabinetModel ->
-                val cabinetUi = cabinetModel.toItem()
+            onSuccess = { cabinetModels ->
+                val cabinetsUi = cabinetModels.map { it.toItem() }
                 updateState {
                     copy(
-                        currentCabinet = cabinetUi,
-                        cabinets = listOf(cabinetUi)
+                        currentCabinet = cabinetsUi.firstOrNull(),
+                        cabinets = cabinetsUi
                     )
                 }
                 true

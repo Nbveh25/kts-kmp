@@ -8,6 +8,6 @@ class GetCabinetUseCaseImpl(
     private val cabinetRepository: CabinetRepository
 ) : GetCabinetUseCase {
 
-    override suspend fun invoke(): Result<CabinetModel> =
-        cabinetRepository.getCabinet()
+    override suspend fun invoke(): Result<List<CabinetModel>> =
+        cabinetRepository.getCabinets()
 }
