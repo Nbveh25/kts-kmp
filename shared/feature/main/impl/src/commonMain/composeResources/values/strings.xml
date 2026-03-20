@@ -15,5 +15,18 @@
 
     <!--EmptyState-->
     <string name="nothing_was_found">Ничего не найдено</string>
+
+    <!--FilterBottomSheet-->
+    <string name="filter_title">Фильтры</string>
+    <string name="filter_channel_type">Тип канала</string>
+    <string name="filter_channel">Канал</string>
+    <string name="filter_user_lists">Список пользователей</string>
+    <string name="filter_apply">Применить</string>
+    <string name="filter_all_channel_kinds">Все типы</string>
+    <string name="filter_all_channels">Все каналы</string>
+    <string name="filter_all_users">Все пользователи</string>
+    <string name="filter_selected_n">Выбрано %d элементов</string>
+    <string name="filter_no_channels">Нет каналов в загруженных чатах</string>
+    <string name="filter_no_buckets">Нет списков (поле bucket в сообщениях пустое)</string>
     
 </resources>

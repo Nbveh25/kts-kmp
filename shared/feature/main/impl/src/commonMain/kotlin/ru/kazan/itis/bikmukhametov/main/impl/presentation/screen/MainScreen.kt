@@ -90,6 +90,16 @@ fun MainScreen(
     }
 
     if (state.filterSheetVisible) {
-        FilterBottomSheet(onDismiss = { viewModel.onAction(MainAction.DismissFilterSheet) })
+        FilterBottomSheet(
+            allChats = state.allChats,
+            draftKinds = state.filterDraftKinds,
+            draftChannelIds = state.filterDraftChannelIds,
+            draftBuckets = state.filterDraftBuckets,
+            onDraftKindsChange = { viewModel.onAction(MainAction.FilterDraftKindsChange(it)) },
+            onDraftChannelsChange = { viewModel.onAction(MainAction.FilterDraftChannelsChange(it)) },
+            onDraftBucketsChange = { viewModel.onAction(MainAction.FilterDraftBucketsChange(it)) },
+            onApply = { viewModel.onAction(MainAction.ApplyChatFilters) },
+            onDismiss = { viewModel.onAction(MainAction.DismissFilterSheet) },
+        )
     }
 }

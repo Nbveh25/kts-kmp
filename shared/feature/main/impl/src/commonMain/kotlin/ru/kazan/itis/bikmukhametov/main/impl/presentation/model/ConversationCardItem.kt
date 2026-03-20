@@ -26,6 +26,11 @@ data class ConversationCardItem(
     val unreadCount: Int = 0,
     // true = ожидает ответа оператора (клиент написал, оператор не ответил)
     val isWaiting: Boolean = false,
+    val channelKind: ChannelKind = ChannelKind.UNKNOWN,
+    val channelId: String = "",
+    val channelName: String? = null,
+    /** Идентификатор сегмента/списка из last_message.bucket (если бэкенд отдаёт). */
+    val userListBucket: String? = null,
 )
 
 internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
@@ -78,5 +83,9 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
         timeOrDate = timeOrDate,
         unreadCount = unreadCount,
         isWaiting = isWaiting,
+        channelKind = channel.kind,
+        channelId = channel.id,
+        channelName = channel.name,
+        userListBucket = lastMessage?.bucket,
     )
 }

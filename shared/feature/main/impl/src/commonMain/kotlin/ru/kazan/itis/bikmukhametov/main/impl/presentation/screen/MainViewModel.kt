@@ -78,11 +78,38 @@ internal class MainViewModel(
             }
 
             is MainAction.ToggleFilterSheet -> updateState {
-                copy(filterSheetVisible = !filterSheetVisible)
+                val open = !filterSheetVisible
+                copy(
+                    filterSheetVisible = open,
+                    filterDraftKinds = if (open) filterAppliedKinds else filterDraftKinds,
+                    filterDraftChannelIds = if (open) filterAppliedChannelIds else filterDraftChannelIds,
+                    filterDraftBuckets = if (open) filterAppliedBuckets else filterDraftBuckets,
+                )
             }
 
             MainAction.DismissFilterSheet -> updateState {
                 copy(filterSheetVisible = false)
+            }
+
+            is MainAction.FilterDraftKindsChange -> updateState {
+                copy(filterDraftKinds = action.value)
+            }
+
+            is MainAction.FilterDraftChannelsChange -> updateState {
+                copy(filterDraftChannelIds = action.value)
+            }
+
+            is MainAction.FilterDraftBucketsChange -> updateState {
+                copy(filterDraftBuckets = action.value)
+            }
+
+            MainAction.ApplyChatFilters -> updateState {
+                copy(
+                    filterAppliedKinds = filterDraftKinds,
+                    filterAppliedChannelIds = filterDraftChannelIds,
+                    filterAppliedBuckets = filterDraftBuckets,
+                    filterSheetVisible = false,
+                ).recomputed()
             }
 
             is MainAction.SelectTab -> updateState {
@@ -147,6 +174,16 @@ internal class MainViewModel(
                     ChatListTab.ALL -> true
                     ChatListTab.WAITING -> chat.isWaiting
                 }
+            }
+            .filter { chat ->
+                filterAppliedKinds.isEmpty() || chat.channelKind in filterAppliedKinds
+            }
+            .filter { chat ->
+                filterAppliedChannelIds.isEmpty() || chat.channelId in filterAppliedChannelIds
+            }
+            .filter { chat ->
+                filterAppliedBuckets.isEmpty() ||
+                    (chat.userListBucket != null && chat.userListBucket in filterAppliedBuckets)
             }
             .filter { chat ->
                 searchQuery.isBlank() ||
