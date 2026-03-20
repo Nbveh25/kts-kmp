@@ -22,7 +22,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatWebSocketDataSource
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
-import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.MessageRemoteDto
+import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.MessageDto
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.toModel
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
@@ -254,7 +254,7 @@ class ChatWebSocketDataSourceImpl(
         val messageElement = (rawData as? JsonObject)?.get("data") ?: rawData
 
         val model = runCatching {
-            json.decodeFromJsonElement(MessageRemoteDto.serializer(), messageElement)
+            json.decodeFromJsonElement(MessageDto.serializer(), messageElement)
         }.getOrElse { e ->
             Napier.e(tag = TAG, message = "╠══ PUSH: cannot parse MessageRemoteDto: $e  raw=$rawData")
             return

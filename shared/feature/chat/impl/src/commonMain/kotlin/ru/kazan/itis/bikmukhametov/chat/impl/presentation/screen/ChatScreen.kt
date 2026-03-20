@@ -3,8 +3,11 @@ package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -15,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -26,6 +32,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -36,9 +43,14 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.koin.core.parameter.parametersOf
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_as_file
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_close_file_picker
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_interlocutor_name
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_scroll_down
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_downward_24
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_close_24
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatInputBar
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.platform.AttachmentPickerSheet
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatRow
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatTopBar
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.DateDivider
@@ -147,18 +159,63 @@ fun ChatScreen(
             )
         },
         bottomBar = {
-            ChatInputBar(
-                messageText = state.messageText,
-                onMessageTextChange = { text ->
-                    viewModel.onAction(ChatAction.OnMessageTextChange(text))
-                },
-                onAttachClick = { },
-                onSendClick = {
-                    if (state.messageText.isNotBlank()) {
-                        viewModel.onAction(ChatAction.OnSendMessageClick)
+            Column {
+                AttachmentPickerSheet(
+                    visible = state.attachmentPickerVisible,
+                    onDismiss = { viewModel.onAction(ChatAction.OnAttachmentPickerDismiss) },
+                    onPicked = { viewModel.onAction(ChatAction.OnAttachmentPicked(it)) },
+                )
+                state.pendingAttachment?.let { file ->
+                    Surface(
+                        modifier = Modifier.fillMaxWidth(),
+                        color = MaterialTheme.colorScheme.surfaceVariant,
+                        tonalElevation = 2.dp,
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(
+                                    horizontal = Spacing.paddingSmall,
+                                    vertical = Spacing.paddingExtraSmall,
+                                ),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = buildString {
+                                    append(file.fileName)
+                                    if (file.sendAsFile) append(stringResource(Res.string.chat_as_file))
+                                },
+                                modifier = Modifier.weight(1f),
+                                maxLines = 1,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            IconButton(
+                                onClick = { viewModel.onAction(ChatAction.OnClearPendingAttachment) },
+                                enabled = !state.isUploading,
+                            ) {
+                                Icon(
+                                    imageVector = vectorResource(Res.drawable.ic_close_24),
+                                    contentDescription = stringResource(Res.string.chat_close_file_picker)
+                                )
+                            }
+                        }
                     }
-                },
-            )
+                }
+                ChatInputBar(
+                    messageText = state.messageText,
+                    onMessageTextChange = { text ->
+                        viewModel.onAction(ChatAction.OnMessageTextChange(text))
+                    },
+                    onAttachClick = { viewModel.onAction(ChatAction.OnOpenAttachmentPicker) },
+                    attachEnabled = !state.isUploading,
+                    sendEnabled = !state.isUploading &&
+                        (state.messageText.isNotBlank() || state.pendingAttachment != null),
+                    onSendClick = {
+                        viewModel.onAction(ChatAction.OnSendMessageClick)
+                    },
+                )
+            }
         }
     ) { paddingValues ->
         when {
@@ -230,7 +287,7 @@ fun ChatScreen(
                         ) {
                             Icon(
                                 imageVector = vectorResource(Res.drawable.ic_arrow_downward_24),
-                                contentDescription = "Спуск в конец чата"
+                                contentDescription = stringResource(Res.string.chat_scroll_down)
                             )
                         }
                     }

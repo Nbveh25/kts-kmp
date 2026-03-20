@@ -7,6 +7,16 @@ internal class SendMessageUseCaseImpl(
     private val chatRepository: ChatRepository
 ) : SendMessageUseCase {
 
-    override suspend fun invoke(conversationId: String, text: String): Result<Unit> =
-        chatRepository.sendMessage(conversationId = conversationId, messageText = text)
+    override suspend fun invoke(
+        conversationId: String,
+        text: String?,
+        attachmentIds: List<String>,
+        sendAttachmentAsDocument: Boolean,
+    ): Result<Unit> =
+        chatRepository.sendMessage(
+            conversationId = conversationId,
+            messageText = text,
+            attachmentIds = attachmentIds,
+            sendAttachmentAsDocument = sendAttachmentAsDocument,
+        )
 }

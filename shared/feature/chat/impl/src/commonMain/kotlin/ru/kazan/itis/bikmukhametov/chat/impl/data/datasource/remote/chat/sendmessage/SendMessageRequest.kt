@@ -4,8 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SendMessageRequest(
+internal data class SendMessageRequest(
     @SerialName("conversation_id") val conversationId: Long,
-    @SerialName("message_text") val messageText: String,
-    @SerialName("attachments") val attachments: List<String> = emptyList()
+    @SerialName("message_text") val messageText: String? = null,
+    @SerialName("attachments") val attachments: List<SendMessageAttachmentItem> = emptyList(),
 )

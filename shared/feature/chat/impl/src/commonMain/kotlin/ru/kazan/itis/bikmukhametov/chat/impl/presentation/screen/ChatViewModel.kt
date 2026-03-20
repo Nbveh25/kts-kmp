@@ -8,6 +8,7 @@ import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetChatMessagesUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetConversationByIdUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.ObserveChatUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.SendMessageUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.UploadChatAttachmentUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StartBotUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StopBotUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
@@ -18,6 +19,7 @@ internal class ChatViewModel(
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getConversationByIdUseCase: GetConversationByIdUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
+    private val uploadChatAttachmentUseCase: UploadChatAttachmentUseCase,
     private val startBotUseCase: StartBotUseCase,
     private val stopBotUseCase: StopBotUseCase,
     private val observeChatUseCase: ObserveChatUseCase,
@@ -56,6 +58,18 @@ internal class ChatViewModel(
                 }
             }
 
+            ChatAction.OnOpenAttachmentPicker -> updateState { copy(attachmentPickerVisible = true) }
+
+            ChatAction.OnAttachmentPickerDismiss -> updateState { copy(attachmentPickerVisible = false) }
+
+            is ChatAction.OnAttachmentPicked -> updateState {
+                copy(
+                    pendingAttachment = action.attachment,
+                    attachmentPickerVisible = false,
+                )
+            }
+
+            ChatAction.OnClearPendingAttachment -> updateState { copy(pendingAttachment = null) }
         }
     }
 
@@ -158,18 +172,51 @@ internal class ChatViewModel(
     }
 
     private fun sendMessage() {
+        val pending = state.value.pendingAttachment
         val text = state.value.messageText.trim()
-        if (text.isBlank()) return
+        if (text.isBlank() && pending == null) return
+
+        if (pending != null && pending.bytes.size > MAX_ATTACHMENT_BYTES) {
+            Napier.e(tag = TAG_VM, message = "Attachment too large: ${pending.bytes.size} bytes")
+            return
+        }
 
         viewModelScope.launch {
-            updateState { copy(messageText = "") }
-            sendMessageUseCase(conversationId, text)
+            updateState { copy(isUploading = true) }
+            val asDoc = pending?.sendAsFile == true
+            val attachmentIds: List<String> = pending?.let { p ->
+                uploadChatAttachmentUseCase(
+                    fileName = p.fileName,
+                    mimeType = p.mimeType,
+                    bytes = p.bytes,
+                ).fold(
+                    onSuccess = { listOf(it) },
+                    onFailure = { e ->
+                        Napier.e(message = "Failed to upload attachment", throwable = e)
+                        updateState { copy(isUploading = false) }
+                        return@launch
+                    },
+                )
+            } ?: emptyList()
+            val bodyText = text.takeIf { it.isNotBlank() }
+            sendMessageUseCase(
+                conversationId = conversationId,
+                text = bodyText,
+                attachmentIds = attachmentIds,
+                sendAttachmentAsDocument = asDoc,
+            )
                 .onSuccess {
-                    // Сообщение придёт по WebSocket и отобразится в списке
+                    updateState {
+                        copy(
+                            messageText = "",
+                            pendingAttachment = null,
+                            isUploading = false,
+                        )
+                    }
                 }
                 .onFailure { e ->
                     Napier.e(message = "Failed to send message", throwable = e)
-                    updateState { copy(messageText = text) }
+                    updateState { copy(isUploading = false) }
                 }
         }
     }
@@ -246,6 +293,7 @@ internal class ChatViewModel(
     private companion object {
         private const val PAGE_SIZE = 20
         private const val TAG_VM = "ChatViewModel"
+        private const val MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024
     }
 }
 

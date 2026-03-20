@@ -9,6 +9,9 @@
     <string name="chat_error_message">Не удалось загрузить сообщения</string>
     <string name="chat_button_retry">Повторить</string>
     <string name="chat_k">К</string>
+    <string name="chat_close_file_picker">Закрыть файлпикер</string>
+    <string name="chat_as_file"> · как файл</string>
+    <string name="chat_scroll_down">Спуск в конец чата</string>
 
 
     <!--TopBar-->

@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.PickedAttachment
 
 internal data class ChatUiState(
     val isLoading: Boolean = false,
@@ -13,4 +14,8 @@ internal data class ChatUiState(
     val menuExpanded: Boolean = false,
     val interlocutorName: String? = null,
     val interlocutorAvatarUrl: String? = null,
+
+    val attachmentPickerVisible: Boolean = false,
+    val pendingAttachment: PickedAttachment? = null,
+    val isUploading: Boolean = false,
 )

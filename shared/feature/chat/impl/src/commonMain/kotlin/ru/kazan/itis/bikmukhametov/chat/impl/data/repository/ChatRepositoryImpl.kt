@@ -31,13 +31,32 @@ internal class ChatRepositoryImpl(
             }
     }
 
-    override suspend fun sendMessage(conversationId: String, messageText: String): Result<Unit> {
+    override suspend fun uploadAttachment(
+        fileName: String,
+        mimeType: String?,
+        bytes: ByteArray,
+    ): Result<String> =
+        chatDataSource.uploadAttachment(fileName, mimeType, bytes)
+            .onFailure { error ->
+                Napier.e(tag = "ChatRepo", throwable = error) {
+                    "Не удалось загрузить вложение $fileName"
+                }
+            }
+
+    override suspend fun sendMessage(
+        conversationId: String,
+        messageText: String?,
+        attachmentIds: List<String>,
+        sendAttachmentAsDocument: Boolean,
+    ): Result<Unit> {
         val conversationIdLong = conversationId.toLongOrNull()
             ?: return Result.failure(IllegalArgumentException("Invalid conversationId: $conversationId"))
 
         return chatDataSource.sendMessage(
             conversationId = conversationIdLong,
-            messageText = messageText
+            messageText = messageText,
+            attachmentIds = attachmentIds,
+            sendAttachmentAsDocument = sendAttachmentAsDocument,
         )
             .onFailure { error ->
                 Napier.e(tag = "ChatRepo", throwable = error) {

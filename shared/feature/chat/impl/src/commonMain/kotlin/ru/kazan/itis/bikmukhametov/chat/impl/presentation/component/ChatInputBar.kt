@@ -31,6 +31,8 @@ internal fun ChatInputBar(
     onMessageTextChange: (String) -> Unit,
     onAttachClick: () -> Unit,
     onSendClick: () -> Unit,
+    attachEnabled: Boolean = true,
+    sendEnabled: Boolean = true,
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -42,7 +44,7 @@ internal fun ChatInputBar(
                 .padding(horizontal = Spacing.paddingSmall, vertical = Spacing.paddingSmall),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            IconButton(onClick = onAttachClick) {
+            IconButton(onClick = onAttachClick, enabled = attachEnabled) {
                 Icon(
                     imageVector = vectorResource(Res.drawable.ic_attachment_24),
                     contentDescription = "Добавить файлы"
@@ -74,6 +76,7 @@ internal fun ChatInputBar(
             )
             IconButton(
                 onClick = onSendClick,
+                enabled = sendEnabled,
                 modifier = Modifier
                     .background(
                         MaterialTheme.colorScheme.primary,

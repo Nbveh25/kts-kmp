@@ -13,14 +13,14 @@ data class ChatMessageResponse(
 
 @Serializable
 data class MessageData(
-    @SerialName("messages") val messages: List<MessageRemoteDto> = emptyList(),
-    @SerialName("items") val items: List<MessageRemoteDto> = emptyList(),
+    @SerialName("messages") val messages: List<MessageDto> = emptyList(),
+    @SerialName("items") val items: List<MessageDto> = emptyList(),
 ) {
-    val messageList: List<MessageRemoteDto> get() = messages.ifEmpty { items }
+    val messageList: List<MessageDto> get() = messages.ifEmpty { items }
 }
 
 @Serializable
-data class MessageRemoteDto(
+data class MessageDto(
     @SerialName("id") val id: String,
     @SerialName("conversation_id") val conversationId: Long,
     @SerialName("text") val text: String? = null,
@@ -32,7 +32,7 @@ data class MessageRemoteDto(
     @SerialName("bucket") val bucket: String? = null
 )
 
-internal fun MessageRemoteDto.toModel(): ChatMessageModel {
+internal fun MessageDto.toModel(): ChatMessageModel {
     val senderType = when (kind.lowercase()) {
         "user" -> SenderType.USER
         "bot" -> SenderType.BOT

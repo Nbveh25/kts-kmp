@@ -11,5 +11,16 @@ interface ChatRepository {
         fromDate: String? = null,
     ): Result<List<ChatMessageModel>>
 
-    suspend fun sendMessage(conversationId: String, messageText: String): Result<Unit>
+    suspend fun uploadAttachment(
+        fileName: String,
+        mimeType: String?,
+        bytes: ByteArray,
+    ): Result<String>
+
+    suspend fun sendMessage(
+        conversationId: String,
+        messageText: String?,
+        attachmentIds: List<String> = emptyList(),
+        sendAttachmentAsDocument: Boolean = false,
+    ): Result<Unit>
 }
