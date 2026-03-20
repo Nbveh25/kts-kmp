@@ -15,32 +15,26 @@ class BotRemoteDataSource(
 ) : BotDataSource {
 
     override suspend fun startBot(conversationId: String): Result<Unit> {
+        val id = conversationId.toLongOrNull()
+            ?: return Result.failure(IllegalArgumentException("Invalid conversationId: $conversationId"))
         val rawResult = runCatchingCancelable {
-            val response =
-                httpClient.post(urlString = BuildKonfig.BASE_URL + "/api/conversations/start_bot") {
-                    setBody(BotRequest(conversationId = conversationId))
-                }
-
-            response.body<Unit>()
-        }.map { response ->
-            Napier.d { "Start Bot: $response" + " $conversationId" }
+            httpClient.post(urlString = BuildKonfig.BASE_URL + "/api/conversations/start_bot") {
+                setBody(StartBotRequest(conversationId = id, blockId = null))
+            }.body<Unit>()
         }
-
+        rawResult.onSuccess { Napier.d { "Start Bot OK conversationId=$conversationId" } }
         return rawResult.mapApiError("Ошибка старта бота")
     }
 
     override suspend fun stopBot(conversationId: String): Result<Unit> {
+        val id = conversationId.toLongOrNull()
+            ?: return Result.failure(IllegalArgumentException("Invalid conversationId: $conversationId"))
         val rawResult = runCatchingCancelable {
-            val response =
-                httpClient.post(urlString = BuildKonfig.BASE_URL + "/api/conversations/stop_bot") {
-                    setBody(BotRequest(conversationId = conversationId))
-                }
-
-            response.body<Unit>()
-        }.map { response ->
-            Napier.d {  "Stop Bot: $response" + " $conversationId" }
+            httpClient.post(urlString = BuildKonfig.BASE_URL + "/api/conversations/stop_bot") {
+                setBody(StopBotRequest(conversationId = id))
+            }.body<Unit>()
         }
-
+        rawResult.onSuccess { Napier.d { "Stop Bot OK conversationId=$conversationId" } }
         return rawResult.mapApiError("Ошибка остановки бота")
     }
 }
