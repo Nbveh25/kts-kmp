@@ -101,7 +101,7 @@ fun AppNavigation(
                 conversationId = chatRoute.conversationId,
                 onBack = { navController.popBackStack() },
                 onUserInfoClick = {
-                    /* TODO: экран информации о пользователе */
+                    
                 }
             )
         }

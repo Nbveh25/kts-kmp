@@ -89,7 +89,7 @@ internal class ChatViewModel(
                     Napier.w(
                         tag = TAG_VM,
                         message = "▶ observeWebSocket GOT MESSAGE id=${newMessage.id} text=${
-                            newMessage.text.take(60)
+                            newMessage.text
                         }"
                     )
                     val botRunningUpdate = when {
@@ -104,7 +104,9 @@ internal class ChatViewModel(
                                 tag = TAG_VM,
                                 message = "▶ duplicate id=${newMessage.id} — skip"
                             )
-                            return@updateState if (botRunningUpdate != null) copy(botRunning = botRunningUpdate) else this
+                            return@updateState if (botRunningUpdate != null) {
+                                copy(botRunning = botRunningUpdate)
+                            } else this
                         }
                         copy(
                             messageList = messageList + listOf(newMessage),
@@ -131,7 +133,7 @@ internal class ChatViewModel(
                     val returnedId = conversation.id.toString()
                     Napier.d(tag = TAG_VM) {
                         "▶ loadConversationInfo SUCCESS convId=$returnedId userId=${conversation.user.id} fullName=${conversation.user.fullName} avatarUrl=${
-                            conversation.user.avatarUrl?.take(50)
+                            conversation.user.avatarUrl
                         }"
                     }
                     val requestedLong = requestedConversationId.toLongOrNull()
@@ -140,7 +142,8 @@ internal class ChatViewModel(
                     if (!sameConversation) {
                         Napier.w(
                             tag = TAG_VM,
-                            message = "▶ loadConversationInfo MISMATCH requested=$requestedConversationId gotConvId=$returnedId — skip UI update",
+                            message = "▶ loadConversationInfo requested=$requestedConversationId " +
+                                    "gotConvId=$returnedId — skip UI update",
                         )
                         return@onSuccess
                     }

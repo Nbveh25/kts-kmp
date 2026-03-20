@@ -1,5 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
+import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
 import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
 import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 
@@ -12,6 +13,10 @@ internal sealed interface MainAction {
     data class SearchQueryChanged(val query: String) : MainAction
     data object ToggleFilterSheet : MainAction
     data object DismissFilterSheet : MainAction
+    data class FilterDraftKindsChange(val value: Set<ChannelKind>) : MainAction
+    data class FilterDraftChannelsChange(val value: Set<String>) : MainAction
+    data class FilterDraftBucketsChange(val value: Set<String>) : MainAction
+    data object ApplyChatFilters : MainAction
     data class SelectTab(val tab: ChatListTab) : MainAction
     data object Refresh : MainAction
     data object ListEndReached : MainAction
