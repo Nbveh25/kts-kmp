@@ -30,6 +30,7 @@ import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_bot
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_k
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_operator
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_start_bot
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_stop_bot
@@ -193,7 +194,7 @@ private fun SenderAvatar(
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
-                        text = "К",
+                        text = stringResource(Res.string.chat_k),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onTertiary,
                     )
