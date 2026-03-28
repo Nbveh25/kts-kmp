@@ -1,5 +1,5 @@
 [versions]
-agp = "8.11.2"
+agp = "9.0.1"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
@@ -13,6 +13,62 @@ composeMultiplatform = "1.10.0"
 junit = "4.13.2"
 kotlin = "2.3.0"
 material3 = "1.10.0-alpha05"
+
+# Детект
+detektVersion = "1.23.8"
+
+# Навигация
+navigationCompose = "2.9.2"
+
+# Coil
+coilVersion = "3.3.0"
+
+# Сериализация
+kotlinSerializationJsonVersion = "1.10.0"
+
+# Логирование
+napierVersion = "2.7.1"
+material = "1.13.0"
+
+jetbrainsKotlinJvm = "2.3.0"
+
+# Koin
+koinVersion = "4.1.1"
+koinAndroidExt = "3.0.2"
+
+# Lifecycle ViewModel
+lifecycleVersion = "2.10.0"
+
+# Ktor
+ktorVersion = "3.4.1"
+
+# buildKonfig
+buildKonfigVersion = "0.17.1"
+
+# Datastore
+datastoreVersion = "1.2.0"
+
+# Secret gradle plugin
+secretGradlePlugin = "2.0.1"
+
+# Lottie
+compottie = "2.1.0"
+
+# Room
+room = "2.8.4"
+sqlite = "2.6.2"
+
+# Coroutines
+kotlinxCoroutines = "1.10.1"
+
+# ksp
+ksp = "2.1.20-2.0.1"
+
+# KVault
+kvault = "1.12.0"
+
+# SecretGradlePlugin
+secrets-gradle-plugin = "2.0.1"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -33,9 +89,84 @@ compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "composeMul
 compose-components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "composeMultiplatform" }
 compose-uiToolingPreview = { module = "org.jetbrains.compose.ui:ui-tooling-preview", version.ref = "composeMultiplatform" }
 
+# Навигация
+jetbrains-compose-navigation = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
+
+# Coil
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilVersion" }
+coil-network-ktor = { group = "io.coil-kt.coil3", name = "coil-network-ktor3", version.ref = "coilVersion" }
+
+# Сериализация
+kotlinx-serialization-json = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinSerializationJsonVersion"}
+
+# Логирование
+napier = { group = "io.github.aakira", name = "napier", version.ref = "napierVersion"}
+
+# Koin
+koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koinVersion" }
+koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koinVersion" }
+koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koinVersion" }
+koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koinVersion" }
+koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
+koin-android-ext = { group = "io.insert-koin", name = "koin-android-ext", version.ref = "koinAndroidExt" }
+
+# Lifecycle ViewModel
+lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleVersion" }
+
+# Ktor
+ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktorVersion" }
+ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktorVersion" }
+ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktorVersion" }
+ktor-client-serialization = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktorVersion" }
+ktor-client-logging = { module = "io.ktor:ktor-client-logging", version.ref = "ktorVersion" }
+ktor-client-websockets = { module = "io.ktor:ktor-client-websockets", version.ref = "ktorVersion" }
+ktor-client-auth = { module= "io.ktor:ktor-client-auth", version.ref = "ktorVersion" }
+
+# Datastore
+datastore-preferences-core = { module = "androidx.datastore:datastore-preferences-core", version.ref = "datastoreVersion" }
+datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastoreVersion" }
+
+# Lottie
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
+
+# Coroutines
+kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "kotlinxCoroutines" }
+
+# Room
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
+
+# KVault
+kvault-store = { module = "com.liftric:kvault", version.ref = "kvault" }
+
+
 [plugins]
 androidApplication = { id = "com.android.application", version.ref = "agp" }
 androidLibrary = { id = "com.android.library", version.ref = "agp" }
 composeMultiplatform = { id = "org.jetbrains.compose", version.ref = "composeMultiplatform" }
 composeCompiler = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin" }
 kotlinMultiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }
+
+# Детект плагин
+detektPlugin = { id = "io.gitlab.arturbosch.detekt", version.ref = "detektVersion"}
+
+# Сериализация плагин
+serializationPlugin = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin"}
+kotlinAndroid = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin" }
+
+jetbrainsKotlinJvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "jetbrainsKotlinJvm" }
+
+# Koin
+koinCompilerPlugin = { id = "io.insert-koin.compiler.plugin", version.ref = "koinVersion" }
+
+# buildKonfig
+buildKonfigPlugin = { id = "com.codingfeline.buildkonfig", version.ref = "buildKonfigVersion" }
+
+# secretGradlePlugin
+secretGradlePlugin = { id = "com.google.android.libraries.mapsplatform.secrets-gradle-plugin", version.ref = "secretGradlePlugin" }
+
+# ksp
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
+androidx-room = { id = "androidx.room", version.ref = "room" }

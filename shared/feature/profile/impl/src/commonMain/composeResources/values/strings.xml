@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="profile_logout">Выйти</string>
+    <string name="profile_notifications">Уведомления</string>
+    <string name="profile_push_notifications">Звук и push-уведомления</string>
+    <string name="profile_error">Произошла ошибка</string>
+    <string name="profile_button_error">Повторить</string>
+</resources>

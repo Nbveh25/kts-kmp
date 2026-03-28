@@ -1,0 +1,50 @@
+package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat
+
+import kotlinx.serialization.SerialName
+import kotlinx.serialization.Serializable
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
+import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
+
+@Serializable
+data class ChatMessageResponse(
+    @SerialName("status") val status: String,
+    @SerialName("data") val data: MessageData
+)
+
+@Serializable
+data class MessageData(
+    @SerialName("messages") val messages: List<MessageDto> = emptyList(),
+    @SerialName("items") val items: List<MessageDto> = emptyList(),
+) {
+    val messageList: List<MessageDto> get() = messages.ifEmpty { items }
+}
+
+@Serializable
+data class MessageDto(
+    @SerialName("id") val id: String,
+    @SerialName("conversation_id") val conversationId: Long,
+    @SerialName("text") val text: String? = null,
+    @SerialName("kind") val kind: String, // "user", "bot", "service"
+    @SerialName("date_created") val dateCreated: String,
+    @SerialName("manager_email") val managerEmail: String? = null,
+    @SerialName("block_id") val blockId: String? = null,
+    @SerialName("scenario_id") val scenarioId: String? = null,
+    @SerialName("bucket") val bucket: String? = null
+)
+
+internal fun MessageDto.toModel(): ChatMessageModel {
+    val senderType = when (kind.lowercase()) {
+        "user" -> SenderType.USER
+        "bot" -> SenderType.BOT
+        "service" -> SenderType.SERVICE
+        else -> SenderType.UNKNOWN
+    }
+
+    return ChatMessageModel(
+        id = id,
+        text = text.orEmpty(),
+        senderType = senderType,
+        createdAt = dateCreated,
+        managerEmail = managerEmail
+    )
+}

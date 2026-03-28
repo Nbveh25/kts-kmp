@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="chat_attachment">Вложение</string>
+    <string name="chat_send_as_file">Отправить как файл</string>
+    <string name="chat_photo_or_video">Фото или видео</string>
+    <string name="chat_file">Файл</string>
+    <string name="chat_cancel">Отмена</string>
+</resources>
