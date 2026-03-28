@@ -8,6 +8,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
@@ -43,6 +44,12 @@ internal class SpaceProviderImpl(
         _cabinet.value = cabinet
         _project.value = project
     }
+
+    override suspend fun getPersistedProjectId(): String? =
+        dataStore.data.map { prefs -> prefs[PROJECT_KEY] }.first()
+
+    override suspend fun getPersistedCabinetId(): String? =
+        dataStore.data.map { prefs -> prefs[CABINET_KEY] }.first()
 
     companion object {
         private val CABINET_KEY = stringPreferencesKey("cabinet")

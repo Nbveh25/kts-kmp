@@ -12,4 +12,10 @@ interface SpaceProvider {
     val project: StateFlow<String?>
 
     suspend fun setSpace(cabinet: String, project: String)
+
+    /** Id проекта из DataStore (актуальное сохранённое значение). */
+    suspend fun getPersistedProjectId(): String?
+
+    /** Id кабинета из DataStore (актуальное сохранённое значение). */
+    suspend fun getPersistedCabinetId(): String?
 }

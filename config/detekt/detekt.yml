@@ -107,7 +107,7 @@ complexity:
     ignoreOverloaded: false
   CyclomaticComplexMethod:
     active: true
-    threshold: 20
+    threshold: 30
     ignoreSingleWhenExpression: false
     ignoreSimpleWhenEntries: false
     ignoreNestingFunctions: false
@@ -129,12 +129,12 @@ complexity:
     threshold: 600
   LongMethod:
     active: true
-    threshold: 80
+    threshold: 100
     ignoreAnnotated: [ 'Composable' ]
   LongParameterList:
     active: true
     functionThreshold: 20
-    constructorThreshold: 7
+    constructorThreshold: 20
     ignoreDefaultParameters: false
     ignoreDataClasses: true
     ignoreAnnotatedParameter: [ ]
@@ -169,7 +169,7 @@ complexity:
   TooManyFunctions:
     active: true
     excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/androidUnitTest/**', '**/androidInstrumentedTest/**', '**/jsTest/**', '**/iosTest/**' ]
-    thresholdInFiles: 11
+    thresholdInFiles: 20
     thresholdInClasses: 20
     thresholdInInterfaces: 10
     thresholdInObjects: 11

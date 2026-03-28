@@ -7,7 +7,9 @@ import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import org.koin.compose.koinInject
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen.ChatScreen
 import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
@@ -49,7 +51,10 @@ fun AppNavigation(
         val isValid = runCatching { sessionChecker.isSessionValid() }.getOrDefault(false)
         if (isValid) {
             navController.navigate(Route.Main) {
-                popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                popUpTo(navController.graph.startDestinationId) {
+                    inclusive = true
+                }
+                launchSingleTop = true
             }
         }
     }
@@ -83,6 +88,20 @@ fun AppNavigation(
             MainScreen(
                 onProfileClick = {
                     navController.navigate(Route.Profile)
+                },
+                onChatClick = { conversationId ->
+                    navController.navigate(Route.Chat(conversationId = conversationId))
+                }
+            )
+        }
+
+        composable<Route.Chat> { backStackEntry ->
+            val chatRoute: Route.Chat = backStackEntry.toRoute()
+            ChatScreen(
+                conversationId = chatRoute.conversationId,
+                onBack = { navController.popBackStack() },
+                onUserInfoClick = {
+                    
                 }
             )
         }

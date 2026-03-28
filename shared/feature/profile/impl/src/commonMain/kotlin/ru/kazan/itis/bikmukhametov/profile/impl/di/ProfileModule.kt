@@ -12,11 +12,11 @@ import ru.kazan.itis.bikmukhametov.profile.impl.presentation.screen.ProfileViewM
 
 val profileModule = module {
     // data layer
-    single<ProfileRepository> { ProfileRepositoryImpl(get(), get()) }
+    factory<ProfileRepository> { ProfileRepositoryImpl(get(), get()) }
 
     // domain layer
-    single<GetProfileInfoUseCase> { GetProfileInfoUseCaseImpl(get()) }
-    single<LogoutUseCase> { LogoutUseCaseImpl(get()) }
+    factory<GetProfileInfoUseCase> { GetProfileInfoUseCaseImpl(get()) }
+    factory<LogoutUseCase> { LogoutUseCaseImpl(get()) }
 
     viewModelOf(::ProfileViewModel)
 }

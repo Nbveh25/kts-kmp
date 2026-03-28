@@ -1,5 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,11 +21,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.SocialBadge
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Elevation
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -68,22 +70,13 @@ internal fun ConvesationCardUI(
                     modifier = Modifier
                         .align(Alignment.BottomEnd)
                         .size(18.dp)
-                        .background(
-                            when (chat.socialBadge) {
-                                SocialBadge.TG -> MaterialTheme.colorScheme.primary
-                                SocialBadge.WA -> MaterialTheme.colorScheme.tertiary
-                            },
-                            CircleShape
-                        ),
+                        .background(Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(
-                        text = when (chat.socialBadge) {
-                            SocialBadge.TG -> "TG"
-                            SocialBadge.WA -> "WA"
-                        },
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary
+                    Image(
+                        imageVector = vectorResource(chat.socialBadge),
+                        contentDescription = "Иконка приложения",
+                        modifier = Modifier.size(18.dp)
                     )
                 }
             }

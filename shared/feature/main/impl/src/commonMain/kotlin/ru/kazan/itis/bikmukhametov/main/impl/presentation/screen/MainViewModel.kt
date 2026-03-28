@@ -6,6 +6,7 @@ import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
@@ -15,6 +16,7 @@ internal class MainViewModel(
     private val getProjectListUseCase: GetProjectListUseCase,
     private val getConversationListUseCase: GetConversationListUseCase,
     private val observeConversationListUseCase: ObserveConversationListUseCase,
+    private val setProjectUseCase: SetProjectUseCase,
 ) : BaseViewModel<MainUiState, MainAction>(MainUiState()) {
 
     private var currentOffset = 0
@@ -40,8 +42,28 @@ internal class MainViewModel(
                 copy(projectDropdownExpanded = action.expanded)
             }
 
-            is MainAction.SelectProject -> updateState {
-                copy(currentProject = action.project, projectDropdownExpanded = false)
+            is MainAction.SelectProject -> {
+                val cabinetId = state.value.currentCabinet?.id
+                if (cabinetId != null) {
+                    viewModelScope.launch {
+                        setProjectUseCase(cabinetId, action.project.id)
+                            .onSuccess {
+                                updateState {
+                                    copy(currentProject = action.project, projectDropdownExpanded = false)
+                                }
+                                refreshConversations()
+                            }
+                            .onFailure {
+                                updateState {
+                                    copy(currentProject = action.project, projectDropdownExpanded = false)
+                                }
+                            }
+                    }
+                } else {
+                    updateState {
+                        copy(currentProject = action.project, projectDropdownExpanded = false)
+                    }
+                }
             }
 
             is MainAction.ToggleSearch -> updateState {
@@ -56,11 +78,38 @@ internal class MainViewModel(
             }
 
             is MainAction.ToggleFilterSheet -> updateState {
-                copy(filterSheetVisible = !filterSheetVisible)
+                val open = !filterSheetVisible
+                copy(
+                    filterSheetVisible = open,
+                    filterDraftKinds = if (open) filterAppliedKinds else filterDraftKinds,
+                    filterDraftChannelIds = if (open) filterAppliedChannelIds else filterDraftChannelIds,
+                    filterDraftBuckets = if (open) filterAppliedBuckets else filterDraftBuckets,
+                )
             }
 
             MainAction.DismissFilterSheet -> updateState {
                 copy(filterSheetVisible = false)
+            }
+
+            is MainAction.FilterDraftKindsChange -> updateState {
+                copy(filterDraftKinds = action.value)
+            }
+
+            is MainAction.FilterDraftChannelsChange -> updateState {
+                copy(filterDraftChannelIds = action.value)
+            }
+
+            is MainAction.FilterDraftBucketsChange -> updateState {
+                copy(filterDraftBuckets = action.value)
+            }
+
+            MainAction.ApplyChatFilters -> updateState {
+                copy(
+                    filterAppliedKinds = filterDraftKinds,
+                    filterAppliedChannelIds = filterDraftChannelIds,
+                    filterAppliedBuckets = filterDraftBuckets,
+                    filterSheetVisible = false,
+                ).recomputed()
             }
 
             is MainAction.SelectTab -> updateState {
@@ -127,6 +176,16 @@ internal class MainViewModel(
                 }
             }
             .filter { chat ->
+                filterAppliedKinds.isEmpty() || chat.channelKind in filterAppliedKinds
+            }
+            .filter { chat ->
+                filterAppliedChannelIds.isEmpty() || chat.channelId in filterAppliedChannelIds
+            }
+            .filter { chat ->
+                filterAppliedBuckets.isEmpty() ||
+                    (chat.userListBucket != null && chat.userListBucket in filterAppliedBuckets)
+            }
+            .filter { chat ->
                 searchQuery.isBlank() ||
                         chat.name.contains(searchQuery, ignoreCase = true) ||
                         chat.lastMessageText.contains(searchQuery, ignoreCase = true)
@@ -147,12 +206,12 @@ internal class MainViewModel(
 
     private suspend fun loadCabinet(): Boolean {
         return getCabinetUseCase().fold(
-            onSuccess = { cabinetModel ->
-                val cabinetUi = cabinetModel.toItem()
+            onSuccess = { cabinetModels ->
+                val cabinetsUi = cabinetModels.map { it.toItem() }
                 updateState {
                     copy(
-                        currentCabinet = cabinetUi,
-                        cabinets = listOf(cabinetUi)
+                        currentCabinet = cabinetsUi.firstOrNull(),
+                        cabinets = cabinetsUi
                     )
                 }
                 true
@@ -161,7 +220,7 @@ internal class MainViewModel(
                 updateState {
                     copy(
                         isLoading = false,
-                        loadError = error.message ?: "Ошибка загрузки кабинета"
+                        loadError = error.message
                     )
                 }
                 false
@@ -185,7 +244,7 @@ internal class MainViewModel(
                 updateState {
                     copy(
                         isLoading = false,
-                        loadError = error.message ?: "Ошибка загрузки проектов"
+                        loadError = error.message
                     )
                 }
                 false

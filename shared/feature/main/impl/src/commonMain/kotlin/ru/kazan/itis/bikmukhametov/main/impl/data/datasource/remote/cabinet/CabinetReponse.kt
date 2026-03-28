@@ -5,6 +5,19 @@ import kotlinx.serialization.Serializable
 import ru.kazan.itis.bikmukhametov.main.api.model.BillingModel
 import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
 
+/** Ответ GET /api/cabinets/list — как `projects/list`: `data.cabinets`. */
+@Serializable
+data class CabinetListResponse(
+    @SerialName("status") val status: String,
+    @SerialName("data") val data: CabinetListData,
+)
+
+@Serializable
+data class CabinetListData(
+    @SerialName("cabinets") val cabinets: List<CabinetDto>,
+)
+
+/** Одиночный кабинет (legacy / get_by_domain) — оставлено при необходимости других эндпоинтов */
 @Serializable
 data class CabinetResponse(
     @SerialName("status") val status: String,

@@ -16,12 +16,12 @@ import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginViewModel
  */
 val loginModule = module {
 
-    // Data layer 
-    single<LoginDataSource> { LoginDataSourceImpl(get<HttpClient>()) }
-    single<LoginRepository> { LoginRepositoryImpl(get()) }
+    // Data layer
+    factory<LoginDataSource> { LoginDataSourceImpl(get<HttpClient>()) }
+    factory<LoginRepository> { LoginRepositoryImpl(get()) }
 
     // Domain layer
-    single<LoginUseCase> { LoginUseCaseImpl(get()) }
+    factory<LoginUseCase> { LoginUseCaseImpl(get()) }
 
     // Presentation layer 
     viewModelOf(::LoginViewModel)

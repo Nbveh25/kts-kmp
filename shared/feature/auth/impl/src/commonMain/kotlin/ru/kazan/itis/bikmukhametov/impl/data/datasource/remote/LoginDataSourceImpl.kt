@@ -8,6 +8,7 @@ import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.api.datasource.remote.LoginDataSource
 import ru.kazan.itis.bikmukhametov.auth.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
+import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 /* Авторизация по кукам: бэкенд отдаёт Set-Cookie, Ktor + PersistentCookieStorage сохраняют,
  * в последующие запросы кука подставляется автоматически, при 401 — логаут.
@@ -21,7 +22,7 @@ internal class LoginDataSourceImpl(
         password: String,
         captchaToken: String
     ): Result<Unit> {
-        val rawResult = runCatching {
+        val rawResult = runCatchingCancelable {
             val response = httpClient.post(BuildKonfig.AUTH_BASE_URL + "/api/auth/login") {
 
                 setBody(

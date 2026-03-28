@@ -31,8 +31,6 @@ kotlin {
             implementation(libs.datastore.preferences.core)
             implementation(libs.kvault.store)
 
-            // Room runtime и sqlite должны быть видны модулям,
-            // которые используют AppDatabase (extends RoomDatabase)
             api(libs.androidx.room.runtime)
             api(libs.androidx.sqlite.bundled)
         }

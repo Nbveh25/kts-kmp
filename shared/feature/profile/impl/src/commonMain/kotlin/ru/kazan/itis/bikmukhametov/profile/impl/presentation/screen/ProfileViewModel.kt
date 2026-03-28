@@ -23,10 +23,13 @@ internal class ProfileViewModel(
 
     private fun loadCabinetAndProjects() {
         viewModelScope.launch {
-            getCabinetUseCase().onSuccess { cabinet ->
-                val cabinetUi = cabinet.toItem()
+            getCabinetUseCase().onSuccess { cabinetModels ->
+                val cabinetsUi = cabinetModels.map { it.toItem() }
                 updateState {
-                    copy(currentCabinet = cabinetUi, cabinets = listOf(cabinetUi))
+                    copy(
+                        currentCabinet = cabinetsUi.firstOrNull(),
+                        cabinets = cabinetsUi,
+                    )
                 }
             }
             getProjectListUseCase().onSuccess { projects ->

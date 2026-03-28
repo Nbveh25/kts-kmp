@@ -4,5 +4,5 @@ import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
 
 /* Cabinet контракт */
 interface CabinetDataSource {
-    suspend fun getCabinet(): Result<CabinetModel>
+    suspend fun getCabinetList(): Result<List<CabinetModel>>
 }
