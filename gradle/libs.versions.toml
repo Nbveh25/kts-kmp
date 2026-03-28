@@ -34,7 +34,6 @@ jetbrainsKotlinJvm = "2.3.0"
 
 # Koin
 koinVersion = "4.1.1"
-koinAndroidExt = "3.0.2"
 
 # Lifecycle ViewModel
 lifecycleVersion = "2.10.0"
@@ -116,7 +115,6 @@ koin-core = { group = "io.insert-koin", name = "koin-core", version.ref = "koinV
 koin-compose = { group = "io.insert-koin", name = "koin-compose", version.ref = "koinVersion" }
 koin-compose-viewmodel = { group = "io.insert-koin", name = "koin-compose-viewmodel", version.ref = "koinVersion" }
 koin-android = { group = "io.insert-koin", name = "koin-android", version.ref = "koinVersion" }
-koin-android-ext = { group = "io.insert-koin", name = "koin-android-ext", version.ref = "koinAndroidExt" }
 
 # Lifecycle ViewModel
 lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle-viewmodel", version.ref = "lifecycleVersion" }

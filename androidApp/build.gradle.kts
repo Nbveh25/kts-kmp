@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.androidApplication)
     alias(libs.plugins.kotlinAndroid)
@@ -15,6 +17,12 @@ kotlin {
     }
 }
 
+val keystorePropertiesFile = rootProject.file("keystore.properties")
+val keystoreProperties = Properties()
+if (keystorePropertiesFile.exists()) {
+    keystorePropertiesFile.inputStream().use { keystoreProperties.load(it) }
+}
+
 android {
     namespace = "ru.kazan.itis.bikmukhametov.kts"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
@@ -27,9 +35,35 @@ android {
         versionName = rootProject.extra.get("versionName") as String
     }
 
+    signingConfigs {
+        if (keystorePropertiesFile.exists()) {
+            create("release") {
+                keyAlias = keystoreProperties.getProperty("keyAlias")!!
+                keyPassword = keystoreProperties.getProperty("keyPassword")!!
+                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile")!!)
+                storePassword = keystoreProperties.getProperty("storePassword")!!
+            }
+        }
+    }
+
     buildTypes {
-        getByName("release") {
+        getByName("debug") {
             isMinifyEnabled = false
+            isShrinkResources = false
+        }
+        getByName("release") {
+            isMinifyEnabled = true
+            isShrinkResources = true
+            isDebuggable = false
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+            signingConfig = if (keystorePropertiesFile.exists()) {
+                signingConfigs.getByName("release")
+            } else {
+                signingConfigs.getByName("debug")
+            }
         }
     }
     compileOptions {
@@ -48,7 +82,6 @@ dependencies {
 
     // Koin
     implementation(libs.koin.android)
-    implementation(libs.koin.android.ext)
     implementation(libs.koin.core)
 
     // Napier
