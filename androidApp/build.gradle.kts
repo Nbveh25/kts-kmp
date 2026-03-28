@@ -4,6 +4,9 @@ plugins {
     alias(libs.plugins.composeCompiler)
 
     alias(libs.plugins.secretGradlePlugin)
+
+    alias(libs.plugins.google.services.plugin)
+    alias(libs.plugins.firebase.crashlytics.plugin)
 }
 
 kotlin {
@@ -43,12 +46,22 @@ dependencies {
     implementation(projects.shared)
     implementation(projects.shared.core.database)
 
+    // Koin
     implementation(libs.koin.android)
     implementation(libs.koin.android.ext)
     implementation(libs.koin.core)
+
+    // Napier
     implementation(libs.napier)
 
+    // Datastore
     implementation(libs.datastore.preferences)
+
+    // Firebase
+    implementation(platform(libs.firebase.bom))
+    implementation(libs.firebase.crashlytics)
+    implementation(libs.firebase.analytics)
+
     implementation(libs.androidx.activity.compose)
     implementation(libs.compose.runtime)
     implementation(libs.compose.ui)
