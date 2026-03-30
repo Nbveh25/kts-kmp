@@ -19,14 +19,13 @@ kotlin {
         iosSimulatorArm64()
     ).forEach { iosTarget ->
         iosTarget.binaries.framework {
-            baseName = "CoreUi"
+            baseName = "DesignSystem"
             isStatic = true
         }
     }
 
     sourceSets {
         commonMain.dependencies {
-            implementation(project(":shared:core:theme"))
             implementation(libs.compose.runtime)
             implementation(libs.compose.ui)
             implementation(libs.compose.foundation)
@@ -38,11 +37,11 @@ kotlin {
 }
 
 compose.resources {
-    packageOfResClass = "ru.kazan.itis.bikmukhametov.ui.generated.resources"
+    packageOfResClass = "ru.kazan.itis.bikmukhametov.designsystem.generated.resources"
 }
 
 android {
-    namespace = "ru.kazan.itis.bikmukhametov.ui"
+    namespace = "ru.kazan.itis.bikmukhametov.designsystem"
     compileSdk = libs.versions.android.compileSdk.get().toInt()
     defaultConfig {
         minSdk = libs.versions.android.minSdk.get().toInt()

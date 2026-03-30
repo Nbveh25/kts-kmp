@@ -36,8 +36,7 @@ include(":iosApp")
 include(":shared")
 include(":shared:main")
 
-include(":shared:core:ui")
-include(":shared:core:theme")
+include(":shared:core:designsystem")
 include(":shared:core:network")
 include(":shared:core:database")
 

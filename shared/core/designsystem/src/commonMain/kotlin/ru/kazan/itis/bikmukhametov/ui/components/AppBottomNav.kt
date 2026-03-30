@@ -9,11 +9,11 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.Res
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.app_bottom_nav_chats
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.app_bottom_nav_profile
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.ic_account_circle_24
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.ic_chat_24
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.app_bottom_nav_chats
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.app_bottom_nav_profile
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.ic_account_circle_24
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.ic_chat_24
 
 @Composable
 fun AppBottomNav(

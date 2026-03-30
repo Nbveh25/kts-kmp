@@ -20,9 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.theme.Spacing
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.Res
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.top_bar_project
-import ru.kazan.itis.bikmukhametov.ui.generated.resources.top_bar_space
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.top_bar_project
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.top_bar_space
 import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
 

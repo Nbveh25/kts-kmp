@@ -7,10 +7,10 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.Font
-import kts.shared.core.theme.generated.resources.Res
-import kts.shared.core.theme.generated.resources.roboto_bold
-import kts.shared.core.theme.generated.resources.roboto_medium
-import kts.shared.core.theme.generated.resources.roboto_regular
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.roboto_bold
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.roboto_medium
+import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.roboto_regular
 
 @Composable
 private fun getRobotoFontFamily() = FontFamily(
