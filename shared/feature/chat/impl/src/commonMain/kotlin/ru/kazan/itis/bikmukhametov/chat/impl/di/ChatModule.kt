@@ -38,7 +38,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen.ChatViewModel
 val chatModule = module {
 
     // Data layer
-    factory<ChatDataSource> { ChatRemoteDataSourceImpl(get()) }
+    factory<ChatDataSource> { ChatRemoteDataSourceImpl(get(), get()) }
     factory<ChatRepository> { ChatRepositoryImpl(get()) }
 
     factory<ConversationDataSource> { ConversationRemoteDataSourceImpl(get()) }

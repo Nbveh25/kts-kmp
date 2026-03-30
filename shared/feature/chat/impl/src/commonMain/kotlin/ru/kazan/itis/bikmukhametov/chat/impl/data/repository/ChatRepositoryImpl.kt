@@ -34,9 +34,10 @@ internal class ChatRepositoryImpl(
     override suspend fun uploadAttachment(
         fileName: String,
         mimeType: String?,
-        bytes: ByteArray,
+        contentUri: String,
+        contentLength: Long?,
     ): Result<String> =
-        chatDataSource.uploadAttachment(fileName, mimeType, bytes)
+        chatDataSource.uploadAttachment(fileName, mimeType, contentUri, contentLength)
             .onFailure { error ->
                 Napier.e(tag = "ChatRepo", throwable = error) {
                     "Не удалось загрузить вложение $fileName"

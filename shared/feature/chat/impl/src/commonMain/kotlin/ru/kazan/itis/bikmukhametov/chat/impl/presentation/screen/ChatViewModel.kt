@@ -179,8 +179,8 @@ internal class ChatViewModel(
         val text = state.value.messageText.trim()
         if (text.isBlank() && pending == null) return
 
-        if (pending != null && pending.bytes.size > MAX_ATTACHMENT_BYTES) {
-            Napier.e(tag = TAG_VM, message = "Attachment too large: ${pending.bytes.size} bytes")
+        if (pending != null && pending.contentLength != null && pending.contentLength > MAX_ATTACHMENT_BYTES) {
+            Napier.e(tag = TAG_VM, message = "Attachment too large: ${pending.contentLength} bytes")
             return
         }
 
@@ -191,7 +191,8 @@ internal class ChatViewModel(
                 uploadChatAttachmentUseCase(
                     fileName = p.fileName,
                     mimeType = p.mimeType,
-                    bytes = p.bytes,
+                    contentUri = p.contentUri,
+                    contentLength = p.contentLength,
                 ).fold(
                     onSuccess = { listOf(it) },
                     onFailure = { e ->

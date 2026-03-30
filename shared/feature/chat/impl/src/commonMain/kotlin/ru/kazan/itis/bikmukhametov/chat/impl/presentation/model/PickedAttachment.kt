@@ -1,26 +1,14 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.model
 
-/** Выбранное вложение перед отправкой (байты в памяти). */
-class PickedAttachment(
+/**
+ * Выбранное вложение: метаданные и URI контента.
+ * Байты читаются только при загрузке на сервер потоком.
+ */
+data class PickedAttachment(
+    val contentUri: String,
     val fileName: String,
     val mimeType: String?,
-    val bytes: ByteArray,
     val sendAsFile: Boolean,
-) {
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other !is PickedAttachment) return false
-        return fileName == other.fileName &&
-            mimeType == other.mimeType &&
-            sendAsFile == other.sendAsFile &&
-            bytes.contentEquals(other.bytes)
-    }
-
-    override fun hashCode(): Int {
-        var result = fileName.hashCode()
-        result = 31 * result + (mimeType?.hashCode() ?: 0)
-        result = 31 * result + sendAsFile.hashCode()
-        result = 31 * result + bytes.contentHashCode()
-        return result
-    }
-}
+    /** Известный размер файла в байтах (если контент-провайдер отдал) */
+    val contentLength: Long? = null,
+)

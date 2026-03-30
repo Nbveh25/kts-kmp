@@ -116,20 +116,25 @@ actual fun AttachmentPickerSheet(
 private fun readPickedUri(context: Context, uri: Uri, sendAsFile: Boolean): PickedAttachment? {
     val resolver = context.contentResolver
     val mime = resolver.getType(uri)
-    val name = resolver.query(uri, null, null, null, null)?.use { c ->
+    var displayName: String? = null
+    var size: Long? = null
+    resolver.query(uri, null, null, null, null)?.use { c ->
         if (c.moveToFirst()) {
-            val idx = c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (idx >= 0) c.getString(idx) else null
-        } else {
-            null
+            val nameIdx = c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
+            if (nameIdx >= 0) displayName = c.getString(nameIdx)
+            val sizeIdx = c.getColumnIndex(OpenableColumns.SIZE)
+            if (sizeIdx >= 0) {
+                val len = c.getLong(sizeIdx)
+                if (len >= 0) size = len
+            }
         }
-    } ?: "attachment"
-    val bytes = resolver.openInputStream(uri)?.use { it.readBytes() } ?: return null
-    if (bytes.isEmpty()) return null
+    }
+    if (size == 0L) return null
     return PickedAttachment(
-        fileName = name,
+        contentUri = uri.toString(),
+        fileName = displayName ?: "attachment",
         mimeType = mime,
-        bytes = bytes,
         sendAsFile = sendAsFile,
+        contentLength = size,
     )
 }
