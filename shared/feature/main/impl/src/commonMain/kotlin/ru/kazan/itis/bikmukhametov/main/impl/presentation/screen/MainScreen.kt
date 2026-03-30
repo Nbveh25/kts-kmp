@@ -12,6 +12,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
 import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
+import ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen
 
 @Composable
 fun MainScreen(

@@ -32,4 +32,8 @@
     <string name="time_weekday_sun">Вс</string>
     <string name="time_unknown">?</string>
 
+    <string name="error_default_message">Произошла ошибка</string>
+    <string name="error_retry">Повторить</string>
+    <string name="error_icon_content_description">Ошибка</string>
+
 </resources>

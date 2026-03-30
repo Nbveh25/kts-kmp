@@ -57,6 +57,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.DateDivider
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.MessageBubble
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
+import ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen
 import ru.kazan.itis.bikmukhametov.ui.util.epochDayOf
 import ru.kazan.itis.bikmukhametov.ui.util.formatDateLabel
 import ru.kazan.itis.bikmukhametov.ui.util.rememberTimeFormatStrings
@@ -228,7 +229,7 @@ fun ChatScreen(
             }
 
             state.loadError != null && state.messageList.isEmpty() -> {
-                ChatErrorScreen(
+                ErrorScreen(
                     modifier = Modifier.padding(paddingValues),
                     errorMessage = state.loadError,
                     onRetry = { viewModel.onAction(ChatAction.Refresh) }
