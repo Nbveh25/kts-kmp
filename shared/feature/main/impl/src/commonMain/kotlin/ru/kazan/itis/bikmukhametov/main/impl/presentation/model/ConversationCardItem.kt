@@ -13,7 +13,6 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_viber_logo
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_vk_logo
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_wazzup_logo
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_widget_logo
-import ru.kazan.itis.bikmukhametov.ui.util.formatTimeForUi
 
 @Immutable
 data class ConversationCardItem(
@@ -22,7 +21,8 @@ data class ConversationCardItem(
     val socialBadge: DrawableResource,
     val name: String,
     val lastMessageText: String,
-    val timeOrDate: String,
+    /** ISO 8601 или epoch-ms от API; строка для экрана строится в Composable через formatTimeForUi. */
+    val dateUpdatedIso: String,
     val unreadCount: Int = 0,
     // true = ожидает ответа оператора (клиент написал, оператор не ответил)
     val isWaiting: Boolean = false,
@@ -63,9 +63,6 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
     // Текст последнего сообщения или пустая строка
     val lastMessageText = lastMessage?.text ?: ""
 
-    // Время последнего обновления — форматируем для UI (12:30, Вчера, Пн, 09.03.24)
-    val timeOrDate = formatTimeForUi(dateUpdated)
-
     // Количество непрочитанных: если диалог не прочитан, считаем 1 (иначе 0)
     // Это временное решение, так как API не возвращает точное число непрочитанных
     val unreadCount = if (!isRead) 1 else 0
@@ -80,7 +77,7 @@ internal fun ConversationModel.toConversationCardItem(): ConversationCardItem {
         socialBadge = socialBadgeRes,
         name = userName,
         lastMessageText = lastMessageText,
-        timeOrDate = timeOrDate,
+        dateUpdatedIso = dateUpdated,
         unreadCount = unreadCount,
         isWaiting = isWaiting,
         channelKind = channel.kind,

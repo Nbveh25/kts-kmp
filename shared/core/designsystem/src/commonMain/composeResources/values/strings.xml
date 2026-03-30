@@ -7,4 +7,29 @@
     <string name="top_bar_space">Пространство</string>
     <string name="top_bar_project">Проект</string>
 
+    <!--TimeFormatUI-->
+    <string name="month_january">января</string>
+    <string name="month_february">февраля</string>
+    <string name="month_march">марта</string>
+    <string name="month_april">апреля</string>
+    <string name="month_may">мая</string>
+    <string name="month_june">июня</string>
+    <string name="month_july">июля</string>
+    <string name="month_august">августа</string>
+    <string name="month_september">сентября</string>
+    <string name="month_october">октября</string>
+    <string name="month_november">ноября</string>
+    <string name="month_december">декабря</string>
+
+    <string name="time_yesterday">Вчера</string>
+    <string name="time_today">Сегодня</string>
+    <string name="time_weekday_mon">Пн</string>
+    <string name="time_weekday_tue">Вт</string>
+    <string name="time_weekday_wed">Ср</string>
+    <string name="time_weekday_thu">Чт</string>
+    <string name="time_weekday_fri">Пт</string>
+    <string name="time_weekday_sat">Сб</string>
+    <string name="time_weekday_sun">Вс</string>
+    <string name="time_unknown">?</string>
+
 </resources>

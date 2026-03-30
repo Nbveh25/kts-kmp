@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.ui.components
+package ru.kazan.itis.bikmukhametov.ui.component
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

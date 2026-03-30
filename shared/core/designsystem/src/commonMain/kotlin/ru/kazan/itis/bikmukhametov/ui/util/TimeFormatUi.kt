@@ -1,14 +1,13 @@
 package ru.kazan.itis.bikmukhametov.ui.util
 
-
 /**
  * Форматирует дату/время для отображения в UI (карточки чатов, списки).
  * Без использования deprecated/experimental API (Instant, Clock и т.п.):
  * только epoch-миллисекунды и ручной разбор ISO 8601.
  *
  * - Сегодня → "12:30"
- * - Вчера → "Вчера"
- * - В течение недели → "Пн", "Вт", …
+ * - Вчера → строка из ресурсов
+ * - В течение недели → короткое имя дня недели из [TimeFormatStrings]
  * - Старше → "09.03.24"
  *
  * Сравнение по UTC-дням; время выводится как в исходной строке (обычно UTC).
@@ -18,7 +17,8 @@ package ru.kazan.itis.bikmukhametov.ui.util
  */
 fun formatTimeForUi(
     isoOrEpoch: String,
-    nowMs: Long = currentTimeMillis()
+    strings: TimeFormatStrings,
+    nowMs: Long = currentTimeMillis(),
 ): String {
     val epochMs = parseToEpochMillis(isoOrEpoch) ?: return isoOrEpoch
     val parsed = epochMillisToComponents(epochMs)
@@ -29,8 +29,8 @@ fun formatTimeForUi(
 
     return when {
         diffDays == 0L -> "%02d:%02d".format(parsed.hour, parsed.minute)
-        diffDays == 1L -> "Вчера"
-        diffDays in 2L..6L -> dayOfWeekShort(parsed.dayOfWeek)
+        diffDays == 1L -> strings.yesterday
+        diffDays in 2L..6L -> dayOfWeekShort(parsed.dayOfWeek, strings)
         else -> "%02d.%02d.%02d".format(
             parsed.dayOfMonth,
             parsed.month,
@@ -50,12 +50,16 @@ fun formatTimeOnly(isoOrEpoch: String): String {
 
 /**
  * Возвращает метку даты для разделителя в чате:
- * - Сегодня → "Сегодня"
- * - Вчера → "Вчера"
- * - Тот же год → "16 марта"
+ * - Сегодня → из ресурсов
+ * - Вчера → из ресурсов
+ * - Тот же год → "16 марта" (месяц из ресурсов)
  * - Другой год → "16 марта 2023"
  */
-fun formatDateLabel(isoOrEpoch: String, nowMs: Long = currentTimeMillis()): String {
+fun formatDateLabel(
+    isoOrEpoch: String,
+    strings: TimeFormatStrings,
+    nowMs: Long = currentTimeMillis(),
+): String {
     val epochMs = parseToEpochMillis(isoOrEpoch) ?: return isoOrEpoch
     val parsed = epochMillisToComponents(epochMs)
 
@@ -65,10 +69,10 @@ fun formatDateLabel(isoOrEpoch: String, nowMs: Long = currentTimeMillis()): Stri
     val nowYear = epochMillisToComponents(nowMs).year
 
     return when {
-        diffDays == 0L -> "Сегодня"
-        diffDays == 1L -> "Вчера"
-        parsed.year == nowYear -> "${parsed.dayOfMonth} ${monthName(parsed.month)}"
-        else -> "${parsed.dayOfMonth} ${monthName(parsed.month)} ${parsed.year}"
+        diffDays == 0L -> strings.today
+        diffDays == 1L -> strings.yesterday
+        parsed.year == nowYear -> "${parsed.dayOfMonth} ${monthName(parsed.month, strings)}"
+        else -> "${parsed.dayOfMonth} ${monthName(parsed.month, strings)} ${parsed.year}"
     }
 }
 
@@ -81,20 +85,12 @@ fun epochDayOf(isoOrEpoch: String): Long {
     return epochMs / MILLIS_PER_DAY
 }
 
-private fun monthName(month: Int): String = when (month) {
-    1 -> "января"
-    2 -> "февраля"
-    3 -> "марта"
-    4 -> "апреля"
-    5 -> "мая"
-    6 -> "июня"
-    7 -> "июля"
-    8 -> "августа"
-    9 -> "сентября"
-    10 -> "октября"
-    11 -> "ноября"
-    12 -> "декабря"
-    else -> "?"
+private fun monthName(month: Int, strings: TimeFormatStrings): String {
+    return if (month in 1..12) {
+        strings.monthsGenitive[month - 1]
+    } else {
+        strings.unknown
+    }
 }
 
 private const val MILLIS_PER_DAY = 24L * 60 * 60 * 1000
@@ -151,15 +147,18 @@ private fun parseIso8601ToEpochMillis(iso: String): Long? {
 private fun utcToEpochMillis(year: Int, month: Int, dayOfMonth: Int, hour: Int, minute: Int, second: Int): Long {
     val days = dateToEpochDays(year, month, dayOfMonth)
     return days * MILLIS_PER_DAY +
-            hour * 3600L * 1000 +
-            minute * 60L * 1000 +
-            second * 1000L
+        hour * 3600L * 1000 +
+        minute * 60L * 1000 +
+        second * 1000L
 }
 
 private fun dateToEpochDays(year: Int, month: Int, dayOfMonth: Int): Long {
     var y = year
     var m = month
-    if (m <= 2) { y--; m += 12 }
+    if (m <= 2) {
+        y--
+        m += 12
+    }
     val era = (y / 400).toLong()
     val yoe = (y % 400).toLong()
     val doy = (153 * (m - 3) + 2) / 5 + dayOfMonth - 1
@@ -173,7 +172,7 @@ private data class DateComponents(
     val dayOfMonth: Int,
     val hour: Int,
     val minute: Int,
-    val dayOfWeek: Int // 1 = Monday .. 7 = Sunday
+    val dayOfWeek: Int, // 1 = Monday .. 7 = Sunday
 )
 
 private fun epochMillisToComponents(epochMs: Long): DateComponents {
@@ -201,13 +200,7 @@ private fun epochDaysToDate(epochDays: Int): Triple<Int, Int, Int> {
     return Triple(year, m, d)
 }
 
-private fun dayOfWeekShort(dayOfWeek: Int): String = when (dayOfWeek) {
-    1 -> "Пн"
-    2 -> "Вт"
-    3 -> "Ср"
-    4 -> "Чт"
-    5 -> "Пт"
-    6 -> "Сб"
-    7 -> "Вс"
-    else -> "?"
+private fun dayOfWeekShort(dayOfWeek: Int, strings: TimeFormatStrings): String {
+    val idx = dayOfWeek - 1
+    return strings.weekdayShort.getOrNull(idx) ?: strings.unknown
 }

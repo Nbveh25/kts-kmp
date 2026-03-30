@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import ru.kazan.itis.bikmukhametov.ui.components.AppBottomNav
-import ru.kazan.itis.bikmukhametov.ui.components.CabinetProjectTopBar
+import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
+import ru.kazan.itis.bikmukhametov.ui.component.CabinetProjectTopBar
 
 @Composable
 fun ProfileScreen(

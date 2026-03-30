@@ -59,6 +59,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.toItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 import ru.kazan.itis.bikmukhametov.ui.util.epochDayOf
 import ru.kazan.itis.bikmukhametov.ui.util.formatDateLabel
+import ru.kazan.itis.bikmukhametov.ui.util.rememberTimeFormatStrings
 
 @Composable
 fun ChatScreen(
@@ -79,8 +80,9 @@ fun ChatScreen(
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
     val loadMoreThreshold = 3
+    val timeFormatStrings = rememberTimeFormatStrings()
 
-    val chatRows: List<ChatRow> = remember(state.messageList) {
+    val chatRows: List<ChatRow> = remember(state.messageList, timeFormatStrings) {
         val messages = state.messageList.asReversed()
         buildList {
             messages.forEachIndexed { index, msg ->
@@ -98,7 +100,7 @@ fun ChatScreen(
                 if (index == messages.lastIndex || currentDay != nextDay) {
                     add(
                         ChatRow.DateHeader(
-                            label = formatDateLabel(msg.createdAt),
+                            label = formatDateLabel(msg.createdAt, timeFormatStrings),
                             epochDay = currentDay
                         )
                     )

@@ -27,6 +27,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
+import ru.kazan.itis.bikmukhametov.ui.util.formatTimeForUi
+import ru.kazan.itis.bikmukhametov.ui.util.rememberTimeFormatStrings
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Elevation
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -36,6 +38,8 @@ internal fun ConvesationCardUI(
     chat: ConversationCardItem,
     modifier: Modifier = Modifier
 ) {
+    val timeFormatStrings = rememberTimeFormatStrings()
+    val timeOrDate = formatTimeForUi(chat.dateUpdatedIso, timeFormatStrings)
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(CornerShape.cornerShapeMedium),
@@ -105,7 +109,7 @@ internal fun ConvesationCardUI(
                 verticalArrangement = Arrangement.spacedBy(Spacing.paddingExtraSmall)
             ) {
                 Text(
-                    text = chat.timeOrDate,
+                    text = timeOrDate,
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )

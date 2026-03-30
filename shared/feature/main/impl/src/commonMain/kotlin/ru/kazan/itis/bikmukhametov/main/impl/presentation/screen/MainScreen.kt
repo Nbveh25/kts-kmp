@@ -11,7 +11,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
-import ru.kazan.itis.bikmukhametov.ui.components.AppBottomNav
+import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
 
 @Composable
 fun MainScreen(

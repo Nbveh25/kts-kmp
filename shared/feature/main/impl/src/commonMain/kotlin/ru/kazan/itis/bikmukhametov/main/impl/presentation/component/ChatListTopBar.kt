@@ -22,7 +22,7 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_filter_24
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_search_24
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.search
 import ru.kazan.itis.bikmukhametov.theme.Spacing
-import ru.kazan.itis.bikmukhametov.ui.components.CabinetProjectTopBar
+import ru.kazan.itis.bikmukhametov.ui.component.CabinetProjectTopBar
 import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
 import androidx.compose.material3.Text

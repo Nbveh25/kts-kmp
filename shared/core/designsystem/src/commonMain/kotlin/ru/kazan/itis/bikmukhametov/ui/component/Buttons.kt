@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.ui.components
+package ru.kazan.itis.bikmukhametov.ui.component
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
