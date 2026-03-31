@@ -2,6 +2,7 @@ package ru.kazan.itis.bikmukhametov.main.impl.presentation.screen
 
 import androidx.compose.runtime.Immutable
 import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
+import ru.kazan.itis.bikmukhametov.main.api.model.UserListModel
 import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
 import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
@@ -35,6 +36,7 @@ internal data class MainUiState(
     val filterAppliedChannelIds: Set<String> = emptySet(),
     /** Значения last_message.bucket; пустой набор = все списки. */
     val filterAppliedBuckets: Set<String> = emptySet(),
+    val userListOption: UserListModel? = null,
 
     val filterDraftKinds: Set<ChannelKind> = emptySet(),
     val filterDraftChannelIds: Set<String> = emptySet(),

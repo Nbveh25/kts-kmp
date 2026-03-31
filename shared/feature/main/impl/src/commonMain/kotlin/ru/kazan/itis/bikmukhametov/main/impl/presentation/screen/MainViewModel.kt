@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetUserListsUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
@@ -15,6 +16,7 @@ internal class MainViewModel(
     private val getCabinetUseCase: GetCabinetUseCase,
     private val getProjectListUseCase: GetProjectListUseCase,
     private val getConversationListUseCase: GetConversationListUseCase,
+    private val getUserListsUseCase: GetUserListsUseCase,
     private val observeConversationListUseCase: ObserveConversationListUseCase,
     private val setProjectUseCase: SetProjectUseCase,
 ) : BaseViewModel<MainUiState, MainAction>(MainUiState()) {
@@ -198,10 +200,22 @@ internal class MainViewModel(
             updateState { copy(isLoading = true, loadError = null) }
             if (!loadCabinet()) return@launch
             if (!loadProjects()) return@launch
+            loadUserLists()
             currentOffset = 0
             isEndReached = false
             loadConversations(reset = true)
         }
+    }
+
+    private suspend fun loadUserLists() {
+        getUserListsUseCase()
+            .onSuccess { userLists ->
+                val unsubscribed = userLists.firstOrNull { it.tag == UNSUBSCRIBED_TAG }
+                updateState { copy(userListOption = unsubscribed) }
+            }
+            .onFailure {
+                updateState { copy(userListOption = null) }
+            }
     }
 
     private suspend fun loadCabinet(): Boolean {
@@ -293,5 +307,6 @@ internal class MainViewModel(
 
     companion object {
         private const val PAGE_SIZE = 20
+        private const val UNSUBSCRIBED_TAG = "unsubscribed"
     }
 }

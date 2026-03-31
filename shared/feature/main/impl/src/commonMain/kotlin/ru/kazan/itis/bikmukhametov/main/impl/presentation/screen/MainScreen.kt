@@ -93,6 +93,7 @@ fun MainScreen(
     if (state.filterSheetVisible) {
         FilterBottomSheet(
             allChats = state.allChats,
+            userListOption = state.userListOption,
             draftKinds = state.filterDraftKinds,
             draftChannelIds = state.filterDraftChannelIds,
             draftBuckets = state.filterDraftBuckets,

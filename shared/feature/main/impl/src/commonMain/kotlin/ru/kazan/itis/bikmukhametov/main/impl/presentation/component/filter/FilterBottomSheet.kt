@@ -2,11 +2,8 @@
 
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.component.filter
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -25,24 +22,19 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.Image
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
+import ru.kazan.itis.bikmukhametov.main.api.model.UserListModel
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_all_channel_kinds
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_all_channels
@@ -71,6 +63,7 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 @Composable
 internal fun FilterBottomSheet(
     allChats: List<ConversationCardItem>,
+    userListOption: UserListModel?,
     draftKinds: Set<ChannelKind>,
     draftChannelIds: Set<String>,
     draftBuckets: Set<String>,
@@ -90,9 +83,6 @@ internal fun FilterBottomSheet(
             .map { ChannelPick(id = it.channelId, label = it.channelName ?: it.channelId) }
     }
     val allChannelIds = remember(channelOptions) { channelOptions.map { it.id }.toSet() }
-    val bucketOptions = remember(allChats) {
-        allChats.mapNotNull { it.userListBucket }.distinct().sorted()
-    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -217,36 +207,51 @@ internal fun FilterBottomSheet(
 
             FilterAccordionSection(
                 label = stringResource(Res.string.filter_user_lists),
-                summary = bucketSummary(draftBuckets, bucketOptions),
-                enabled = bucketOptions.isNotEmpty(),
+                summary = bucketSummary(draftBuckets),
+                enabled = userListOption != null,
             ) {
-                if (bucketOptions.isEmpty()) {
+                if (userListOption == null) {
                     Text(
                         text = stringResource(Res.string.filter_no_buckets),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
-                    bucketOptions.forEach { bucket ->
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Checkbox(
-                                checked = bucket in draftBuckets,
-                                onCheckedChange = {
-                                    val next =
-                                        if (bucket in draftBuckets) draftBuckets - bucket else draftBuckets + bucket
-                                    onDraftBucketsChange(next)
-                                },
-                            )
-                            Text(
-                                text = bucket,
-                                style = MaterialTheme.typography.bodyMedium,
-                                color = MaterialTheme.colorScheme.onSurface,
-                                modifier = Modifier.weight(1f),
-                            )
-                        }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = draftBuckets.isEmpty(),
+                            onCheckedChange = { checked ->
+                                if (checked) onDraftBucketsChange(emptySet())
+                            },
+                        )
+                        Text(
+                            text = stringResource(Res.string.filter_all_users),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
+                    }
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Checkbox(
+                            checked = userListOption.tag in draftBuckets,
+                            onCheckedChange = { checked ->
+                                onDraftBucketsChange(
+                                    if (checked) setOf(userListOption.tag) else emptySet(),
+                                )
+                            },
+                        )
+                        Text(
+                            text = userListOption.name,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            modifier = Modifier.weight(1f),
+                        )
                     }
                 }
             }
@@ -288,10 +293,9 @@ private fun channelSummary(draftIds: Set<String>, channels: List<ChannelPick>): 
 }
 
 @Composable
-private fun bucketSummary(draft: Set<String>, buckets: List<String>): String {
+private fun bucketSummary(draft: Set<String>): String {
     val all = stringResource(Res.string.filter_all_users)
-    if (buckets.isEmpty()) return all
-    if (draft.isEmpty() || draft.size == buckets.size) return all
+    if (draft.isEmpty()) return all
     return stringResource(Res.string.filter_selected_n, draft.size)
 }
 
