@@ -1,8 +1,10 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 
+import androidx.compose.runtime.Immutable
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.PickedAttachment
 
+@Immutable
 internal data class ChatUiState(
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,

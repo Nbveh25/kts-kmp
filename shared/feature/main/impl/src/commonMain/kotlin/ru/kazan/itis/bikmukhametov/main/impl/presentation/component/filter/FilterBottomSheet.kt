@@ -49,9 +49,10 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_channel_
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_buckets
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_channels
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.nothing_was_found
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_pick_channel
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_pick_channel_type
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_select_all
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_selected_n
-import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.search
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_title
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_user_lists
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_generic_chat_logo
@@ -125,7 +126,7 @@ internal fun FilterBottomSheet(
                 enabled = true,
                 searchEnabled = true,
                 searchQuery = kindSearchQuery,
-                searchPlaceholder = "Выберите тип канала",
+                searchPlaceholder = stringResource(Res.string.filter_pick_channel_type),
                 onSearchQueryChange = { kindSearchQuery = it },
                 onExpandedChange = { expanded ->
                     if (!expanded) kindSearchQuery = ""
@@ -188,7 +189,7 @@ internal fun FilterBottomSheet(
                 enabled = channelOptions.isNotEmpty(),
                 searchEnabled = true,
                 searchQuery = channelSearchQuery,
-                searchPlaceholder = "Выберите канал",
+                searchPlaceholder = stringResource(Res.string.filter_pick_channel),
                 onSearchQueryChange = { channelSearchQuery = it },
                 onExpandedChange = { expanded ->
                     if (!expanded) channelSearchQuery = ""

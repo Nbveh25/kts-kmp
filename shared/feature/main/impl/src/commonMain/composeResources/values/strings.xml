@@ -31,5 +31,7 @@
 
     <string name="filter_cancel_selection">Отменить выбор</string>
     <string name="filter_select_all">Выбрать все</string>
+    <string name="filter_pick_channel_type">Выберите тип канала</string>
+    <string name="filter_pick_channel">Выберите канал</string>
     
 </resources>

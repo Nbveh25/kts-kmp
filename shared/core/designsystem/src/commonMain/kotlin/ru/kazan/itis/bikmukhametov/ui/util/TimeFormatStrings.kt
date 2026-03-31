@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.ui.util
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import org.jetbrains.compose.resources.stringResource
 import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.month_april
@@ -29,6 +30,7 @@ import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.time_yesterd
 /**
  * Локализованные строки для [formatTimeForUi] и [formatDateLabel].
  */
+@Immutable
 data class TimeFormatStrings(
     val yesterday: String,
     val today: String,
