@@ -28,5 +28,8 @@
     <string name="filter_selected_n">Выбрано %1$d элементов</string>
     <string name="filter_no_channels">Нет каналов в загруженных чатах</string>
     <string name="filter_no_buckets">Нет списков (поле bucket в сообщениях пустое)</string>
+
+    <string name="filter_cancel_selection">Отменить выбор</string>
+    <string name="filter_select_all">Выбрать все</string>
     
 </resources>

@@ -9,7 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConversationCardShimmer
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat.ConversationCardShimmer
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable

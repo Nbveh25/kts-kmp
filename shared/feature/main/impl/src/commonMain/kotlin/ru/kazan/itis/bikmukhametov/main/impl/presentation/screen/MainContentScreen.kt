@@ -16,9 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTabs
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat.ChatListTabs
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ConvesationCardUI
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat.ConvesationCardUI
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 /**

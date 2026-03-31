@@ -9,8 +9,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat.ChatListTopBar
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.filter.FilterBottomSheet
 import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
 import ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen
 

@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.main.impl.presentation.component
+package ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat
 
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
@@ -27,8 +27,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Elevation
@@ -58,8 +58,8 @@ internal fun ConversationCardShimmer(
             highlightColor,
             baseColor
         ),
-        start = androidx.compose.ui.geometry.Offset(shimmerOffsetX, 0f),
-        end = androidx.compose.ui.geometry.Offset(shimmerOffsetX + 200f, 0f)
+        start = Offset(shimmerOffsetX, 0f),
+        end = Offset(shimmerOffsetX + 200f, 0f)
     )
 
     Card(

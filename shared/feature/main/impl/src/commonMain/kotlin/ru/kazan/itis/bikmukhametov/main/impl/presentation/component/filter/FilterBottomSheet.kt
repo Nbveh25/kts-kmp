@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalMaterial3Api::class)
 
-package ru.kazan.itis.bikmukhametov.main.impl.presentation.component
+package ru.kazan.itis.bikmukhametov.main.impl.presentation.component.filter
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
@@ -48,10 +48,12 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_all_chan
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_all_channels
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_all_users
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_apply
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_cancel_selection
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_channel
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_channel_type
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_buckets
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_channels
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_select_all
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_selected_n
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_title
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_user_lists
@@ -65,8 +67,6 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_wazzup_logo
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_widget_logo
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
-
-private data class ChannelPick(val id: String, val label: String)
 
 @Composable
 internal fun FilterBottomSheet(
@@ -83,9 +83,6 @@ internal fun FilterBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val kindOptions = remember { ChannelKind.entries.sortedBy { it.displayName } }
-    val selectedKinds = remember(draftKinds, kindOptions) {
-        draftKinds.ifEmpty { kindOptions.toSet() }
-    }
     val channelOptions = remember(allChats) {
         allChats
             .distinctBy { it.channelId }
@@ -93,7 +90,6 @@ internal fun FilterBottomSheet(
             .map { ChannelPick(id = it.channelId, label = it.channelName ?: it.channelId) }
     }
     val allChannelIds = remember(channelOptions) { channelOptions.map { it.id }.toSet() }
-    val selectedChannelIds = if (draftChannelIds.isEmpty()) allChannelIds else draftChannelIds
     val bucketOptions = remember(allChats) {
         allChats.mapNotNull { it.userListBucket }.distinct().sorted()
     }
@@ -123,16 +119,31 @@ internal fun FilterBottomSheet(
                 summary = kindSummary(draftKinds, kindOptions.size),
                 enabled = true,
             ) {
+                val allKindsSelected = draftKinds.size == kindOptions.size
+                Text(
+                    text = if (allKindsSelected) stringResource(Res.string.filter_cancel_selection)
+                    else stringResource(Res.string.filter_select_all),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            onDraftKindsChange(
+                                if (allKindsSelected) emptySet() else kindOptions.toSet(),
+                            )
+                        }
+                        .padding(vertical = Spacing.paddingSmall),
+                )
                 kindOptions.forEach { kind ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Checkbox(
-                            checked = kind in selectedKinds,
+                            checked = kind in draftKinds,
                             onCheckedChange = {
                                 val nextSelected =
-                                    if (kind in selectedKinds) selectedKinds - kind else selectedKinds + kind
+                                    if (kind in draftKinds) draftKinds - kind else draftKinds + kind
                                 onDraftKindsChange(nextSelected)
                             },
                         )
@@ -164,17 +175,32 @@ internal fun FilterBottomSheet(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 } else {
+                    val allChannelsSelected = draftChannelIds.size == channelOptions.size
+                    Text(
+                        text = if (allChannelsSelected) stringResource(Res.string.filter_cancel_selection)
+                        else stringResource(Res.string.filter_select_all),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                onDraftChannelsChange(
+                                    if (allChannelsSelected) emptySet() else allChannelIds,
+                                )
+                            }
+                            .padding(vertical = Spacing.paddingSmall),
+                    )
                     channelOptions.forEach { ch ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Checkbox(
-                                checked = ch.id in selectedChannelIds,
+                                checked = ch.id in draftChannelIds,
                                 onCheckedChange = {
                                     val nextSelected =
-                                        if (ch.id in selectedChannelIds) selectedChannelIds - ch.id
-                                        else selectedChannelIds + ch.id
+                                        if (ch.id in draftChannelIds) draftChannelIds - ch.id
+                                        else draftChannelIds + ch.id
                                     onDraftChannelsChange(nextSelected)
                                 },
                             )
@@ -249,7 +275,7 @@ internal fun FilterBottomSheet(
 @Composable
 private fun kindSummary(draft: Set<ChannelKind>, totalKinds: Int): String {
     val all = stringResource(Res.string.filter_all_channel_kinds)
-    if (draft.isEmpty() || draft.size == totalKinds) return all
+    if (draft.size == totalKinds) return all
     return stringResource(Res.string.filter_selected_n, draft.size)
 }
 
@@ -257,7 +283,7 @@ private fun kindSummary(draft: Set<ChannelKind>, totalKinds: Int): String {
 private fun channelSummary(draftIds: Set<String>, channels: List<ChannelPick>): String {
     if (channels.isEmpty()) return stringResource(Res.string.filter_no_channels)
     val all = stringResource(Res.string.filter_all_channels)
-    if (draftIds.isEmpty() || draftIds.size == channels.size) return all
+    if (draftIds.size == channels.size) return all
     return stringResource(Res.string.filter_selected_n, draftIds.size)
 }
 
@@ -278,64 +304,4 @@ private fun kindIcon(kind: ChannelKind): DrawableResource = when (kind) {
     ChannelKind.WIDGET -> Res.drawable.ic_widget_logo
     ChannelKind.VK -> Res.drawable.ic_vk_logo
     else -> Res.drawable.ic_generic_chat_logo
-}
-
-@Composable
-private fun FilterAccordionSection(
-    label: String,
-    summary: String,
-    enabled: Boolean,
-    content: @Composable () -> Unit,
-) {
-    var expanded by remember { mutableStateOf(false) }
-    val fieldTapInteraction = remember { MutableInteractionSource() }
-    Column(modifier = Modifier.fillMaxWidth()) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Box(modifier = Modifier.fillMaxWidth()) {
-            OutlinedTextField(
-                value = summary,
-                onValueChange = {},
-                readOnly = true,
-                enabled = enabled,
-                textStyle = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    Text(
-                        text = "▼",
-                        modifier = Modifier.rotate(if (expanded) 180f else 0f),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                ),
-                shape = MaterialTheme.shapes.medium,
-            )
-            if (enabled) {
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .clickable(
-                            interactionSource = fieldTapInteraction,
-                            indication = null,
-                        ) { expanded = !expanded },
-                )
-            }
-        }
-        AnimatedVisibility(visible = expanded && enabled) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = Spacing.paddingSmall),
-            ) {
-                content()
-            }
-        }
-    }
 }

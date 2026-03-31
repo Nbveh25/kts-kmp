@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.main.impl.presentation.component
+package ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
