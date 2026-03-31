@@ -31,14 +31,15 @@ internal data class MainUiState(
 
     val filterSheetVisible: Boolean = false,
 
-    /** Пустой набор = без ограничения (все типы). */
-    val filterAppliedKinds: Set<ChannelKind> = emptySet(),
+    /** Пустой набор = ничего не выбрано. По умолчанию выбраны все типы. */
+    val filterAppliedKinds: Set<ChannelKind> = ChannelKind.entries.toSet(),
+    /** Пустой набор = ничего не выбрано. По умолчанию проставляется в VM всеми каналами. */
     val filterAppliedChannelIds: Set<String> = emptySet(),
     /** Значения last_message.bucket; пустой набор = все списки. */
     val filterAppliedBuckets: Set<String> = emptySet(),
     val userListOption: UserListModel? = null,
 
-    val filterDraftKinds: Set<ChannelKind> = emptySet(),
+    val filterDraftKinds: Set<ChannelKind> = ChannelKind.entries.toSet(),
     val filterDraftChannelIds: Set<String> = emptySet(),
     val filterDraftBuckets: Set<String> = emptySet(),
 

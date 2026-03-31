@@ -24,6 +24,7 @@ internal class MainViewModel(
     private var currentOffset = 0
     private var isPageLoading = false
     private var isEndReached = false
+    private var isChannelFilterInitialized = false
 
     init {
         observeConversationsFromCache()
@@ -139,11 +140,26 @@ internal class MainViewModel(
         viewModelScope.launch {
             observeConversationListUseCase().collect { conversations ->
                 val newItems = conversations.map { it.toConversationCardItem() }
+                val allChannelIds = newItems.map { it.channelId }.distinct().toSet()
                 updateState {
                     val stopLoadingEarly = isLoading && newItems.isNotEmpty()
+                    val shouldInitChannelFilter = !isChannelFilterInitialized && allChannelIds.isNotEmpty()
+                    if (shouldInitChannelFilter) {
+                        isChannelFilterInitialized = true
+                    }
                     copy(
                         allChats = newItems,
                         isLoading = if (stopLoadingEarly) false else isLoading,
+                        filterAppliedChannelIds = if (shouldInitChannelFilter) {
+                            allChannelIds
+                        } else {
+                            filterAppliedChannelIds
+                        },
+                        filterDraftChannelIds = if (shouldInitChannelFilter) {
+                            allChannelIds
+                        } else {
+                            filterDraftChannelIds
+                        },
                     ).recomputed()
                 }
             }
@@ -178,10 +194,10 @@ internal class MainViewModel(
                 }
             }
             .filter { chat ->
-                filterAppliedKinds.isEmpty() || chat.channelKind in filterAppliedKinds
+                chat.channelKind in filterAppliedKinds
             }
             .filter { chat ->
-                filterAppliedChannelIds.isEmpty() || chat.channelId in filterAppliedChannelIds
+                chat.channelId in filterAppliedChannelIds
             }
             .filter { chat ->
                 filterAppliedBuckets.isEmpty() ||
