@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.BottomSheetDefaults
@@ -20,6 +22,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.foundation.Image
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
@@ -36,7 +39,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import org.jetbrains.compose.resources.DrawableResource
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.main.api.model.ChannelKind
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_all_channel_kinds
@@ -50,6 +55,14 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_chann
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_selected_n
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_title
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_user_lists
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_generic_chat_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_jivo_chat_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_max_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_telegram_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_viber_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_vk_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_wazzup_logo
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_widget_logo
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
@@ -70,6 +83,9 @@ internal fun FilterBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val kindOptions = remember { ChannelKind.entries.sortedBy { it.displayName } }
+    val selectedKinds = remember(draftKinds, kindOptions) {
+        if (draftKinds.isEmpty()) kindOptions.toSet() else draftKinds
+    }
     val channelOptions = remember(allChats) {
         allChats
             .distinctBy { it.channelId }
@@ -111,12 +127,21 @@ internal fun FilterBottomSheet(
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Checkbox(
-                            checked = kind in draftKinds,
+                            checked = kind in selectedKinds,
                             onCheckedChange = {
-                                val next = if (kind in draftKinds) draftKinds - kind else draftKinds + kind
-                                onDraftKindsChange(next)
+                                val nextSelected =
+                                    if (kind in selectedKinds) selectedKinds - kind else selectedKinds + kind
+                                val nextDraft =
+                                    if (nextSelected.size == kindOptions.size) emptySet() else nextSelected
+                                onDraftKindsChange(nextDraft)
                             },
                         )
+                        Image(
+                            imageVector = vectorResource(kindIcon(kind)),
+                            contentDescription = kind.displayName,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(modifier = Modifier.width(Spacing.paddingSmall))
                         Text(
                             text = kind.displayName,
                             style = MaterialTheme.typography.bodyMedium,
@@ -242,6 +267,17 @@ private fun bucketSummary(draft: Set<String>, buckets: List<String>): String {
     if (buckets.isEmpty()) return all
     if (draft.isEmpty() || draft.size == buckets.size) return all
     return stringResource(Res.string.filter_selected_n, draft.size)
+}
+
+private fun kindIcon(kind: ChannelKind): DrawableResource = when (kind) {
+    ChannelKind.JIVO -> Res.drawable.ic_jivo_chat_logo
+    ChannelKind.MAX -> Res.drawable.ic_max_logo
+    ChannelKind.TG -> Res.drawable.ic_telegram_logo
+    ChannelKind.VB -> Res.drawable.ic_viber_logo
+    ChannelKind.WZ -> Res.drawable.ic_wazzup_logo
+    ChannelKind.WIDGET -> Res.drawable.ic_widget_logo
+    ChannelKind.VK -> Res.drawable.ic_vk_logo
+    else -> Res.drawable.ic_generic_chat_logo
 }
 
 @Composable

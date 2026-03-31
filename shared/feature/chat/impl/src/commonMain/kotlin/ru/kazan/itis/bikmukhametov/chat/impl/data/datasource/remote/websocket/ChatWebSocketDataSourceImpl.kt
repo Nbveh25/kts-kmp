@@ -11,9 +11,12 @@ import io.ktor.websocket.Frame
 import io.ktor.websocket.readText
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.channels.ProducerScope
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.yield
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
@@ -26,25 +29,25 @@ import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.Message
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.toModel
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.math.min
+import kotlin.random.Random
 
-@Suppress("TooGenericExceptionCaught", "RethrowCaughtException", "LoopWithTooManyJumpStatements")
+@Suppress("TooGenericExceptionCaught", "RethrowCaughtException", "LoopWithTooManyJumpStatements", "ReturnCount")
 class ChatWebSocketDataSourceImpl(
     private val httpClient: HttpClient,
+    private val json: Json,
 ) : ChatWebSocketDataSource {
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-        encodeDefaults = true
-        explicitNulls = false
-    }
 
     override fun observeMessages(conversationId: String): Flow<ChatMessageModel> = channelFlow {
         val origin = BuildKonfig.BASE_URL.trimEnd('/')
-        var attempt = 0
+        val backoff = ReconnectBackoff(
+            minDelayMs = RECONNECT_DELAY_MS,
+            maxDelayMs = MAX_RECONNECT_DELAY_MS,
+        )
 
-        while (true) {
-            attempt++
-            Napier.w(tag = TAG, message = "╠══ attempt=$attempt conversationId=$conversationId")
+        while (coroutineContext.isActive) {
+            val attempt = backoff.attempt + 1
+            Napier.w(tag = TAG, message = "ws: attempt=$attempt convId=$conversationId")
 
             val ctx = try {
                 obtainWsConnectContext()
@@ -53,21 +56,20 @@ class ChatWebSocketDataSourceImpl(
             }
 
             if (ctx == null) {
-                delay(RECONNECT_DELAY_MS)
+                delay(backoff.nextDelayMs())
                 continue
             }
 
-            Napier.w(tag = TAG, message = "╠══ connecting: channel=${ctx.channel}")
+            Napier.w(tag = TAG, message = "ws: connecting (channel=${ctx.channel})")
 
             val sessionError = runCatching {
                 httpClient.webSocket(
                     urlString = BuildKonfig.WS_BASE_URL,
                     request = {
                         header("Origin", origin)
-                        header("Connection", "Upgrade")
                     },
                 ) {
-                    Napier.w(tag = TAG, message = "╠══ WS SESSION OPENED")
+                    Napier.w(tag = TAG, message = "ws: session opened")
                     runSession(
                         ws = this,
                         producer = this@channelFlow,
@@ -79,19 +81,23 @@ class ChatWebSocketDataSourceImpl(
 
             when (sessionError) {
                 is CancellationException -> {
-                    Napier.w(tag = TAG, message = "╚══ WS cancelled — stopping")
+                    Napier.w(tag = TAG, message = "ws: cancelled — stop observing")
                     throw sessionError
                 }
 
-                null -> Unit
-                else -> Napier.e(tag = TAG, message = "╠══ session error: $sessionError")
+                null -> {
+                    backoff.reset()
+                }
+
+                else -> {
+                    Napier.e(tag = TAG, message = "ws: session error: $sessionError")
+                }
             }
 
-            Napier.w(
-                tag = TAG,
-                message = "╠══ reconnecting in ${RECONNECT_DELAY_MS}ms (attempt=$attempt)…"
-            )
-            delay(RECONNECT_DELAY_MS)
+            val delayMs = backoff.nextDelayMs()
+            Napier.w(tag = TAG, message = "ws: reconnect in ${delayMs}ms (attempt=$attempt)…")
+            delay(delayMs)
+            yield()
         }
     }
 
@@ -120,7 +126,7 @@ class ChatWebSocketDataSourceImpl(
         if (connectToken == null) {
             Napier.e(
                 tag = TAG,
-                message = "╠══ no connection token (obtain__token) — retry",
+                message = "ws: no connection token — retry",
             )
             return null
         }
@@ -129,7 +135,7 @@ class ChatWebSocketDataSourceImpl(
         if (channel == null) {
             Napier.e(
                 tag = TAG,
-                message = "╠══ cannot extract channel from subscription JWT — retry"
+                message = "ws: cannot extract channel from subscription JWT — retry"
             )
             return null
         }
@@ -149,6 +155,7 @@ class ChatWebSocketDataSourceImpl(
     ) {
         var commandId = 1
         val nextId = { commandId++ }
+        var subscribed = false
 
         ws.sendLine(
             json.encodeToString(
@@ -159,9 +166,10 @@ class ChatWebSocketDataSourceImpl(
                 ),
             ),
         )
-        Napier.w(tag = TAG, message = "╠══ → CONNECT sent")
+        Napier.w(tag = TAG, message = "ws: → CONNECT sent")
 
         for (frame in ws.incoming) {
+            if (!currentCoroutineContext().isActive) return
             when (frame) {
                 is Frame.Text -> handleTextFrame(
                     text = frame.readText(),
@@ -170,10 +178,11 @@ class ChatWebSocketDataSourceImpl(
                     conversationId = conversationId,
                     ctx = ctx,
                     nextId = nextId,
+                    onSubscribed = { subscribed = true },
                 )
 
                 is Frame.Close -> {
-                    Napier.w(tag = TAG, message = "╠══ ← CLOSE frame — session ends")
+                    Napier.w(tag = TAG, message = "ws: ← CLOSE frame — session ends")
                     return
                 }
 
@@ -184,7 +193,7 @@ class ChatWebSocketDataSourceImpl(
         val closeReason = runCatching { ws.closeReason.await() }.getOrNull()
         Napier.w(
             tag = TAG,
-            message = "╠══ CLOSE: code=${closeReason?.code} msg='${closeReason?.message}'"
+            message = "ws: closed: code=${closeReason?.code} msg='${closeReason?.message}' subscribed=$subscribed"
         )
     }
 
@@ -200,22 +209,23 @@ class ChatWebSocketDataSourceImpl(
         conversationId: String,
         ctx: WsConnectContext,
         nextId: () -> Int,
+        onSubscribed: () -> Unit,
     ) {
-        Napier.w(tag = TAG, message = "╠══ ← RAW: $text")
+        Napier.d(tag = TAG, message = "ws: ← text len=${text.length}")
 
         for (line in text.lineSequence()) {
             val trimmed = line.trim()
             if (trimmed.isEmpty()) continue
 
-            if (trimmed == "{}") {
+            if (trimmed == "{}") { // ping
                 ws.sendLine("{}")
-                Napier.w(tag = TAG, message = "╠══ ↔ PING/PONG")
+                Napier.d(tag = TAG, message = "ws: ↔ PING/PONG")
                 continue
             }
 
             val msg =
-                runCatching { json.decodeFromString<CentrifugoServerMessage>(line) }.getOrElse { e ->
-                    Napier.e(tag = TAG, message = "╠══ PARSE ERROR: $e  raw=$line")
+                runCatching { json.decodeFromString<CentrifugoServerMessage>(trimmed) }.getOrElse { e ->
+                    Napier.e(tag = TAG, message = "ws: parse error: $e")
                     continue
                 }
 
@@ -223,7 +233,7 @@ class ChatWebSocketDataSourceImpl(
                 msg.connectResult != null -> {
                     Napier.w(
                         tag = TAG,
-                        message = "╠══ CONNECT OK: client=${msg.connectResult.client}"
+                        message = "ws: CONNECT OK (client=${msg.connectResult.client})"
                     )
                     ws.sendLine(
                         json.encodeToString(
@@ -237,22 +247,26 @@ class ChatWebSocketDataSourceImpl(
                             ),
                         ),
                     )
-                    Napier.w(tag = TAG, message = "╠══ → SUBSCRIBE channel=${ctx.channel}")
+                    Napier.w(tag = TAG, message = "ws: → SUBSCRIBE channel=${ctx.channel}")
                 }
 
-                msg.subscribeResult != null ->
+                msg.subscribeResult != null -> {
                     Napier.w(
                         tag = TAG,
-                        message = "╠══ SUBSCRIBE OK: recoverable=${msg.subscribeResult.recoverable} ← READY",
+                        message = "ws: SUBSCRIBE OK (recoverable=${msg.subscribeResult.recoverable}) ← READY",
                     )
+                    onSubscribed()
+                }
 
                 msg.push != null -> handlePush(msg.push, conversationId, producer)
 
-                msg.error != null ->
+                msg.error != null -> {
                     Napier.e(
                         tag = TAG,
-                        message = "╠══ SERVER ERROR: code=${msg.error.code} msg=${msg.error.message}"
+                        message = "ws: SERVER ERROR: code=${msg.error.code} msg=${msg.error.message}"
                     )
+                    error("ws: server error ${msg.error.code}: ${msg.error.message}")
+                }
 
                 else -> Napier.w(tag = TAG, message = "╠══ UNKNOWN frame (id=${msg.id}): $line")
             }
@@ -265,7 +279,7 @@ class ChatWebSocketDataSourceImpl(
         producer: ProducerScope<ChatMessageModel>,
     ) {
         val rawData = push.pub?.data ?: run {
-            Napier.w(tag = TAG, message = "╠══ PUSH: pub.data is null — skip")
+            Napier.d(tag = TAG, message = "ws: PUSH: pub.data is null — skip")
             return
         }
 
@@ -276,37 +290,29 @@ class ChatWebSocketDataSourceImpl(
         }.getOrElse { e ->
             Napier.e(
                 tag = TAG,
-                message = "╠══ PUSH: cannot parse MessageRemoteDto: $e  raw=$rawData"
+                message = "ws: PUSH: cannot parse MessageDto: $e"
             )
             return
         }
 
-        Napier.w(
-            tag = TAG,
-            message = "╠══ PUSH: id=${model.id} convId=${model.conversationId} kind=${model.kind} text=${
-                model.text
-            }",
-        )
+        Napier.d(tag = TAG, message = "ws: PUSH: id=${model.id} convId=${model.conversationId} kind=${model.kind}")
 
         if (model.conversationId.toString() != conversationId) {
-            Napier.w(
-                tag = TAG,
-                message = "╠══ PUSH filtered: msgConvId=${model.conversationId} != screenConvId=$conversationId",
-            )
+            Napier.d(tag = TAG, message = "ws: PUSH filtered: ${model.conversationId} != $conversationId")
             return
         }
 
-        Napier.w(tag = TAG, message = "╠══ PUSH ✓ EMITTING id=${model.id}")
+        Napier.d(tag = TAG, message = "ws: PUSH ✓ emitting id=${model.id}")
         producer.send(model.toModel())
     }
 
     private suspend fun fetchSubscriptionTokens(): SubscriptionTokenData {
         val url = BuildKonfig.BASE_URL + "/api/conversations/obtain_subscription_token"
-        Napier.w(tag = TAG, message = "╠══ GET $url")
+        Napier.d(tag = TAG, message = "ws: GET obtain_subscription_token")
         val response = httpClient.get(url)
         val statusCode = response.status.value
         val body = response.bodyAsText()
-        Napier.w(tag = TAG, message = "╠══ tokens HTTP $statusCode body=${body}")
+        Napier.d(tag = TAG, message = "ws: tokens HTTP $statusCode bodyLen=${body.length}")
 
         if (statusCode != HTTP_OK) error("obtain_subscription_token returned HTTP $statusCode")
 
@@ -316,7 +322,7 @@ class ChatWebSocketDataSourceImpl(
     private suspend fun fetchWsAuthToken(): String? = runCatching {
         val url = BuildKonfig.BASE_URL + "/api/auth/obtain_ws_auth_token"
 
-        Napier.w(tag = TAG, message = "╠══ GET $url")
+        Napier.d(tag = TAG, message = "ws: GET obtain_ws_auth_token")
 
         val response = httpClient.get(url)
         val statusCode = response.status.value
@@ -326,7 +332,7 @@ class ChatWebSocketDataSourceImpl(
 
         Napier.w(
             tag = TAG,
-            message = "╠══ ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=$dataKeys"
+            message = "ws: ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=$dataKeys"
         )
 
         if (statusCode != HTTP_OK) error("obtain_ws_auth_token returned HTTP $statusCode")
@@ -340,8 +346,8 @@ class ChatWebSocketDataSourceImpl(
     @OptIn(ExperimentalEncodingApi::class)
     private fun extractChannelFromJwt(token: String): String? = runCatching {
         val payloadB64 = token.split(".").getOrNull(1) ?: return@runCatching null
-        val decoded = Base64.UrlSafe.decode(payloadB64).decodeToString()
-        Napier.w(tag = TAG, message = "╠══ JWT payload: $decoded")
+        val decoded = Base64.UrlSafe.decode(payloadB64.base64UrlPadded()).decodeToString()
+        Napier.d(tag = TAG, message = "ws: JWT payload len=${decoded.length}")
         json.parseToJsonElement(decoded).jsonObject["channel"]?.jsonPrimitive?.content
     }.getOrElse { e ->
         Napier.e(tag = TAG, message = "╠══ JWT decode FAILED", throwable = e)
@@ -351,6 +357,7 @@ class ChatWebSocketDataSourceImpl(
     private companion object {
         private const val TAG = "ChatWebSocket"
         private const val RECONNECT_DELAY_MS = 3_000L
+        private const val MAX_RECONNECT_DELAY_MS = 30_000L
         private const val HTTP_OK = 200
 
         private fun Throwable.networkHint(): String = when {
@@ -387,6 +394,33 @@ class ChatWebSocketDataSourceImpl(
             }
             return null
         }
+
+        private fun String.base64UrlPadded(): String {
+            val mod = length % 4
+            if (mod == 0) return this
+            return this + "=".repeat(4 - mod)
+        }
     }
 
+}
+
+private class ReconnectBackoff(
+    private val minDelayMs: Long,
+    private val maxDelayMs: Long,
+) {
+    var attempt: Int = 0
+        private set
+
+    fun reset() {
+        attempt = 0
+    }
+
+    fun nextDelayMs(): Long {
+        attempt++
+        val exp = min(10, attempt) // guard from overflow
+        val base = minDelayMs * (1L shl exp)
+        val capped = min(maxDelayMs, base)
+        val jitter = (capped * 0.2).toLong().coerceAtLeast(1L)
+        return (capped - jitter) + Random.nextLong(0, jitter + 1)
+    }
 }
