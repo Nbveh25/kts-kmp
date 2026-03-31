@@ -1,6 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.impl.presentation.model
 
-import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.ProjectModel
 import ru.kazan.itis.bikmukhametov.ui.model.ProjectUi
 
 fun ProjectModel.toItem() = ProjectUi(

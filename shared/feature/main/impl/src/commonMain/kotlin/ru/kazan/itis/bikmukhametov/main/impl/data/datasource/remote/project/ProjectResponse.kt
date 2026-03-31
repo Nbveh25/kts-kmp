@@ -2,11 +2,11 @@ package ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.project
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import ru.kazan.itis.bikmukhametov.main.api.model.Permission
-import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
-import ru.kazan.itis.bikmukhametov.main.api.model.ProjectRole
-import ru.kazan.itis.bikmukhametov.main.api.model.ProjectOptions
-import ru.kazan.itis.bikmukhametov.main.api.model.ProjectFeatures
+import ru.kazan.itis.bikmukhametov.main.api.model.space.Permission
+import ru.kazan.itis.bikmukhametov.main.api.model.space.ProjectModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.ProjectRole
+import ru.kazan.itis.bikmukhametov.main.api.model.space.ProjectOptions
+import ru.kazan.itis.bikmukhametov.main.api.model.space.ProjectFeatures
 
 @Serializable
 data class ProjectResponse(

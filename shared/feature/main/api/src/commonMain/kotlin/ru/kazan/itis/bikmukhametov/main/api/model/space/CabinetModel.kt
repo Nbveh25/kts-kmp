@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.main.api.model
+package ru.kazan.itis.bikmukhametov.main.api.model.space
 
 /**
  * Бизнес-модель Кабинета.

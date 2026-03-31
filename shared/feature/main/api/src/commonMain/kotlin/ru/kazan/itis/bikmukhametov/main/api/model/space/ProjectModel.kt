@@ -1,4 +1,4 @@
-package ru.kazan.itis.bikmukhametov.main.api.model
+package ru.kazan.itis.bikmukhametov.main.api.model.space
 
 data class ProjectModel(
     val id: String,
@@ -39,7 +39,7 @@ enum class ProjectRole {
     UNKNOWN;
 
     companion object {
-        fun fromString(value: String?): ProjectRole? =
+        fun fromString(value: String?): ProjectRole =
             value?.uppercase()?.let { entries.find { role -> role.name == it } } ?: UNKNOWN
     }
 }

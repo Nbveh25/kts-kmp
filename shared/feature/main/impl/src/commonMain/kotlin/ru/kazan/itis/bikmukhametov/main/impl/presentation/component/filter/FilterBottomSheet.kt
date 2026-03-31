@@ -25,7 +25,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -45,8 +48,10 @@ import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_channel
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_channel_type
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_buckets
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_no_channels
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.nothing_was_found
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_select_all
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_selected_n
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.search
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_title
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.filter_user_lists
 import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.ic_generic_chat_logo
@@ -76,11 +81,21 @@ internal fun FilterBottomSheet(
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     val kindOptions = remember { ChannelKind.entries.sortedBy { it.displayName } }
+    var kindSearchQuery by remember { mutableStateOf("") }
+    val filteredKindOptions = remember(kindSearchQuery, kindOptions) {
+        if (kindSearchQuery.isBlank()) kindOptions
+        else kindOptions.filter { it.displayName.contains(kindSearchQuery, ignoreCase = true) }
+    }
     val channelOptions = remember(allChats) {
         allChats
             .distinctBy { it.channelId }
             .sortedBy { it.channelName ?: it.channelId }
             .map { ChannelPick(id = it.channelId, label = it.channelName ?: it.channelId) }
+    }
+    var channelSearchQuery by remember { mutableStateOf("") }
+    val filteredChannelOptions = remember(channelSearchQuery, channelOptions) {
+        if (channelSearchQuery.isBlank()) channelOptions
+        else channelOptions.filter { it.label.contains(channelSearchQuery, ignoreCase = true) }
     }
     val allChannelIds = remember(channelOptions) { channelOptions.map { it.id }.toSet() }
 
@@ -108,6 +123,13 @@ internal fun FilterBottomSheet(
                 label = stringResource(Res.string.filter_channel_type),
                 summary = kindSummary(draftKinds, kindOptions.size),
                 enabled = true,
+                searchEnabled = true,
+                searchQuery = kindSearchQuery,
+                searchPlaceholder = "Выберите тип канала",
+                onSearchQueryChange = { kindSearchQuery = it },
+                onExpandedChange = { expanded ->
+                    if (!expanded) kindSearchQuery = ""
+                },
             ) {
                 val allKindsSelected = draftKinds.size == kindOptions.size
                 Text(
@@ -124,7 +146,14 @@ internal fun FilterBottomSheet(
                         }
                         .padding(vertical = Spacing.paddingSmall),
                 )
-                kindOptions.forEach { kind ->
+                if (filteredKindOptions.isEmpty()) {
+                    Text(
+                        text = stringResource(Res.string.nothing_was_found),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                filteredKindOptions.forEach { kind ->
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -157,6 +186,13 @@ internal fun FilterBottomSheet(
                 label = stringResource(Res.string.filter_channel),
                 summary = channelSummary(draftChannelIds, channelOptions),
                 enabled = channelOptions.isNotEmpty(),
+                searchEnabled = true,
+                searchQuery = channelSearchQuery,
+                searchPlaceholder = "Выберите канал",
+                onSearchQueryChange = { channelSearchQuery = it },
+                onExpandedChange = { expanded ->
+                    if (!expanded) channelSearchQuery = ""
+                },
             ) {
                 if (channelOptions.isEmpty()) {
                     Text(
@@ -180,7 +216,14 @@ internal fun FilterBottomSheet(
                             }
                             .padding(vertical = Spacing.paddingSmall),
                     )
-                    channelOptions.forEach { ch ->
+                    if (filteredChannelOptions.isEmpty()) {
+                        Text(
+                            text = stringResource(Res.string.nothing_was_found),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    filteredChannelOptions.forEach { ch ->
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,

@@ -53,7 +53,7 @@ enum class ChannelKind(val apiValue: String, val displayName: String) {
     WZ("wz", "Wazzup24"),
     WIDGET("widget", "Виджет"),
     VK("vk", "ВКонтакте"),
-    WA("wa", "WhatsApp"),
+    //WA("wa", "WhatsApp"),
     //AVITO("avito", "Авито"),
     //API("api", "API"),
     //CQ("cq", "Carrot Quest"),

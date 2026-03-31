@@ -1,6 +1,6 @@
 package ru.kazan.itis.bikmukhametov.profile.impl.presentation.model
 
-import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.CabinetModel
 import ru.kazan.itis.bikmukhametov.ui.model.CabinetUi
 
 fun CabinetModel.toItem() = CabinetUi(
