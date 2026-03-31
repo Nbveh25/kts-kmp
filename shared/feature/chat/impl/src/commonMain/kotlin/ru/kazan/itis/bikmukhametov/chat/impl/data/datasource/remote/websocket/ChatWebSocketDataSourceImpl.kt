@@ -29,10 +29,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.Message
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.toModel
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
-import kotlin.math.min
-import kotlin.random.Random
 
-@Suppress("TooGenericExceptionCaught", "RethrowCaughtException", "LoopWithTooManyJumpStatements", "ReturnCount")
 class ChatWebSocketDataSourceImpl(
     private val httpClient: HttpClient,
     private val json: Json,
@@ -49,18 +46,14 @@ class ChatWebSocketDataSourceImpl(
             val attempt = backoff.attempt + 1
             Napier.w(tag = TAG, message = "ws: attempt=$attempt convId=$conversationId")
 
-            val ctx = try {
-                obtainWsConnectContext()
-            } catch (e: CancellationException) {
-                throw e
-            }
+            val ctx = obtainWsConnectContext()
 
             if (ctx == null) {
                 delay(backoff.nextDelayMs())
                 continue
             }
 
-            Napier.w(tag = TAG, message = "ws: connecting (channel=${ctx.channel})")
+            Napier.w(tag = TAG, message = "ws: connecting")
 
             val sessionError = runCatching {
                 httpClient.webSocket(
@@ -109,15 +102,13 @@ class ChatWebSocketDataSourceImpl(
 
     /** Токены на каждый заход в цикл — JWT с ttl, при реконнекте нужны свежие. */
     private suspend fun obtainWsConnectContext(): WsConnectContext? {
-        val tokenData = try {
+        val tokenData = runCatching {
             fetchSubscriptionTokens()
-        } catch (e: CancellationException) {
-            throw e
-        } catch (e: Exception) {
+        }.getOrElse { throwable ->
+            if (throwable is CancellationException) throw throwable
             Napier.e(
                 tag = TAG,
-                message = "╠══ fetchTokens FAILED${e.networkHint()}",
-                throwable = e,
+                message = "╠══ fetchTokens FAILED${throwable.networkHint()}",
             )
             return null
         }
@@ -213,20 +204,21 @@ class ChatWebSocketDataSourceImpl(
     ) {
         Napier.d(tag = TAG, message = "ws: ← text len=${text.length}")
 
-        for (line in text.lineSequence()) {
+        text.lineSequence().forEach { line ->
             val trimmed = line.trim()
-            if (trimmed.isEmpty()) continue
+            if (trimmed.isEmpty()) return@forEach
 
             if (trimmed == "{}") { // ping
                 ws.sendLine("{}")
                 Napier.d(tag = TAG, message = "ws: ↔ PING/PONG")
-                continue
+                return@forEach
             }
 
-            val msg =
-                runCatching { json.decodeFromString<CentrifugoServerMessage>(trimmed) }.getOrElse { e ->
+            val msg = runCatching {
+                json.decodeFromString<CentrifugoServerMessage>(trimmed)
+            }.getOrElse { e ->
                     Napier.e(tag = TAG, message = "ws: parse error: $e")
-                    continue
+                    return@forEach
                 }
 
             when {
@@ -247,7 +239,7 @@ class ChatWebSocketDataSourceImpl(
                             ),
                         ),
                     )
-                    Napier.w(tag = TAG, message = "ws: → SUBSCRIBE channel=${ctx.channel}")
+                    Napier.w(tag = TAG, message = "ws: → SUBSCRIBE sent")
                 }
 
                 msg.subscribeResult != null -> {
@@ -332,14 +324,14 @@ class ChatWebSocketDataSourceImpl(
 
         Napier.w(
             tag = TAG,
-            message = "ws: ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=$dataKeys"
+            message = "ws: ws_auth_token HTTP $statusCode bodyLen=${body.length} keys=$dataKeys",
         )
 
         if (statusCode != HTTP_OK) error("obtain_ws_auth_token returned HTTP $statusCode")
 
         extractConnectJwt(json.parseToJsonElement(body).jsonObject)
     }.getOrElse { e ->
-        Napier.e(tag = TAG, message = "╠══ fetchWsAuthToken FAILED", throwable = e)
+        Napier.e(tag = TAG, message = "╠══ fetchWsAuthToken FAILED${e.networkHint()}")
         null
     }
 
@@ -347,10 +339,9 @@ class ChatWebSocketDataSourceImpl(
     private fun extractChannelFromJwt(token: String): String? = runCatching {
         val payloadB64 = token.split(".").getOrNull(1) ?: return@runCatching null
         val decoded = Base64.UrlSafe.decode(payloadB64.base64UrlPadded()).decodeToString()
-        Napier.d(tag = TAG, message = "ws: JWT payload len=${decoded.length}")
         json.parseToJsonElement(decoded).jsonObject["channel"]?.jsonPrimitive?.content
     }.getOrElse { e ->
-        Napier.e(tag = TAG, message = "╠══ JWT decode FAILED", throwable = e)
+        Napier.e(tag = TAG, message = "╠══ JWT decode FAILED")
         null
     }
 
@@ -359,6 +350,7 @@ class ChatWebSocketDataSourceImpl(
         private const val RECONNECT_DELAY_MS = 3_000L
         private const val MAX_RECONNECT_DELAY_MS = 30_000L
         private const val HTTP_OK = 200
+        private const val BASE64_PADDING_BLOCK_SIZE = 4
 
         private fun Throwable.networkHint(): String = when {
             this::class.simpleName == "UnknownHostException" ->
@@ -396,31 +388,10 @@ class ChatWebSocketDataSourceImpl(
         }
 
         private fun String.base64UrlPadded(): String {
-            val mod = length % 4
+            val mod = length % BASE64_PADDING_BLOCK_SIZE
             if (mod == 0) return this
-            return this + "=".repeat(4 - mod)
+            return this + "=".repeat(BASE64_PADDING_BLOCK_SIZE - mod)
         }
     }
 
-}
-
-private class ReconnectBackoff(
-    private val minDelayMs: Long,
-    private val maxDelayMs: Long,
-) {
-    var attempt: Int = 0
-        private set
-
-    fun reset() {
-        attempt = 0
-    }
-
-    fun nextDelayMs(): Long {
-        attempt++
-        val exp = min(10, attempt) // guard from overflow
-        val base = minDelayMs * (1L shl exp)
-        val capped = min(maxDelayMs, base)
-        val jitter = (capped * 0.2).toLong().coerceAtLeast(1L)
-        return (capped - jitter) + Random.nextLong(0, jitter + 1)
-    }
 }

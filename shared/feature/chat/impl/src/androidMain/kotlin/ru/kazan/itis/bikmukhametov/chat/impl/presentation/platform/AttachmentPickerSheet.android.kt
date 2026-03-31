@@ -116,25 +116,33 @@ actual fun AttachmentPickerSheet(
 private fun readPickedUri(context: Context, uri: Uri, sendAsFile: Boolean): PickedAttachment? {
     val resolver = context.contentResolver
     val mime = resolver.getType(uri)
-    var displayName: String? = null
-    var size: Long? = null
-    resolver.query(uri, null, null, null, null)?.use { c ->
-        if (c.moveToFirst()) {
-            val nameIdx = c.getColumnIndex(OpenableColumns.DISPLAY_NAME)
-            if (nameIdx >= 0) displayName = c.getString(nameIdx)
-            val sizeIdx = c.getColumnIndex(OpenableColumns.SIZE)
-            if (sizeIdx >= 0) {
-                val len = c.getLong(sizeIdx)
-                if (len >= 0) size = len
-            }
-        }
-    }
-    if (size == 0L) return null
+    val meta = resolver.readAttachmentMeta(uri)
+    if (meta.size == 0L) return null
     return PickedAttachment(
         contentUri = uri.toString(),
-        fileName = displayName ?: "attachment",
+        fileName = meta.displayName ?: "attachment",
         mimeType = mime,
         sendAsFile = sendAsFile,
-        contentLength = size,
+        contentLength = meta.size,
     )
+}
+
+private fun android.content.ContentResolver.readAttachmentMeta(uri: Uri): AttachmentMeta {
+    query(uri, null, null, null, null)?.use { cursor ->
+        if (!cursor.moveToFirst()) return AttachmentMeta(displayName = null, size = null)
+        val displayName = cursor.valueOrNull(OpenableColumns.DISPLAY_NAME)
+        val size = cursor.longValueOrNull(OpenableColumns.SIZE)?.takeIf { it >= 0L }
+        return AttachmentMeta(displayName = displayName, size = size)
+    }
+    return AttachmentMeta(displayName = null, size = null)
+}
+
+private fun android.database.Cursor.valueOrNull(column: String): String? {
+    val idx = getColumnIndex(column)
+    return if (idx >= 0) getString(idx) else null
+}
+
+private fun android.database.Cursor.longValueOrNull(column: String): Long? {
+    val idx = getColumnIndex(column)
+    return if (idx >= 0) getLong(idx) else null
 }
