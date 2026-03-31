@@ -1,6 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.api.repository
 
-import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.CabinetModel
 
 interface CabinetRepository {
     /** Список кабинетов; сохранённый из DataStore — первый (пока API отдаёт один — список из одного элемента). */

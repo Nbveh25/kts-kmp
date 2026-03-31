@@ -12,8 +12,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import ru.kazan.itis.bikmukhametov.ui.components.AppBottomNav
-import ru.kazan.itis.bikmukhametov.ui.components.CabinetProjectTopBar
+import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
+import ru.kazan.itis.bikmukhametov.ui.component.CabinetProjectTopBar
+import ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen
 
 @Composable
 fun ProfileScreen(
@@ -68,7 +69,7 @@ fun ProfileScreen(
             }
 
             state.error != null -> {
-                ProfileErrorContent(
+                ErrorScreen(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(paddingValues),

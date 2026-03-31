@@ -5,6 +5,7 @@ import kotlinx.coroutines.launch
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetUserListsUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.toConversationCardItem
@@ -15,6 +16,7 @@ internal class MainViewModel(
     private val getCabinetUseCase: GetCabinetUseCase,
     private val getProjectListUseCase: GetProjectListUseCase,
     private val getConversationListUseCase: GetConversationListUseCase,
+    private val getUserListsUseCase: GetUserListsUseCase,
     private val observeConversationListUseCase: ObserveConversationListUseCase,
     private val setProjectUseCase: SetProjectUseCase,
 ) : BaseViewModel<MainUiState, MainAction>(MainUiState()) {
@@ -22,6 +24,7 @@ internal class MainViewModel(
     private var currentOffset = 0
     private var isPageLoading = false
     private var isEndReached = false
+    private var isChannelFilterInitialized = false
 
     init {
         observeConversationsFromCache()
@@ -137,11 +140,26 @@ internal class MainViewModel(
         viewModelScope.launch {
             observeConversationListUseCase().collect { conversations ->
                 val newItems = conversations.map { it.toConversationCardItem() }
+                val allChannelIds = newItems.map { it.channelId }.distinct().toSet()
                 updateState {
                     val stopLoadingEarly = isLoading && newItems.isNotEmpty()
+                    val shouldInitChannelFilter = !isChannelFilterInitialized && allChannelIds.isNotEmpty()
+                    if (shouldInitChannelFilter) {
+                        isChannelFilterInitialized = true
+                    }
                     copy(
                         allChats = newItems,
                         isLoading = if (stopLoadingEarly) false else isLoading,
+                        filterAppliedChannelIds = if (shouldInitChannelFilter) {
+                            allChannelIds
+                        } else {
+                            filterAppliedChannelIds
+                        },
+                        filterDraftChannelIds = if (shouldInitChannelFilter) {
+                            allChannelIds
+                        } else {
+                            filterDraftChannelIds
+                        },
                     ).recomputed()
                 }
             }
@@ -176,10 +194,10 @@ internal class MainViewModel(
                 }
             }
             .filter { chat ->
-                filterAppliedKinds.isEmpty() || chat.channelKind in filterAppliedKinds
+                chat.channelKind in filterAppliedKinds
             }
             .filter { chat ->
-                filterAppliedChannelIds.isEmpty() || chat.channelId in filterAppliedChannelIds
+                chat.channelId in filterAppliedChannelIds
             }
             .filter { chat ->
                 filterAppliedBuckets.isEmpty() ||
@@ -198,10 +216,22 @@ internal class MainViewModel(
             updateState { copy(isLoading = true, loadError = null) }
             if (!loadCabinet()) return@launch
             if (!loadProjects()) return@launch
+            loadUserLists()
             currentOffset = 0
             isEndReached = false
             loadConversations(reset = true)
         }
+    }
+
+    private suspend fun loadUserLists() {
+        getUserListsUseCase()
+            .onSuccess { userLists ->
+                val unsubscribed = userLists.firstOrNull { it.tag == UNSUBSCRIBED_TAG }
+                updateState { copy(userListOption = unsubscribed) }
+            }
+            .onFailure {
+                updateState { copy(userListOption = null) }
+            }
     }
 
     private suspend fun loadCabinet(): Boolean {
@@ -293,5 +323,6 @@ internal class MainViewModel(
 
     companion object {
         private const val PAGE_SIZE = 20
+        private const val UNSUBSCRIBED_TAG = "unsubscribed"
     }
 }

@@ -10,7 +10,8 @@ internal class UploadChatAttachmentUseCaseImpl(
     override suspend fun invoke(
         fileName: String,
         mimeType: String?,
-        bytes: ByteArray,
+        contentUri: String,
+        contentLength: Long?,
     ): Result<String> =
-        chatRepository.uploadAttachment(fileName, mimeType, bytes)
+        chatRepository.uploadAttachment(fileName, mimeType, contentUri, contentLength)
 }

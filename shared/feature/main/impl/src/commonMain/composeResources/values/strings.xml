@@ -25,8 +25,13 @@
     <string name="filter_all_channel_kinds">Все типы</string>
     <string name="filter_all_channels">Все каналы</string>
     <string name="filter_all_users">Все пользователи</string>
-    <string name="filter_selected_n">Выбрано %d элементов</string>
+    <string name="filter_selected_n">Выбрано %1$d элементов</string>
     <string name="filter_no_channels">Нет каналов в загруженных чатах</string>
     <string name="filter_no_buckets">Нет списков (поле bucket в сообщениях пустое)</string>
+
+    <string name="filter_cancel_selection">Отменить выбор</string>
+    <string name="filter_select_all">Выбрать все</string>
+    <string name="filter_pick_channel_type">Выберите тип канала</string>
+    <string name="filter_pick_channel">Выберите канал</string>
     
 </resources>

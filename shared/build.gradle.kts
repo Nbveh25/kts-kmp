@@ -29,8 +29,7 @@ kotlin {
 
             api(projects.shared.main)
 
-            api(projects.shared.core.ui)
-            api(projects.shared.core.theme)
+            api(projects.shared.core.designsystem)
             api(projects.shared.core.network)
 
             api(projects.shared.feature.onboarding)

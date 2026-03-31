@@ -9,9 +9,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import org.koin.compose.viewmodel.koinViewModel
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.ChatListTopBar
-import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.FilterBottomSheet
-import ru.kazan.itis.bikmukhametov.ui.components.AppBottomNav
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.chat.ChatListTopBar
+import ru.kazan.itis.bikmukhametov.main.impl.presentation.component.filter.FilterBottomSheet
+import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
+import ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen
 
 @Composable
 fun MainScreen(
@@ -92,6 +93,7 @@ fun MainScreen(
     if (state.filterSheetVisible) {
         FilterBottomSheet(
             allChats = state.allChats,
+            userListOption = state.userListOption,
             draftKinds = state.filterDraftKinds,
             draftChannelIds = state.filterDraftChannelIds,
             draftBuckets = state.filterDraftBuckets,

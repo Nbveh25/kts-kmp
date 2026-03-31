@@ -1,11 +1,13 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.model
 
+import androidx.compose.runtime.Immutable
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
 import ru.kazan.itis.bikmukhametov.ui.util.epochDayOf
 import ru.kazan.itis.bikmukhametov.ui.util.formatTimeOnly
 
 /* Модель сообщения для UI */
+@Immutable
 internal data class ChatMessageItem(
     val id: String,
     val text: String,

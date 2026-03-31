@@ -3,6 +3,7 @@ package ru.kazan.itis.bikmukhametov.chat.impl.di
 import org.koin.core.module.dsl.viewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
+import kotlinx.serialization.json.Json
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.BotDataSource
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatDataSource
 import ru.kazan.itis.bikmukhametov.chat.api.datasource.ChatWebSocketDataSource
@@ -37,8 +38,16 @@ import ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen.ChatViewModel
 
 val chatModule = module {
 
+    single {
+        Json {
+            ignoreUnknownKeys = true
+            encodeDefaults = true
+            explicitNulls = false
+        }
+    }
+
     // Data layer
-    factory<ChatDataSource> { ChatRemoteDataSourceImpl(get()) }
+    factory<ChatDataSource> { ChatRemoteDataSourceImpl(get(), get()) }
     factory<ChatRepository> { ChatRepositoryImpl(get()) }
 
     factory<ConversationDataSource> { ConversationRemoteDataSourceImpl(get()) }
@@ -47,7 +56,7 @@ val chatModule = module {
     factory<BotDataSource> { BotRemoteDataSource(get()) }
     factory<BotRepository> { BotRepositoryImpl(get()) }
 
-    factory<ChatWebSocketDataSource> { ChatWebSocketDataSourceImpl(get()) }
+    factory<ChatWebSocketDataSource> { ChatWebSocketDataSourceImpl(get(), get()) }
     factory<ChatWebSocketRepository> { ChatWebSocketRepositoryImpl(get()) }
 
     // Domain

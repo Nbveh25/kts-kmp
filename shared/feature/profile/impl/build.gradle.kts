@@ -30,8 +30,7 @@ kotlin {
             implementation(projects.shared.feature.profile.api)
             implementation(projects.shared.feature.main.api)
 
-            implementation(projects.shared.core.ui)
-            implementation(projects.shared.core.theme)
+            implementation(projects.shared.core.designsystem)
             implementation(projects.shared.core.network)
 
             implementation(libs.compose.runtime)

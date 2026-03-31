@@ -1,6 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.api.usecase
 
-import ru.kazan.itis.bikmukhametov.main.api.model.ProjectModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.ProjectModel
 
 interface GetProjectListUseCase {
 
