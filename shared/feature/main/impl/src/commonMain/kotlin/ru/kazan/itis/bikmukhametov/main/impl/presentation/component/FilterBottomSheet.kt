@@ -84,7 +84,7 @@ internal fun FilterBottomSheet(
 
     val kindOptions = remember { ChannelKind.entries.sortedBy { it.displayName } }
     val selectedKinds = remember(draftKinds, kindOptions) {
-        if (draftKinds.isEmpty()) kindOptions.toSet() else draftKinds
+        draftKinds.ifEmpty { kindOptions.toSet() }
     }
     val channelOptions = remember(allChats) {
         allChats
@@ -92,6 +92,8 @@ internal fun FilterBottomSheet(
             .sortedBy { it.channelName ?: it.channelId }
             .map { ChannelPick(id = it.channelId, label = it.channelName ?: it.channelId) }
     }
+    val allChannelIds = remember(channelOptions) { channelOptions.map { it.id }.toSet() }
+    val selectedChannelIds = if (draftChannelIds.isEmpty()) allChannelIds else draftChannelIds
     val bucketOptions = remember(allChats) {
         allChats.mapNotNull { it.userListBucket }.distinct().sorted()
     }
@@ -131,9 +133,7 @@ internal fun FilterBottomSheet(
                             onCheckedChange = {
                                 val nextSelected =
                                     if (kind in selectedKinds) selectedKinds - kind else selectedKinds + kind
-                                val nextDraft =
-                                    if (nextSelected.size == kindOptions.size) emptySet() else nextSelected
-                                onDraftKindsChange(nextDraft)
+                                onDraftKindsChange(nextSelected)
                             },
                         )
                         Image(
@@ -170,12 +170,12 @@ internal fun FilterBottomSheet(
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
                             Checkbox(
-                                checked = ch.id in draftChannelIds,
+                                checked = ch.id in selectedChannelIds,
                                 onCheckedChange = {
-                                    val next =
-                                        if (ch.id in draftChannelIds) draftChannelIds - ch.id
-                                        else draftChannelIds + ch.id
-                                    onDraftChannelsChange(next)
+                                    val nextSelected =
+                                        if (ch.id in selectedChannelIds) selectedChannelIds - ch.id
+                                        else selectedChannelIds + ch.id
+                                    onDraftChannelsChange(nextSelected)
                                 },
                             )
                             Text(
