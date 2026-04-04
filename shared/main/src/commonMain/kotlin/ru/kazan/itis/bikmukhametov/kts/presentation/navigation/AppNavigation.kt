@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import org.koin.compose.koinInject
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen.ChatScreen
+import ru.kazan.itis.bikmukhametov.interlocutorinfo.impl.presentation.screen.InterlocutorInfoScreen
 import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
@@ -100,9 +101,31 @@ fun AppNavigation(
             ChatScreen(
                 conversationId = chatRoute.conversationId,
                 onBack = { navController.popBackStack() },
-                onUserInfoClick = {
-                    
+                onUserInfoClick = { interlocutorName, channelKind, channelName, chatId, userId ->
+                    navController.navigate(
+                        Route.InterlocutorInfo(
+                            conversationId = chatRoute.conversationId,
+                            interlocutorName = interlocutorName,
+                            channelKind = channelKind,
+                            channelName = channelName,
+                            chatId = chatId,
+                            userId = userId,
+                        ),
+                    )
                 }
+            )
+        }
+
+        composable<Route.InterlocutorInfo> { backStackEntry ->
+            val infoRoute: Route.InterlocutorInfo = backStackEntry.toRoute()
+            InterlocutorInfoScreen(
+                conversationId = infoRoute.conversationId,
+                interlocutorName = infoRoute.interlocutorName,
+                channelKind = infoRoute.channelKind,
+                channelName = infoRoute.channelName,
+                chatId = infoRoute.chatId,
+                userId = infoRoute.userId,
+                onClose = { navController.popBackStack() },
             )
         }
 

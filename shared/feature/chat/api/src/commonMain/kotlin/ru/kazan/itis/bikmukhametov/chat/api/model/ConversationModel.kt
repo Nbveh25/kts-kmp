@@ -20,6 +20,8 @@ data class UserModel(
 
 data class ChannelModel(
     val id: String,
+    /** Сырое значение `kind` из API (как в main: `ChannelKind.apiValue`). */
+    val kind: String,
     val type: ChannelType,
     val name: String,
     val url: String

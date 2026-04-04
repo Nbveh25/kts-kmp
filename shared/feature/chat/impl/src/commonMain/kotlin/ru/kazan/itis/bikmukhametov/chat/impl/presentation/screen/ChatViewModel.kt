@@ -152,6 +152,10 @@ internal class ChatViewModel(
                         copy(
                             interlocutorName = conversation.user.fullName,
                             interlocutorAvatarUrl = conversation.user.avatarUrl,
+                            channelKind = conversation.channel.kind,
+                            channelName = conversation.channel.name,
+                            channelMongoId = conversation.channel.id.takeIf { it.isNotBlank() },
+                            userMongoId = conversation.user.id.takeIf { it.isNotBlank() },
                             botRunning = if (hasReceivedBotStateFromWebSocket) botRunning else apiBotRunning,
                         )
                     }

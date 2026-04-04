@@ -54,3 +54,6 @@ include(":shared:feature:profile:impl")
 include(":shared:feature:chat:api")
 include(":shared:feature:chat:impl")
 
+include(":shared:feature:interlocutor-info:api")
+include(":shared:feature:interlocutor-info:impl")
+

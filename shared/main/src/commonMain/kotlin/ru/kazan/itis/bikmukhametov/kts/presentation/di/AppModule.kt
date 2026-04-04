@@ -2,6 +2,7 @@ package ru.kazan.itis.bikmukhametov.kts.presentation.di
 
 import ru.kazan.itis.bikmukhametov.chat.impl.di.chatModule
 import ru.kazan.itis.bikmukhametov.chat.impl.di.chatPlatformModule
+import ru.kazan.itis.bikmukhametov.interlocutorinfo.impl.di.interlocutorInfoModule
 import ru.kazan.itis.bikmukhametov.impl.di.loginModule
 import ru.kazan.itis.bikmukhametov.main.impl.di.mainModule
 import ru.kazan.itis.bikmukhametov.network.di.networkModule
@@ -14,4 +15,5 @@ fun appModules() = listOf(
     profileModule,  // Фича профиля
     chatModule,     // Фича чата
     chatPlatformModule(), // платформенные зависимости чата (стрим вложений)
+    interlocutorInfoModule,
 )

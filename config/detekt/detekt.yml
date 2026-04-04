@@ -751,6 +751,8 @@ style:
   UnusedParameter:
     active: true
     allowedNames: 'ignored|expected'
+    ignoreAnnotated:
+      - 'Composable'
   UnusedPrivateClass:
     active: true
   UnusedPrivateMember:

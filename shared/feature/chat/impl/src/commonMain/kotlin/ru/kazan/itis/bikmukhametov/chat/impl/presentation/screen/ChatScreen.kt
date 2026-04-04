@@ -66,7 +66,13 @@ import ru.kazan.itis.bikmukhametov.ui.util.rememberTimeFormatStrings
 fun ChatScreen(
     conversationId: String,
     onBack: () -> Unit,
-    onUserInfoClick: () -> Unit,
+    onUserInfoClick: (
+        interlocutorName: String,
+        channelKind: String,
+        channelName: String,
+        chatId: String,
+        userId: String,
+    ) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val viewModel: ChatViewModel = koinViewModel(
@@ -74,6 +80,8 @@ fun ChatScreen(
         parameters = { parametersOf(conversationId) },
     )
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val interlocutorDisplayName = state.interlocutorName?.takeIf { it.isNotBlank() }
+        ?: stringResource(Res.string.chat_interlocutor_name)
 
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
@@ -145,11 +153,18 @@ fun ChatScreen(
             .imePadding(),
         topBar = {
             ChatTopBar(
-                interlocutorName = state.interlocutorName?.takeIf { it.isNotBlank() }
-                    ?: stringResource(Res.string.chat_interlocutor_name),
+                interlocutorName = interlocutorDisplayName,
                 interlocutorAvatarUrl = state.interlocutorAvatarUrl,
                 onBack = onBack,
-                onUserInfoClick = onUserInfoClick,
+                onUserInfoClick = {
+                    onUserInfoClick(
+                        interlocutorDisplayName,
+                        state.channelKind.orEmpty(),
+                        state.channelName.orEmpty(),
+                        state.channelMongoId.orEmpty(),
+                        state.userMongoId.orEmpty(),
+                    )
+                },
                 botRunning = state.botRunning,
                 onBotToggle = { viewModel.onAction(ChatAction.OnBotToggleClick) },
                 menuExpanded = state.menuExpanded,

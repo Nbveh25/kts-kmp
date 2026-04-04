@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="interlocutor_info_close">Закрыть</string>
+    <string name="interlocutor_info_tab_variables">Переменные</string>
+    <string name="interlocutor_info_tab_lists">Списки</string>
+    <string name="interlocutor_info_tab_chats">Чаты</string>
+    <string name="interlocutor_info_tab_delayed_events">Отложенные события</string>
+    <string name="interlocutor_info_label_channel">Канал</string>
+    <string name="interlocutor_info_label_chat">Чат</string>
+    <string name="interlocutor_info_empty_lists">Нет списков рассылок</string>
+    <string name="interlocutor_info_empty_chats">Нет других диалогов</string>
+    <string name="interlocutor_info_empty_events">Нет отложенных событий</string>
+    <string name="interlocutor_info_empty_variables">Список переменных пуст</string>
+</resources>

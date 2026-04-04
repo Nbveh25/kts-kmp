@@ -35,6 +35,7 @@ internal fun UserDto.toModel() = UserModel(
 
 internal fun ChannelDto.toModel() = ChannelModel(
     id = id,
+    kind = kind,
     name = name,
     url = url,
     type = when (kind.lowercase()) {

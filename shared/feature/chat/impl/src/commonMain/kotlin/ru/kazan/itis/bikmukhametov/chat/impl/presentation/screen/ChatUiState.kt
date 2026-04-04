@@ -16,6 +16,12 @@ internal data class ChatUiState(
     val menuExpanded: Boolean = false,
     val interlocutorName: String? = null,
     val interlocutorAvatarUrl: String? = null,
+    val channelKind: String? = null,
+    val channelName: String? = null,
+    /** Mongo `_id` канала для API (`chat_id`). */
+    val channelMongoId: String? = null,
+    /** Mongo `_id` пользователя для API (`user_id`). */
+    val userMongoId: String? = null,
 
     val attachmentPickerVisible: Boolean = false,
     val pendingAttachment: PickedAttachment? = null,
