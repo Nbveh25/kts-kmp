@@ -5,7 +5,9 @@ data class ChatMessageModel(
     val text: String,
     val senderType: SenderType,
     val createdAt: String,
-    val managerEmail: String? = null
+    val managerEmail: String? = null,
+    /** Абсолютные URL превью изображений из вложений сообщения (для отображения в чате). */
+    val imageAttachmentUrls: List<String> = emptyList(),
 )
 
 enum class SenderType {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -96,11 +97,26 @@ internal fun MessageBubble(
         ) {
             Surface(shape = shape, color = backgroundColor) {
                 Column(modifier = Modifier.padding(Spacing.paddingSmall)) {
-                    Text(
-                        text = resolveText(message),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = textColor,
-                    )
+                    message.imageAttachmentUrls.forEach { imageUrl ->
+                        AsyncImage(
+                            model = imageUrl,
+                            contentDescription = null,
+                            contentScale = ContentScale.Fit,
+                            modifier = Modifier
+                                .padding(bottom = Spacing.paddingExtraSmall)
+                                .fillMaxWidth()
+                                .heightIn(max = 220.dp)
+                                .clip(RoundedCornerShape(CornerShape.cornerShapeSmall)),
+                        )
+                    }
+                    val bodyText = resolveText(message)
+                    if (bodyText.isNotBlank()) {
+                        Text(
+                            text = bodyText,
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = textColor,
+                        )
+                    }
                     Text(
                         text = message.createdAt,
                         modifier = Modifier.padding(top = Spacing.paddingExtraSmall),

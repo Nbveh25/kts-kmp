@@ -14,7 +14,8 @@ internal data class ChatMessageItem(
     val sender: SenderType,
     val createdAt: String,   // время в формате "HH:MM"
     val epochDay: Long,      // день (epochMs / 86_400_000) для группировки по датам
-    val managerEmail: String? = null
+    val managerEmail: String? = null,
+    val imageAttachmentUrls: List<String> = emptyList(),
 )
 
 internal fun ChatMessageModel.toItem(): ChatMessageItem {
@@ -24,6 +25,7 @@ internal fun ChatMessageModel.toItem(): ChatMessageItem {
         sender = senderType,
         createdAt = formatTimeOnly(createdAt),
         epochDay = epochDayOf(createdAt),
-        managerEmail = managerEmail
+        managerEmail = managerEmail,
+        imageAttachmentUrls = imageAttachmentUrls,
     )
 }
