@@ -28,6 +28,7 @@ private val LightColorScheme = lightColorScheme(
     surfaceVariant = SmartbotBlueLight.copy(alpha = 0.5f),
     onSurfaceVariant = KtsTextSecondary,
     outline = KtsTextSecondary.copy(alpha = 0.3f),
+    outlineVariant = KtsFieldBorder.copy(alpha = 0.55f),
 
     error = SmartbotAmber,
     onError = Color.White
@@ -53,6 +54,7 @@ private val DarkColorScheme = darkColorScheme(
     surfaceVariant = Color(0xFF334155),
     onSurfaceVariant = KtsOnSurfaceDark.copy(alpha = 0.8f),
     outline = Color(0xFF475569),
+    outlineVariant = Color(0xFF475569),
 
     error = SmartbotAmber,
     onError = Color.White

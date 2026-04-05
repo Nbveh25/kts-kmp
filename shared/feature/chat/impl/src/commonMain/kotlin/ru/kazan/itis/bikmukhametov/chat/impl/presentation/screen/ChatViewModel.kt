@@ -4,6 +4,8 @@ import androidx.lifecycle.viewModelScope
 import io.github.aakira.napier.Napier
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetBlocksListUseCase
+import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetScenariosListUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetChatMessagesUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.GetConversationByIdUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.ObserveChatUseCase
@@ -16,6 +18,8 @@ import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
 
 internal class ChatViewModel(
     private val conversationId: String,
+    private val getScenariosListUseCase: GetScenariosListUseCase,
+    private val getBlocksListUseCase: GetBlocksListUseCase,
     private val getChatMessagesUseCase: GetChatMessagesUseCase,
     private val getConversationByIdUseCase: GetConversationByIdUseCase,
     private val sendMessageUseCase: SendMessageUseCase,
@@ -56,6 +60,73 @@ internal class ChatViewModel(
                 updateState {
                     copy(menuExpanded = action.expanded)
                 }
+            }
+
+            ChatAction.OnOpenRunScenarioDialog -> {
+                updateState {
+                    copy(
+                        menuExpanded = false,
+                        runScenarioDialogVisible = true,
+                        scenariosLoading = true,
+                        scenariosLoadError = null,
+                        runScenarioStep = RunScenarioDialogStep.ChooseScenario,
+                        runScenarioSelectedScenario = null,
+                        blocks = emptyList(),
+                        blocksLoading = false,
+                        blocksLoadError = null,
+                        runScenarioSelectedBlockId = null,
+                    )
+                }
+                loadScenariosForDialog()
+            }
+
+            ChatAction.OnDismissRunScenarioDialog -> updateState {
+                copy(
+                    runScenarioDialogVisible = false,
+                    runScenarioSearchQuery = "",
+                    scenarios = emptyList(),
+                    scenariosLoading = false,
+                    scenariosLoadError = null,
+                    runScenarioStep = RunScenarioDialogStep.ChooseScenario,
+                    runScenarioSelectedScenario = null,
+                    blocks = emptyList(),
+                    blocksLoading = false,
+                    blocksLoadError = null,
+                    runScenarioSelectedBlockId = null,
+                )
+            }
+
+            is ChatAction.OnRunScenarioSearchChange -> updateState {
+                copy(runScenarioSearchQuery = action.query)
+            }
+
+            is ChatAction.OnRunScenarioScenarioClick -> {
+                updateState {
+                    copy(
+                        runScenarioStep = RunScenarioDialogStep.ChooseBlock,
+                        runScenarioSelectedScenario = action.scenario,
+                        blocksLoading = true,
+                        blocksLoadError = null,
+                        blocks = emptyList(),
+                        runScenarioSelectedBlockId = null,
+                    )
+                }
+                loadBlocksForDialog(action.scenario.id)
+            }
+
+            ChatAction.OnRunScenarioBackToScenarioList -> updateState {
+                copy(
+                    runScenarioStep = RunScenarioDialogStep.ChooseScenario,
+                    runScenarioSelectedScenario = null,
+                    blocks = emptyList(),
+                    blocksLoading = false,
+                    blocksLoadError = null,
+                    runScenarioSelectedBlockId = null,
+                )
+            }
+
+            is ChatAction.OnRunScenarioBlockClick -> updateState {
+                copy(runScenarioSelectedBlockId = action.blockId)
             }
 
             ChatAction.OnOpenAttachmentPicker -> updateState { copy(attachmentPickerVisible = true) }
@@ -297,6 +368,53 @@ internal class ChatViewModel(
         }
     }
 
+    private fun loadScenariosForDialog() {
+        viewModelScope.launch {
+            getScenariosListUseCase(kind = "common", limit = 20, offset = 0)
+                .onSuccess { result ->
+                    updateState {
+                        copy(
+                            scenariosLoading = false,
+                            scenarios = result.scenarios,
+                            scenariosLoadError = null,
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    Napier.e(message = "Failed to load scenarios", throwable = e)
+                    updateState {
+                        copy(
+                            scenariosLoading = false,
+                            scenariosLoadError = e.message,
+                        )
+                    }
+                }
+        }
+    }
+
+    private fun loadBlocksForDialog(scenarioId: String) {
+        viewModelScope.launch {
+            getBlocksListUseCase(scenarioId)
+                .onSuccess { result ->
+                    updateState {
+                        copy(
+                            blocksLoading = false,
+                            blocks = result.blocks,
+                            blocksLoadError = null,
+                        )
+                    }
+                }
+                .onFailure { e ->
+                    Napier.e(message = "Failed to load blocks", throwable = e)
+                    updateState {
+                        copy(
+                            blocksLoading = false,
+                            blocksLoadError = e.message,
+                        )
+                    }
+                }
+        }
+    }
 
     private companion object {
         private const val PAGE_SIZE = 20

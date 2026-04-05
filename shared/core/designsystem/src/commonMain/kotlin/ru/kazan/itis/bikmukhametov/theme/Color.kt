@@ -11,6 +11,15 @@ val SmartbotSuccess = Color(0xFF22C55E)    // Зеленый для статус
 val SmartbotIndigoDark = Color(0xFF252F91) // Темно-синий для глубоких теней или нажатых кнопок
 val SmartbotAmber = Color(0xFFF59E0B)      // Теплый оранжевый для алертов или важных тегов
 
+// Диалоги и вторичный текст (голубая гамма)
+val KtsDialogTitle = Color(0xFF5C6B7A)
+val KtsDialogBody = Color(0xFF7A8E9F)
+val KtsFieldBorder = Color(0xFFD0D5DB)
+val KtsPlaceholder = Color(0xFF9CA8B5)
+val KtsIconMuted = Color(0xFFB0BEC5)
+val KtsInfoBackground = Color(0xFFE8F4FC)
+val KtsInfoBorder = Color(0xFFB8D9F0)
+
 // Светлая тема
 val KtsBgLight = Color(0xFFFFFFFF)
 val KtsSurfaceLight = Color(0xFFF5F7FB)    // Светло-голубоватый серый для карточек

@@ -1,8 +1,15 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen
 
 import androidx.compose.runtime.Immutable
+import ru.kazan.itis.bikmukhametov.chat.api.model.BlockModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
+import ru.kazan.itis.bikmukhametov.chat.api.model.ScenarioModel
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.PickedAttachment
+
+internal enum class RunScenarioDialogStep {
+    ChooseScenario,
+    ChooseBlock,
+}
 
 @Immutable
 internal data class ChatUiState(
@@ -14,6 +21,17 @@ internal data class ChatUiState(
     val messageText: String = "",
     val botRunning: Boolean? = null,
     val menuExpanded: Boolean = false,
+    val runScenarioDialogVisible: Boolean = false,
+    val runScenarioSearchQuery: String = "",
+    val scenarios: List<ScenarioModel> = emptyList(),
+    val scenariosLoading: Boolean = false,
+    val scenariosLoadError: String? = null,
+    val runScenarioStep: RunScenarioDialogStep = RunScenarioDialogStep.ChooseScenario,
+    val runScenarioSelectedScenario: ScenarioModel? = null,
+    val blocks: List<BlockModel> = emptyList(),
+    val blocksLoading: Boolean = false,
+    val blocksLoadError: String? = null,
+    val runScenarioSelectedBlockId: String? = null,
     val interlocutorName: String? = null,
     val interlocutorAvatarUrl: String? = null,
     val channelKind: String? = null,

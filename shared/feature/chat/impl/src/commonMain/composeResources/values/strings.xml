@@ -22,4 +22,16 @@
     <string name="chat_start_bot_desc">Запустить бота</string>
     <string name="chat_state_bot_desc">Состояние бота</string>
     <string name="more_desc">Ещё</string>
+
+    <!-- Run scenario dialog -->
+    <string name="chat_run_scenario_dialog_title">Выбор сценария и блока для запуска</string>
+    <string name="chat_run_scenario_dialog_close">Закрыть</string>
+    <string name="chat_run_scenario_dialog_info">Обратите внимание, что для пользователя будет запущена опубликованная версия сценария</string>
+    <string name="chat_run_scenario_dialog_section_scenario">Сценарий</string>
+    <string name="chat_run_scenario_dialog_search_placeholder">Название сценария</string>
+    <string name="chat_run_scenario_dialog_sample_item">Тестовый сценарий</string>
+    <string name="chat_run_scenario_dialog_select">Выбрать</string>
+    <string name="chat_run_scenario_dialog_empty">Нет сценариев</string>
+    <string name="chat_run_scenario_back_to_scenarios">Вернуться к выбору сценария</string>
+    <string name="chat_run_scenario_blocks_empty">Список блоков пуст</string>
 </resources>

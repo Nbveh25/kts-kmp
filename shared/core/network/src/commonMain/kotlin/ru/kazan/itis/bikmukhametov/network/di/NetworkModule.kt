@@ -89,6 +89,8 @@ val networkModule = module {
                 spaceProvider.project.value
                     ?.takeIf { it.isNotBlank() }
                     ?.let { header("X-SPro-Project", it) }
+
+                header("X-SPro-Bucket", "prod")
             }
 
             HttpResponseValidator {

@@ -50,6 +50,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_scroll_dow
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_arrow_downward_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_close_24
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatInputBar
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.RunScenarioDialog
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.platform.AttachmentPickerSheet
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatRow
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.component.ChatTopBar
@@ -172,7 +173,7 @@ fun ChatScreen(
                     viewModel.onAction(ChatAction.OnMenuExpandChange(expanded))
                 },
                 onRunScenario = {
-                    viewModel.onAction(ChatAction.OnMenuExpandChange(false))
+                    viewModel.onAction(ChatAction.OnOpenRunScenarioDialog)
                 },
             )
         },
@@ -312,5 +313,26 @@ fun ChatScreen(
                 }
             }
         }
+    }
+
+    if (state.runScenarioDialogVisible) {
+        RunScenarioDialog(
+            step = state.runScenarioStep,
+            scenarios = state.scenarios,
+            scenariosLoading = state.scenariosLoading,
+            scenariosLoadError = state.scenariosLoadError,
+            searchQuery = state.runScenarioSearchQuery,
+            onSearchQueryChange = { viewModel.onAction(ChatAction.OnRunScenarioSearchChange(it)) },
+            selectedScenario = state.runScenarioSelectedScenario,
+            blocks = state.blocks,
+            blocksLoading = state.blocksLoading,
+            blocksLoadError = state.blocksLoadError,
+            selectedBlockId = state.runScenarioSelectedBlockId,
+            onScenarioClick = { viewModel.onAction(ChatAction.OnRunScenarioScenarioClick(it)) },
+            onBackToScenarios = { viewModel.onAction(ChatAction.OnRunScenarioBackToScenarioList) },
+            onBlockClick = { viewModel.onAction(ChatAction.OnRunScenarioBlockClick(it)) },
+            onDismiss = { viewModel.onAction(ChatAction.OnDismissRunScenarioDialog) },
+            onSelectClick = { viewModel.onAction(ChatAction.OnDismissRunScenarioDialog) },
+        )
     }
 }
