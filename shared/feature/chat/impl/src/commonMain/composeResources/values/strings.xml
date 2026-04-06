@@ -12,6 +12,7 @@
     <string name="chat_close_file_picker">Закрыть файлпикер</string>
     <string name="chat_as_file"> · как файл</string>
     <string name="chat_scroll_down">Спуск в конец чата</string>
+    <string name="chat_open_attachment">Открыть вложение</string>
 
 
     <!--TopBar-->

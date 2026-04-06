@@ -13,8 +13,16 @@ import ru.kazan.itis.bikmukhametov.chat.api.usecase.SendMessageUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.UploadChatAttachmentUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StartBotUseCase
 import ru.kazan.itis.bikmukhametov.chat.api.usecase.StopBotUseCase
+import kotlin.random.Random
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatFileAttachment
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
+import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.attachmentDownloadUrl
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.PickedAttachment
 import ru.kazan.itis.bikmukhametov.ui.util.BaseViewModel
+import ru.kazan.itis.bikmukhametov.ui.util.currentTimeMillis
+import ru.kazan.itis.bikmukhametov.ui.util.epochMillisToIso8601Utc
+import ru.kazan.itis.bikmukhametov.network.auth.datasource.AuthDataSource
 
 internal class ChatViewModel(
     private val conversationId: String,
@@ -27,16 +35,28 @@ internal class ChatViewModel(
     private val startBotUseCase: StartBotUseCase,
     private val stopBotUseCase: StopBotUseCase,
     private val observeChatUseCase: ObserveChatUseCase,
+    private val authDataSource: AuthDataSource,
 ) : BaseViewModel<ChatUiState, ChatAction>(ChatUiState()) {
 
     private var isPageLoading = false
     private var isEndReached = false
     private var hasReceivedBotStateFromWebSocket = false
 
+    /** Id вложений после upload, пока ждём то же сообщение по WebSocket (для снятия оптимистичной записи). */
+    private var pendingOutgoingAttachmentIds: Set<String> = emptySet()
+
+    /** Email менеджера из сессии — для аватара оператора на оптимистичных сообщениях (см. [MessageBubble] BOT + managerEmail). */
+    private var cachedManagerEmail: String? = null
+
     init {
         Napier.d { "init conversationId=$conversationId" }
         loadInitialData()
         observeWebSocket()
+        viewModelScope.launch {
+            authDataSource.fetchAuthInfo().onSuccess { auth ->
+                cachedManagerEmail = auth.manager.email.takeIf { it.isNotBlank() }
+            }
+        }
     }
 
     override fun onAction(action: ChatAction) {
@@ -163,6 +183,12 @@ internal class ChatViewModel(
                             newMessage.text
                         }"
                     )
+                    val matchedPendingIds = pendingOutgoingAttachmentIds.filter {
+                        newMessage.referencesAttachmentId(it)
+                    }
+                    if (matchedPendingIds.isNotEmpty()) {
+                        pendingOutgoingAttachmentIds = pendingOutgoingAttachmentIds - matchedPendingIds.toSet()
+                    }
                     val botRunningUpdate = when {
                         newMessage.senderType == SenderType.SERVICE && newMessage.text == "start_bot" -> true
                         newMessage.senderType == SenderType.SERVICE && newMessage.text == "stop_bot" -> false
@@ -170,7 +196,14 @@ internal class ChatViewModel(
                     }
                     if (botRunningUpdate != null) hasReceivedBotStateFromWebSocket = true
                     updateState {
-                        if (messageList.any { it.id == newMessage.id }) {
+                        var list = messageList
+                        if (matchedPendingIds.isNotEmpty()) {
+                            list = list.filterNot { m ->
+                                m.id.startsWith(OPTIMISTIC_MESSAGE_PREFIX) &&
+                                    matchedPendingIds.any { id -> m.referencesAttachmentId(id) }
+                            }
+                        }
+                        if (list.any { it.id == newMessage.id }) {
                             Napier.w(
                                 tag = TAG_VM,
                                 message = "▶ duplicate id=${newMessage.id} — skip"
@@ -180,7 +213,7 @@ internal class ChatViewModel(
                             } else this
                         }
                         copy(
-                            messageList = messageList + listOf(newMessage),
+                            messageList = list + listOf(newMessage),
                             botRunning = botRunningUpdate ?: botRunning
                         )
                     }
@@ -242,7 +275,14 @@ internal class ChatViewModel(
     }
 
     private fun refresh() {
-        updateState { copy(isRefreshing = true, loadError = null) }
+        pendingOutgoingAttachmentIds = emptySet()
+        updateState {
+            copy(
+                isRefreshing = true,
+                loadError = null,
+                messageList = messageList.filterNot { it.id.startsWith(OPTIMISTIC_MESSAGE_PREFIX) },
+            )
+        }
         isEndReached = false
         isPageLoading = false
         hasReceivedBotStateFromWebSocket = false
@@ -285,11 +325,31 @@ internal class ChatViewModel(
                 sendAttachmentAsDocument = asDoc,
             )
                 .onSuccess {
+                    val optimistic = if (attachmentIds.isNotEmpty() && pending != null) {
+                        if (cachedManagerEmail == null) {
+                            cachedManagerEmail =
+                                authDataSource.fetchAuthInfo().getOrNull()?.manager?.email?.takeIf { it.isNotBlank() }
+                        }
+                        pendingOutgoingAttachmentIds = pendingOutgoingAttachmentIds + attachmentIds.toSet()
+                        buildOptimisticOutgoingMessage(
+                            text = text,
+                            pending = pending,
+                            attachmentIds = attachmentIds,
+                            sendAsDocument = asDoc,
+                        )
+                    } else {
+                        null
+                    }
                     updateState {
                         copy(
                             messageText = "",
                             pendingAttachment = null,
                             isUploading = false,
+                            messageList = if (optimistic != null) {
+                                messageList + listOf(optimistic)
+                            } else {
+                                messageList
+                            },
                         )
                     }
                 }
@@ -339,9 +399,23 @@ internal class ChatViewModel(
                 fromDate = cursor?.createdAt,
             )
                 .onSuccess { newMessages ->
+                    val matchedFromHistory = pendingOutgoingAttachmentIds.filter { pendingId ->
+                        newMessages.any { it.referencesAttachmentId(pendingId) }
+                    }
+                    if (matchedFromHistory.isNotEmpty()) {
+                        pendingOutgoingAttachmentIds =
+                            pendingOutgoingAttachmentIds - matchedFromHistory.toSet()
+                    }
                     updateState {
+                        var list = messageList
+                        if (matchedFromHistory.isNotEmpty()) {
+                            list = list.filterNot { m ->
+                                m.id.startsWith(OPTIMISTIC_MESSAGE_PREFIX) &&
+                                    matchedFromHistory.any { id -> m.referencesAttachmentId(id) }
+                            }
+                        }
                         val merged =
-                            if (reset) messageList + newMessages else newMessages + messageList
+                            if (reset) list + newMessages else newMessages + list
                         copy(
                             isLoading = false,
                             isLoadingMore = false,
@@ -392,6 +466,39 @@ internal class ChatViewModel(
         }
     }
 
+    private fun buildOptimisticOutgoingMessage(
+        text: String,
+        pending: PickedAttachment,
+        attachmentIds: List<String>,
+        sendAsDocument: Boolean,
+    ): ChatMessageModel {
+        val id = attachmentIds.first()
+        val url = attachmentDownloadUrl(id)
+        val asImage = !sendAsDocument && pending.isLikelyInlineImage()
+        val images = if (asImage) listOf(url) else emptyList()
+        val files = if (asImage) {
+            emptyList()
+        } else {
+            listOf(
+                ChatFileAttachment(
+                    fileName = pending.fileName,
+                    sizeBytes = pending.contentLength?.toInt(),
+                    openUrl = url,
+                ),
+            )
+        }
+        return ChatMessageModel(
+            id = "$OPTIMISTIC_MESSAGE_PREFIX${currentTimeMillis()}-${Random.nextLong()}",
+            text = text,
+            senderType = SenderType.BOT,
+            createdAt = epochMillisToIso8601Utc(currentTimeMillis()),
+            managerEmail = cachedManagerEmail,
+            imageAttachmentUrls = images,
+            localImagePreviewUris = if (asImage) listOf(pending.contentUri) else emptyList(),
+            fileAttachments = files,
+        )
+    }
+
     private fun loadBlocksForDialog(scenarioId: String) {
         viewModelScope.launch {
             getBlocksListUseCase(scenarioId)
@@ -420,6 +527,23 @@ internal class ChatViewModel(
         private const val PAGE_SIZE = 20
         private const val TAG_VM = "ChatViewModel"
         private const val MAX_ATTACHMENT_BYTES = 25 * 1024 * 1024
+        private const val OPTIMISTIC_MESSAGE_PREFIX = "optimistic-"
     }
+}
+
+private fun PickedAttachment.isLikelyInlineImage(): Boolean {
+    val t = mimeType?.lowercase().orEmpty()
+    if (t.startsWith("image/")) return true
+    val f = fileName.lowercase()
+    return f.endsWith(".jpg") || f.endsWith(".jpeg") || f.endsWith(".png") ||
+        f.endsWith(".gif") || f.endsWith(".webp") || f.endsWith(".bmp") ||
+        f.endsWith(".heic") || f.endsWith(".heif")
+}
+
+private fun ChatMessageModel.referencesAttachmentId(attachmentId: String): Boolean {
+    val needle = "/api/attachments/$attachmentId"
+    if (imageAttachmentUrls.any { it.contains(needle) }) return true
+    if (fileAttachments.any { it.openUrl?.contains(needle) == true }) return true
+    return false
 }
 

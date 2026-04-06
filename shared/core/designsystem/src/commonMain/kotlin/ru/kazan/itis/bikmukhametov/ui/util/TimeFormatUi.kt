@@ -186,6 +186,21 @@ private fun epochMillisToComponents(epochMs: Long): DateComponents {
     return DateComponents(y, m, d, hour, minute, dayOfWeek)
 }
 
+/**
+ * ISO 8601 UTC для оптимистичных записей (сортировка и [formatTimeOnly] совместимы с сообщениями API).
+ */
+fun epochMillisToIso8601Utc(ms: Long): String {
+    val day = (ms / MILLIS_PER_DAY).toInt()
+    val timeMs = (ms % MILLIS_PER_DAY).toInt()
+    if (timeMs < 0) return epochMillisToIso8601Utc(ms + MILLIS_PER_DAY)
+    val (y, m, dom) = epochDaysToDate(day)
+    val hour = timeMs / (3600 * 1000)
+    val rem = timeMs % (3600 * 1000)
+    val minute = rem / (60 * 1000)
+    val second = (rem % (60 * 1000)) / 1000
+    return "%04d-%02d-%02dT%02d:%02d:%02d.000Z".format(y, m, dom, hour, minute, second)
+}
+
 private fun epochDaysToDate(epochDays: Int): Triple<Int, Int, Int> {
     var day = epochDays + 719468
     val era = (if (day >= 0) day else day - 146096) / 146097

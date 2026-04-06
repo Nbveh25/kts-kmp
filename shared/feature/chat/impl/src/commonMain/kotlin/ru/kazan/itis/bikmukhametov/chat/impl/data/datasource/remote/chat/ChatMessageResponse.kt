@@ -2,6 +2,7 @@ package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatFileAttachment
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
 import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
@@ -37,6 +38,7 @@ data class MessageDto(
 @Serializable
 data class ChatMessageAttachmentDto(
     @SerialName("_id") val id: String? = null,
+    @SerialName("id") val idAlt: String? = null,
     @SerialName("filename") val filename: String? = null,
     @SerialName("preview_url") val previewUrl: String? = null,
     @SerialName("url") val url: String? = null,
@@ -56,7 +58,22 @@ internal fun MessageDto.toModel(): ChatMessageModel {
         else -> SenderType.UNKNOWN
     }
 
-    val imageUrls = attachments.mapNotNull { it.toAbsoluteImagePreviewUrl() }
+    val imageUrls = mutableListOf<String>()
+    val fileAttachments = mutableListOf<ChatFileAttachment>()
+    for (att in attachments) {
+        val imageUrl = att.toAbsoluteImagePreviewUrl()
+        if (imageUrl != null) {
+            imageUrls += imageUrl
+        } else {
+            val fileUrl = att.toAbsoluteFileOpenUrl()
+            val name = att.filename?.takeIf { it.isNotBlank() } ?: "file"
+            fileAttachments += ChatFileAttachment(
+                fileName = name,
+                sizeBytes = att.size,
+                openUrl = fileUrl,
+            )
+        }
+    }
 
     return ChatMessageModel(
         id = id,
@@ -65,6 +82,7 @@ internal fun MessageDto.toModel(): ChatMessageModel {
         createdAt = dateCreated,
         managerEmail = managerEmail,
         imageAttachmentUrls = imageUrls,
+        fileAttachments = fileAttachments,
     )
 }
 
@@ -77,6 +95,19 @@ private fun ChatMessageAttachmentDto.toAbsoluteImagePreviewUrl(): String? {
         .firstOrNull { it.isNotBlank() }
         ?.trim()
         ?: id?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: idAlt?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: return null
+
+    return absolutizeCabinetUrl(raw)
+}
+
+private fun ChatMessageAttachmentDto.toAbsoluteFileOpenUrl(): String? {
+    val raw = sequenceOf(url, link, previewUrl)
+        .filterNotNull()
+        .firstOrNull { it.isNotBlank() }
+        ?.trim()
+        ?: id?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: idAlt?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
         ?: return null
 
     return absolutizeCabinetUrl(raw)
@@ -93,6 +124,10 @@ private fun ChatMessageAttachmentDto.looksLikeImage(): Boolean {
 
 private fun fallbackAttachmentFileUrl(id: String): String =
     "${BuildKonfig.BASE_URL.trimEnd('/')}/api/attachments/$id"
+
+/** Публичный URL скачивания вложения по id после upload (для оптимистичного UI). */
+internal fun attachmentDownloadUrl(attachmentId: String): String =
+    fallbackAttachmentFileUrl(attachmentId)
 
 private fun absolutizeCabinetUrl(raw: String): String {
     if (raw.startsWith("http://", ignoreCase = true) ||

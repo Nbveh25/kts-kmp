@@ -8,6 +8,13 @@ data class ChatMessageModel(
     val managerEmail: String? = null,
     /** Абсолютные URL превью изображений из вложений сообщения (для отображения в чате). */
     val imageAttachmentUrls: List<String> = emptyList(),
+    /**
+     * Локальные URI (например `content://` после выбора в галерее) — превью оптимистичной отправки;
+     * иначе сетевой URL в [imageAttachmentUrls] может требовать сессию и не открываться в Coil.
+     */
+    val localImagePreviewUris: List<String> = emptyList(),
+    /** Файлы (PDF, документы и т.д.), не показываемые как превью картинки. */
+    val fileAttachments: List<ChatFileAttachment> = emptyList(),
 )
 
 enum class SenderType {

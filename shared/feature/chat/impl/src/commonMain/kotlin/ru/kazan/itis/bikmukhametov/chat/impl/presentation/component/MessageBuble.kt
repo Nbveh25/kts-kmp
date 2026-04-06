@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -23,11 +24,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 import coil3.compose.AsyncImage
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatFileAttachment
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_bot
@@ -35,9 +38,12 @@ import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_k
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_operator
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_start_bot
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_stop_bot
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.chat_open_attachment
+import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_attachment_24
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_bot
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.ic_manager
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.ChatMessageItem
+import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.imageUrlsForBubble
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Dimensions
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -97,7 +103,7 @@ internal fun MessageBubble(
         ) {
             Surface(shape = shape, color = backgroundColor) {
                 Column(modifier = Modifier.padding(Spacing.paddingSmall)) {
-                    message.imageAttachmentUrls.forEach { imageUrl ->
+                    message.imageUrlsForBubble().forEach { imageUrl ->
                         AsyncImage(
                             model = imageUrl,
                             contentDescription = null,
@@ -107,6 +113,13 @@ internal fun MessageBubble(
                                 .fillMaxWidth()
                                 .heightIn(max = 220.dp)
                                 .clip(RoundedCornerShape(CornerShape.cornerShapeSmall)),
+                        )
+                    }
+                    message.fileAttachments.forEach { file ->
+                        FileAttachmentRow(
+                            file = file,
+                            textColor = textColor,
+                            modifier = Modifier.padding(bottom = Spacing.paddingExtraSmall),
                         )
                     }
                     val bodyText = resolveText(message)
@@ -238,6 +251,71 @@ private fun SenderAvatar(
         }
 
         else -> Unit // SERVICE, UNKNOWN — без аватара
+    }
+}
+
+@Composable
+private fun FileAttachmentRow(
+    file: ChatFileAttachment,
+    textColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    val uriHandler = LocalUriHandler.current
+    val openUrl = file.openUrl
+    val openLabel = stringResource(Res.string.chat_open_attachment)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(
+                if (openUrl != null) {
+                    Modifier.clickable { uriHandler.openUri(openUrl) }
+                } else {
+                    Modifier
+                },
+            ),
+        shape = RoundedCornerShape(CornerShape.cornerShapeSmall),
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.45f),
+    ) {
+        Row(
+            modifier = Modifier.padding(Spacing.paddingSmall),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(
+                painter = painterResource(Res.drawable.ic_attachment_24),
+                contentDescription = if (openUrl != null) openLabel else null,
+                tint = textColor.copy(alpha = 0.9f),
+                modifier = Modifier.size(22.dp),
+            )
+            Spacer(Modifier.width(Spacing.paddingSmall))
+            Column(Modifier.weight(1f)) {
+                Text(
+                    text = file.fileName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = textColor,
+                    maxLines = 2,
+                )
+                file.sizeBytes?.let { bytes ->
+                    Text(
+                        text = formatAttachmentFileSize(bytes),
+                        style = MaterialTheme.typography.labelSmall,
+                        color = textColor.copy(alpha = 0.75f),
+                    )
+                }
+            }
+        }
+    }
+}
+
+private fun formatAttachmentFileSize(bytes: Int): String {
+    val unit = 1024
+    return when {
+        bytes < unit -> "$bytes Б"
+        bytes < unit * unit -> "${bytes / unit} КБ"
+        else -> {
+            val mb = bytes.toDouble() / (unit * unit)
+            val rounded = (mb * 10).roundToInt() / 10.0
+            "$rounded МБ"
+        }
     }
 }
 
