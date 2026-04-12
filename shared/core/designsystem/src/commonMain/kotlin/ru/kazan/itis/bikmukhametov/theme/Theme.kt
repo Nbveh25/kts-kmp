@@ -17,7 +17,7 @@ private val LightColorScheme = lightColorScheme(
     secondary = SmartbotSuccess,
     onSecondary = Color.White,
 
-    tertiary = SmartbotSuccess,
+    tertiary = SmartbotAmber,
     onTertiary = Color.White,
 
     background = KtsBgLight,

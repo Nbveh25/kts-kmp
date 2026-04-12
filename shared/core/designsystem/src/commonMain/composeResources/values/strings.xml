@@ -36,4 +36,11 @@
     <string name="error_retry">Повторить</string>
     <string name="error_icon_content_description">Ошибка</string>
 
+    <!-- ErrorScreen: человекочитаемые тексты по типу ошибки -->
+    <string name="error_user_json_schema">Не удалось разобрать ответ сервера: формат данных изменился. Обновите приложение или попробуйте позже.</string>
+    <string name="error_user_network">Нет подключения к сети или сервер временно недоступен. Проверьте интернет и попробуйте снова.</string>
+    <string name="error_user_timeout">Сервер не ответил вовремя. Попробуйте ещё раз.</string>
+    <string name="error_user_ssl">Ошибка защищённого соединения. Проверьте дату на устройстве и сеть.</string>
+    <string name="error_user_unauthorized">Сессия истекла или доступ запрещён. Войдите в аккаунт снова.</string>
+
 </resources>
