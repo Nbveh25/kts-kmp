@@ -25,7 +25,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import org.jetbrains.compose.resources.stringResource
 import org.jetbrains.compose.resources.vectorResource
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.Res
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.conversation_preview_start_bot
+import ru.kazan.itis.bikmukhametov.main.impl.generated.resources.conversation_preview_stop_bot
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.model.ConversationCardItem
 import ru.kazan.itis.bikmukhametov.ui.util.formatTimeForUi
 import ru.kazan.itis.bikmukhametov.ui.util.rememberTimeFormatStrings
@@ -40,6 +44,11 @@ internal fun ConvesationCardUI(
 ) {
     val timeFormatStrings = rememberTimeFormatStrings()
     val timeOrDate = formatTimeForUi(chat.dateUpdatedIso, timeFormatStrings)
+    val lastMessagePreview = when (chat.lastMessageText) {
+        "start_bot" -> stringResource(Res.string.conversation_preview_start_bot)
+        "stop_bot" -> stringResource(Res.string.conversation_preview_stop_bot)
+        else -> chat.lastMessageText
+    }
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(CornerShape.cornerShapeMedium),
@@ -97,10 +106,10 @@ internal fun ConvesationCardUI(
                     color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
-                    text = chat.lastMessageText,
+                    text = lastMessagePreview,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
-                    maxLines = 2
+                    maxLines = 1
                 )
             }
 

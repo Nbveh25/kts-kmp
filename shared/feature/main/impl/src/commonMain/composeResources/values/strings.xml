@@ -8,6 +8,10 @@
     <string name="project_error_message">Ошибка загрузки проектов</string>
     <string name="cabinet_error_message">Ошибка загрузки кабинета</string>
 
+    <!--ChatListTabs-->
+    <string name="chat_list_tab_all">Все обращения</string>
+    <string name="chat_list_tab_waiting">Ждут ответа</string>
+
     <!--ChatListTopBar-->
     <string name="space">Пространство</string>
     <string name="project">Проект</string>
@@ -33,5 +37,9 @@
     <string name="filter_select_all">Выбрать все</string>
     <string name="filter_pick_channel_type">Выберите тип канала</string>
     <string name="filter_pick_channel">Выберите канал</string>
-    
+
+    <!--ConversationCardUI: превью системных сообщений -->
+    <string name="conversation_preview_start_bot">Пользователь переведен на бота</string>
+    <string name="conversation_preview_stop_bot">Бот остановлен и не будет реагировать на сообщения пользователя</string>
+
 </resources>

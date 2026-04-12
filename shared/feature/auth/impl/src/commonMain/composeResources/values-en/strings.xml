@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Sign in</string>
+    <string name="login_login_hint">Login</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_example_mail">example@mail.ru</string>
+    <string name="login_signin">Sign in</string>
+    <string name="login_password_visibility_toggle">Toggle password visibility</string>
+</resources>

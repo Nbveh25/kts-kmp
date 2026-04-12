@@ -8,10 +8,16 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.launch
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import ru.kazan.itis.bikmukhametov.database.locale.AppLanguage
+import ru.kazan.itis.bikmukhametov.database.locale.AppLanguageRepository
 import ru.kazan.itis.bikmukhametov.ui.component.AppBottomNav
 import ru.kazan.itis.bikmukhametov.ui.component.CabinetProjectTopBar
 import ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen
@@ -22,6 +28,11 @@ fun ProfileScreen(
 ) {
     val viewModel: ProfileViewModel = koinViewModel()
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val appLanguageRepository: AppLanguageRepository = koinInject()
+    val appLanguage by produceState(initialValue = AppLanguage.RU, appLanguageRepository) {
+        appLanguageRepository.language.collect { value = it }
+    }
+    val scope = rememberCoroutineScope()
 
     Scaffold(
         modifier = Modifier
@@ -84,6 +95,10 @@ fun ProfileScreen(
                         .fillMaxSize()
                         .padding(paddingValues),
                     state = state,
+                    appLanguage = appLanguage,
+                    onAppLanguageSelected = { lang ->
+                        scope.launch { appLanguageRepository.setLanguage(lang) }
+                    },
                     onToggleNotifications = { enabled ->
                         viewModel.onAction(ProfileAction.ToggleNotifications(enabled))
                     },
