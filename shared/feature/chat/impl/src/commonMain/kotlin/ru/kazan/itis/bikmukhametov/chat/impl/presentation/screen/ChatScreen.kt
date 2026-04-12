@@ -18,6 +18,10 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -86,6 +90,17 @@ fun ChatScreen(
 
     val listState = rememberLazyListState()
     val scope = rememberCoroutineScope()
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.sendError) {
+        val error = state.sendError ?: return@LaunchedEffect
+        snackbarHostState.showSnackbar(
+            message = error,
+            duration = SnackbarDuration.Long,
+        )
+        viewModel.onAction(ChatAction.OnClearSendError)
+    }
+
     val showScrollDown by remember {
         derivedStateOf { listState.firstVisibleItemIndex > 0 }
     }
@@ -152,6 +167,15 @@ fun ChatScreen(
         modifier = modifier
             .fillMaxSize()
             .imePadding(),
+        snackbarHost = {
+            SnackbarHost(hostState = snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = MaterialTheme.colorScheme.errorContainer,
+                    contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                )
+            }
+        },
         topBar = {
             ChatTopBar(
                 interlocutorName = interlocutorDisplayName,

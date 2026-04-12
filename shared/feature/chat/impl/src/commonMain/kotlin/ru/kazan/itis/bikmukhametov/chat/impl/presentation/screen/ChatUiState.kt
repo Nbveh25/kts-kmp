@@ -44,4 +44,5 @@ internal data class ChatUiState(
     val attachmentPickerVisible: Boolean = false,
     val pendingAttachment: PickedAttachment? = null,
     val isUploading: Boolean = false,
+    val sendError: String? = null,
 )

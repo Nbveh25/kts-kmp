@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -46,6 +47,7 @@ import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.ChatMessageItem
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.model.imageUrlsForBubble
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Dimensions
+import ru.kazan.itis.bikmukhametov.theme.SmartbotSuccess
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 
 @Composable
@@ -65,16 +67,20 @@ internal fun MessageBubble(
     // USER — слева, BOT — справа
     val isLeftAligned = message.sender == SenderType.USER
 
+    val interlocutorBubbleBackground =
+        if (isSystemInDarkTheme()) SmartbotSuccess.copy(alpha = 0.30f)
+        else SmartbotSuccess.copy(alpha = 0.18f)
+
     val backgroundColor = when (message.sender) {
         SenderType.BOT -> MaterialTheme.colorScheme.primaryContainer
-        else -> MaterialTheme.colorScheme.tertiaryContainer // USER
+        else -> interlocutorBubbleBackground
     }
     val textColor = when (message.sender) {
         SenderType.BOT -> MaterialTheme.colorScheme.onPrimaryContainer
-        else -> MaterialTheme.colorScheme.onTertiaryContainer // USER
+        else -> MaterialTheme.colorScheme.onSurface
     }
 
-    // «Хвостик» пузыря появляется только у последнего сообщения в группе (showAvatar = true)
+    // Хвостик пузыря появляется только у последнего сообщения в группе (showAvatar = true)
     val shape = RoundedCornerShape(
         topStart = CornerShape.cornerShapeMedium,
         topEnd = CornerShape.cornerShapeMedium,
@@ -218,14 +224,17 @@ private fun SenderAvatar(
                     modifier = baseModifier,
                 )
             } else {
+                val placeholderBg =
+                    if (isSystemInDarkTheme()) SmartbotSuccess.copy(alpha = 0.38f)
+                    else SmartbotSuccess.copy(alpha = 0.26f)
                 Box(
-                    modifier = baseModifier.background(MaterialTheme.colorScheme.tertiary),
+                    modifier = baseModifier.background(placeholderBg),
                     contentAlignment = Alignment.Center,
                 ) {
                     Text(
                         text = stringResource(Res.string.chat_k),
                         style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onTertiary,
+                        color = MaterialTheme.colorScheme.onSurface,
                     )
                 }
             }

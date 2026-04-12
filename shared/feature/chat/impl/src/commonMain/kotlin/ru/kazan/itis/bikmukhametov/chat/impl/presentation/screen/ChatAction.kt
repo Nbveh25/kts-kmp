@@ -22,4 +22,6 @@ internal sealed interface ChatAction {
     data object OnAttachmentPickerDismiss : ChatAction
     data class OnAttachmentPicked(val attachment: PickedAttachment) : ChatAction
     data object OnClearPendingAttachment : ChatAction
+
+    data object OnClearSendError : ChatAction
 }

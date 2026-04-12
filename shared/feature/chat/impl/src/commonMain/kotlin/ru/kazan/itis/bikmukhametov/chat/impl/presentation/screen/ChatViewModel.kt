@@ -161,6 +161,8 @@ internal class ChatViewModel(
             }
 
             ChatAction.OnClearPendingAttachment -> updateState { copy(pendingAttachment = null) }
+
+            ChatAction.OnClearSendError -> updateState { copy(sendError = null) }
         }
     }
 
@@ -355,7 +357,12 @@ internal class ChatViewModel(
                 }
                 .onFailure { e ->
                     Napier.e(message = "Failed to send message", throwable = e)
-                    updateState { copy(isUploading = false) }
+                    updateState {
+                        copy(
+                            isUploading = false,
+                            sendError = e.message ?: "Ошибка отправки сообщения",
+                        )
+                    }
                 }
         }
     }
