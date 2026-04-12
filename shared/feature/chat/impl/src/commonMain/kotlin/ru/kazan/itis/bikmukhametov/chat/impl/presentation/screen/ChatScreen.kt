@@ -254,6 +254,7 @@ fun ChatScreen(
                     attachEnabled = !state.isUploading,
                     sendEnabled = !state.isUploading &&
                         (state.messageText.isNotBlank() || state.pendingAttachment != null),
+                    sendInProgress = state.isUploading && state.pendingAttachment != null,
                     onSendClick = {
                         viewModel.onAction(ChatAction.OnSendMessageClick)
                     },
