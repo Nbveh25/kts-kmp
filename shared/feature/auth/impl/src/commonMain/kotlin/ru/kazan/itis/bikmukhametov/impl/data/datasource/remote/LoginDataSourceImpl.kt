@@ -1,9 +1,12 @@
 package ru.kazan.itis.bikmukhametov.impl.data.datasource.remote
 
+import io.ktor.client.HttpClient
+import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import io.ktor.client.HttpClient
+import io.ktor.client.statement.bodyAsText
 import io.ktor.client.statement.request
+import io.ktor.http.isSuccess
 import io.github.aakira.napier.Napier
 import ru.kazan.itis.bikmukhametov.api.datasource.remote.LoginDataSource
 import ru.kazan.itis.bikmukhametov.auth.impl.BuildKonfig
@@ -36,6 +39,10 @@ internal class LoginDataSourceImpl(
 
             Napier.d(tag = "Login") {
                 "POST ${response.request.url} Status: ${response.status}, Headers: ${response.headers.entries()}}"
+            }
+
+            if (!response.status.isSuccess()) {
+                throw ClientRequestException(response, response.bodyAsText())
             }
 
             // Set-Cookie обработает HttpCookies + PersistentCookieStorage

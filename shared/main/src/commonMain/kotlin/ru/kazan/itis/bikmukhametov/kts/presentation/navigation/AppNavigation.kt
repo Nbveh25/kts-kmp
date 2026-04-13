@@ -29,11 +29,23 @@ fun AppNavigation(
     val sessionChecker = koinInject<SessionChecker>()
     val onboardingRepository = koinInject<OnboardingCompletedRepository>()
 
-    // если онбординг уже пройден — сразу на логин
-    LaunchedEffect(Unit) {
-        if (onboardingRepository.isOnboardingCompleted()) {
+    /*
+     * Один проход при старте: если онбординг уже пройден — либо Main (живая сессия), либо Login.
+     * Раньше два LaunchedEffect(Unit) гонялись и могли открыть главный экран во время ввода на логине.
+     */
+    LaunchedEffect(onboardingRepository, sessionChecker, navController) {
+        if (!onboardingRepository.isOnboardingCompleted()) return@LaunchedEffect
+
+        val isValid = runCatching { sessionChecker.isSessionValid() }.getOrDefault(false)
+        if (isValid) {
+            navController.navigate(Route.Main) {
+                popUpTo(Route.Onboarding) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
             navController.navigate(Route.Login) {
                 popUpTo(Route.Onboarding) { inclusive = true }
+                launchSingleTop = true
             }
         }
     }
@@ -43,19 +55,6 @@ fun AppNavigation(
         logoutEventBus.logoutEvents.collect {
             navController.navigate(Route.Login) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
-        }
-    }
-
-    // валидна ли сессия: если да — сразу идём на главный экран
-    LaunchedEffect(Unit) {
-        val isValid = runCatching { sessionChecker.isSessionValid() }.getOrDefault(false)
-        if (isValid) {
-            navController.navigate(Route.Main) {
-                popUpTo(navController.graph.startDestinationId) {
-                    inclusive = true
-                }
-                launchSingleTop = true
             }
         }
     }
