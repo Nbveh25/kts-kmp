@@ -15,6 +15,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -26,6 +27,9 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.ic_vis_24
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.ic_vis_off_24
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_password_hint
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_password_visibility_toggle
+
+/** Явный красный для ошибок полей (colorScheme.error в теме может быть не красным). */
+internal val AuthFormFieldErrorColor = Color(0xFFE53935)
 
 /* Базовое поле ввода: текст или пароль (при isPassword = true — маскировка и иконка видимости) */
 @Composable
@@ -39,7 +43,9 @@ fun AppTextField(
     keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     visualTransformation: VisualTransformation = VisualTransformation.None,
     trailingIcon: @Composable (() -> Unit)? = null,
-    isPassword: Boolean = false
+    isPassword: Boolean = false,
+    isError: Boolean = false,
+    supportingText: (@Composable () -> Unit)? = null,
 ) {
     var isPasswordVisible by rememberSaveable { mutableStateOf(false) }
 
@@ -97,6 +103,8 @@ fun AppTextField(
         keyboardOptions = effectiveKeyboardOptions,
         visualTransformation = effectiveTransformation,
         trailingIcon = effectiveTrailingIcon,
+        isError = isError,
+        supportingText = supportingText,
         colors = defaultTextFieldColors()
     )
 }
@@ -107,14 +115,18 @@ fun PasswordTextField(
     modifier: Modifier = Modifier,
     password: String,
     onPasswordChange: (String) -> Unit,
-    label: String = stringResource(Res.string.login_password_hint)
+    label: String = stringResource(Res.string.login_password_hint),
+    isError: Boolean = false,
+    supportingText: (@Composable () -> Unit)? = null,
 ) {
     AppTextField(
         modifier = modifier,
         value = password,
         onValueChange = onPasswordChange,
         label = label,
-        isPassword = true
+        isPassword = true,
+        isError = isError,
+        supportingText = supportingText
     )
 }
 
@@ -124,27 +136,28 @@ private fun defaultTextFieldColors() = TextFieldDefaults.colors(
     focusedTextColor = MaterialTheme.colorScheme.onSurface,
     unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
     disabledTextColor = MaterialTheme.colorScheme.onSurface,
-    errorTextColor = MaterialTheme.colorScheme.error,
+    errorTextColor = AuthFormFieldErrorColor,
     focusedContainerColor = MaterialTheme.colorScheme.surface,
     unfocusedContainerColor = MaterialTheme.colorScheme.surface,
     disabledContainerColor = MaterialTheme.colorScheme.surface,
     errorContainerColor = MaterialTheme.colorScheme.surface,
     cursorColor = MaterialTheme.colorScheme.onSurface,
-    errorCursorColor = MaterialTheme.colorScheme.error,
+    errorCursorColor = AuthFormFieldErrorColor,
     focusedIndicatorColor = MaterialTheme.colorScheme.primary,
     unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
     disabledIndicatorColor = MaterialTheme.colorScheme.primary,
-    errorIndicatorColor = MaterialTheme.colorScheme.error,
+    errorIndicatorColor = AuthFormFieldErrorColor,
     focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
     unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary,
     disabledLeadingIconColor = MaterialTheme.colorScheme.primary,
-    errorLeadingIconColor = MaterialTheme.colorScheme.error,
+    errorLeadingIconColor = AuthFormFieldErrorColor,
     focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
     unfocusedTrailingIconColor = MaterialTheme.colorScheme.primary,
     disabledTrailingIconColor = MaterialTheme.colorScheme.primary,
-    errorTrailingIconColor = MaterialTheme.colorScheme.error,
+    errorTrailingIconColor = AuthFormFieldErrorColor,
     focusedLabelColor = MaterialTheme.colorScheme.primary,
     unfocusedLabelColor = MaterialTheme.colorScheme.primary,
     disabledLabelColor = MaterialTheme.colorScheme.onSurface,
-    errorLabelColor = MaterialTheme.colorScheme.error,
+    errorLabelColor = AuthFormFieldErrorColor,
+    errorSupportingTextColor = AuthFormFieldErrorColor,
 )

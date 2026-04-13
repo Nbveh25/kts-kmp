@@ -9,4 +9,6 @@
     <string name="login_invalid_credentials">Incorrect email or password</string>
     <string name="login_session_not_confirmed">Could not confirm sign-in. Please try again.</string>
     <string name="login_error_generic">Could not sign in. Please try again later.</string>
+    <string name="login_validation_email_invalid">Invalid email address</string>
+    <string name="login_validation_password_length">Minimum length is 8, maximum is 256</string>
 </resources>

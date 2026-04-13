@@ -43,7 +43,10 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_login_hint
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_session_not_confirmed
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_signin
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_title
+import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_validation_email_invalid
+import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_validation_password_length
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.AppTextField
+import ru.kazan.itis.bikmukhametov.impl.presentation.component.AuthFormFieldErrorColor
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.PasswordTextField
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.YandexCaptchaWidget
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -120,7 +123,19 @@ fun LoginScreen(
                 },
                 label = stringResource(Res.string.login_login_hint),
                 placeholder = stringResource(Res.string.login_example_mail),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                isError = state.emailError != null,
+                supportingText = if (state.emailError != null) {
+                    {
+                        Text(
+                            text = stringResource(Res.string.login_validation_email_invalid),
+                            color = AuthFormFieldErrorColor,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                } else {
+                    null
+                }
             )
 
             Spacer(modifier = Modifier.height(Spacing.paddingMedium))
@@ -130,7 +145,19 @@ fun LoginScreen(
                 onPasswordChange = {
                     viewModel.onAction(LoginAction.OnPasswordChanged(it))
                 },
-                modifier = Modifier.padding(top = Spacing.paddingMedium)
+                modifier = Modifier.padding(top = Spacing.paddingMedium),
+                isError = state.passwordError != null,
+                supportingText = if (state.passwordError != null) {
+                    {
+                        Text(
+                            text = stringResource(Res.string.login_validation_password_length),
+                            color = AuthFormFieldErrorColor,
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    }
+                } else {
+                    null
+                }
             )
 
             Spacer(modifier = Modifier.height(Spacing.paddingMedium))

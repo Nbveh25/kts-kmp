@@ -8,6 +8,8 @@ internal data class LoginUiState(
     val email: String = "", // TODO(потом убрать надо)
     val password: String = "",
     val captchaToken: String = "",
+    val emailError: EmailFieldError? = null,
+    val passwordError: PasswordFieldError? = null,
     val isLoginButtonActive: Boolean = false,
     val isLoading: Boolean = false,
     val captchaWidgetKey: Int = 0, // для пересоздания токена капчи

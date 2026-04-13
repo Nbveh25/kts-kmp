@@ -35,23 +35,24 @@ internal class LoginViewModel(
         }
     }
 
-    private fun isFormValid(email: String, password: String, captchaToken: String) =
-        email.isNotBlank() && password.isNotBlank() && captchaToken.isNotBlank()
-
     private fun updateUsername(email: String) {
         updateState {
+            val emailErr = LoginCredentialsRules.emailFieldError(email)
             copy(
                 email = email,
-                isLoginButtonActive = isFormValid(email, password, captchaToken)
+                emailError = emailErr,
+                isLoginButtonActive = LoginCredentialsRules.canSubmit(email, password, captchaToken)
             )
         }
     }
 
     private fun updatePassword(password: String) {
         updateState {
+            val passErr = LoginCredentialsRules.passwordFieldError(password)
             copy(
                 password = password,
-                isLoginButtonActive = isFormValid(email, password, captchaToken)
+                passwordError = passErr,
+                isLoginButtonActive = LoginCredentialsRules.canSubmit(email, password, captchaToken)
             )
         }
     }
@@ -60,7 +61,7 @@ internal class LoginViewModel(
         updateState {
             copy(
                 captchaToken = token,
-                isLoginButtonActive = isFormValid(email, password, token)
+                isLoginButtonActive = LoginCredentialsRules.canSubmit(email, password, token)
             )
         }
     }
@@ -84,6 +85,26 @@ internal class LoginViewModel(
         val current = state.value
 
         viewModelScope.launch {
+            if (!LoginCredentialsRules.canSubmit(
+                    current.email,
+                    current.password,
+                    current.captchaToken
+                )
+            ) {
+                updateState {
+                    copy(
+                        emailError = LoginCredentialsRules.emailFieldError(current.email),
+                        passwordError = LoginCredentialsRules.passwordFieldError(current.password),
+                        isLoginButtonActive = LoginCredentialsRules.canSubmit(
+                            current.email,
+                            current.password,
+                            current.captchaToken
+                        )
+                    )
+                }
+                return@launch
+            }
+
             updateState { copy(isLoading = true) }
 
             loginUseCase(

@@ -8,4 +8,6 @@
     <string name="login_invalid_credentials">Неверная почта или пароль</string>
     <string name="login_session_not_confirmed">Не удалось подтвердить вход. Попробуйте ещё раз.</string>
     <string name="login_error_generic">Не удалось войти. Попробуйте позже.</string>
+    <string name="login_validation_email_invalid">Некорректный e-mail</string>
+    <string name="login_validation_password_length">Минимальная длина — 8, максимальная — 256</string>
 </resources>
