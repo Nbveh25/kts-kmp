@@ -2,8 +2,10 @@ package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import ru.kazan.itis.bikmukhametov.chat.api.model.ChatFileAttachment
 import ru.kazan.itis.bikmukhametov.chat.api.model.ChatMessageModel
 import ru.kazan.itis.bikmukhametov.chat.api.model.SenderType
+import ru.kazan.itis.bikmukhametov.chat.impl.BuildKonfig
 
 @Serializable
 data class ChatMessageResponse(
@@ -29,7 +31,23 @@ data class MessageDto(
     @SerialName("manager_email") val managerEmail: String? = null,
     @SerialName("block_id") val blockId: String? = null,
     @SerialName("scenario_id") val scenarioId: String? = null,
-    @SerialName("bucket") val bucket: String? = null
+    @SerialName("bucket") val bucket: String? = null,
+    @SerialName("attachments") val attachments: List<ChatMessageAttachmentDto> = emptyList(),
+)
+
+@Serializable
+data class ChatMessageAttachmentDto(
+    @SerialName("_id") val id: String? = null,
+    @SerialName("id") val idAlt: String? = null,
+    @SerialName("filename") val filename: String? = null,
+    @SerialName("preview_url") val previewUrl: String? = null,
+    @SerialName("url") val url: String? = null,
+    @SerialName("link") val link: String? = null,
+    @SerialName("width") val width: Int? = null,
+    @SerialName("height") val height: Int? = null,
+    @SerialName("size") val size: Int? = null,
+    @SerialName("as_document") val asDocument: Boolean? = null,
+    @SerialName("type") val type: String? = null,
 )
 
 internal fun MessageDto.toModel(): ChatMessageModel {
@@ -40,11 +58,84 @@ internal fun MessageDto.toModel(): ChatMessageModel {
         else -> SenderType.UNKNOWN
     }
 
+    val imageUrls = mutableListOf<String>()
+    val fileAttachments = mutableListOf<ChatFileAttachment>()
+    for (att in attachments) {
+        val imageUrl = att.toAbsoluteImagePreviewUrl()
+        if (imageUrl != null) {
+            imageUrls += imageUrl
+        } else {
+            val fileUrl = att.toAbsoluteFileOpenUrl()
+            val name = att.filename?.takeIf { it.isNotBlank() } ?: "file"
+            fileAttachments += ChatFileAttachment(
+                fileName = name,
+                sizeBytes = att.size,
+                openUrl = fileUrl,
+            )
+        }
+    }
+
     return ChatMessageModel(
         id = id,
         text = text.orEmpty(),
         senderType = senderType,
         createdAt = dateCreated,
-        managerEmail = managerEmail
+        managerEmail = managerEmail,
+        imageAttachmentUrls = imageUrls,
+        fileAttachments = fileAttachments,
     )
+}
+
+private fun ChatMessageAttachmentDto.toAbsoluteImagePreviewUrl(): String? {
+    if (asDocument == true) return null
+    if (!looksLikeImage()) return null
+
+    val raw = sequenceOf(previewUrl, url, link)
+        .filterNotNull()
+        .firstOrNull { it.isNotBlank() }
+        ?.trim()
+        ?: id?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: idAlt?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: return null
+
+    return absolutizeCabinetUrl(raw)
+}
+
+private fun ChatMessageAttachmentDto.toAbsoluteFileOpenUrl(): String? {
+    val raw = sequenceOf(url, link, previewUrl)
+        .filterNotNull()
+        .firstOrNull { it.isNotBlank() }
+        ?.trim()
+        ?: id?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: idAlt?.takeIf { it.isNotBlank() }?.let { fallbackAttachmentFileUrl(it) }
+        ?: return null
+
+    return absolutizeCabinetUrl(raw)
+}
+
+private fun ChatMessageAttachmentDto.looksLikeImage(): Boolean {
+    val t = type?.lowercase().orEmpty()
+    if (t.startsWith("image/")) return true
+    val f = filename?.lowercase().orEmpty()
+    return f.endsWith(".jpg") || f.endsWith(".jpeg") || f.endsWith(".png") ||
+        f.endsWith(".gif") || f.endsWith(".webp") || f.endsWith(".bmp") ||
+        f.endsWith(".heic") || f.endsWith(".heif")
+}
+
+private fun fallbackAttachmentFileUrl(id: String): String =
+    "${BuildKonfig.BASE_URL.trimEnd('/')}/api/attachments/$id"
+
+/** Публичный URL скачивания вложения по id после upload (для оптимистичного UI). */
+internal fun attachmentDownloadUrl(attachmentId: String): String =
+    fallbackAttachmentFileUrl(attachmentId)
+
+private fun absolutizeCabinetUrl(raw: String): String {
+    if (raw.startsWith("http://", ignoreCase = true) ||
+        raw.startsWith("https://", ignoreCase = true)
+    ) {
+        return raw
+    }
+    val base = BuildKonfig.BASE_URL.trimEnd('/')
+    val path = raw.trimStart('/')
+    return "$base/$path"
 }

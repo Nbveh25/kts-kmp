@@ -10,11 +10,12 @@ interface ChatDataSource {
         fromDate: String? = null,
     ): Result<List<ChatMessageModel>>
 
-    /** Multipart `file` → ответ `data._id` для элементов `send_message.attachments` (`_id` + `as_document`). */
+    /** Multipart `file` (поток) → ответ `data._id` для элементов `send_message.attachments` (`_id` + `as_document`). */
     suspend fun uploadAttachment(
         fileName: String,
         mimeType: String?,
-        bytes: ByteArray,
+        contentUri: String,
+        contentLength: Long?,
     ): Result<String>
 
     suspend fun sendMessage(

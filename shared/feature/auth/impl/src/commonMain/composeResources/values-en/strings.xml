@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="login_title">Sign in</string>
+    <string name="login_login_hint">Login</string>
+    <string name="login_password_hint">Password</string>
+    <string name="login_example_mail">example@mail.ru</string>
+    <string name="login_signin">Sign in</string>
+    <string name="login_password_visibility_toggle">Toggle password visibility</string>
+    <string name="login_invalid_credentials">Incorrect email or password</string>
+    <string name="login_session_not_confirmed">Could not confirm sign-in. Please try again.</string>
+    <string name="login_error_generic">Could not sign in. Please try again later.</string>
+    <string name="login_validation_email_invalid">Invalid email address</string>
+    <string name="login_validation_password_length">Minimum length is 8, maximum is 256</string>
+</resources>

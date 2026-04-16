@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.compose.resources.painterResource
 import ru.kazan.itis.bikmukhametov.onboarding.presentation.model.OnboardingPage
-import ru.kazan.itis.bikmukhametov.ui.components.PrimaryButton
+import ru.kazan.itis.bikmukhametov.ui.component.PrimaryButton
 import ru.kazan.itis.bikmukhametov.theme.CornerShape
 import ru.kazan.itis.bikmukhametov.theme.Spacing
 

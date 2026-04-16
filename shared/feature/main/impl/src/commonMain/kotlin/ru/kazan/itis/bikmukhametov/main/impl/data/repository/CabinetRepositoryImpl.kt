@@ -1,7 +1,7 @@
 package ru.kazan.itis.bikmukhametov.main.impl.data.repository
 
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.CabinetDataSource
-import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.CabinetModel
 import ru.kazan.itis.bikmukhametov.main.api.repository.CabinetRepository
 import ru.kazan.itis.bikmukhametov.network.space.api.SpaceProvider
 

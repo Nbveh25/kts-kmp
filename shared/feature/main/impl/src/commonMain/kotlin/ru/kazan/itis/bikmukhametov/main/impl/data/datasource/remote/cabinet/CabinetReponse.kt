@@ -2,8 +2,8 @@ package ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.cabinet
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import ru.kazan.itis.bikmukhametov.main.api.model.BillingModel
-import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.BillingModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.CabinetModel
 
 /** Ответ GET /api/cabinets/list — как `projects/list`: `data.cabinets`. */
 @Serializable

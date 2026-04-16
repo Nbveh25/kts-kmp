@@ -3,6 +3,7 @@ package ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat
 import io.github.aakira.napier.Napier
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
+import io.ktor.client.request.forms.ChannelProvider
 import io.ktor.client.request.forms.MultiPartFormDataContent
 import io.ktor.client.request.forms.formData
 import io.ktor.client.request.get
@@ -17,17 +18,20 @@ import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.sendmes
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.sendmessage.SendMessageRequest
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.sendmessage.SendMessageResponse
 import ru.kazan.itis.bikmukhametov.chat.impl.data.datasource.remote.chat.upload.UploadAttachmentApiResponse
+import ru.kazan.itis.bikmukhametov.chat.impl.data.platform.AttachmentContentReader
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
 import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable
 
 internal class ChatRemoteDataSourceImpl(
-    private val httpClient: HttpClient
+    private val httpClient: HttpClient,
+    private val attachmentContentReader: AttachmentContentReader,
 ) : ChatDataSource {
 
     override suspend fun uploadAttachment(
         fileName: String,
         mimeType: String?,
-        bytes: ByteArray,
+        contentUri: String,
+        contentLength: Long?,
     ): Result<String> {
         val safeName = fileName
             .replace("\"", "'")
@@ -41,8 +45,11 @@ internal class ChatRemoteDataSourceImpl(
                     MultiPartFormDataContent(
                         formData {
                             append(
-                                key = FILE,
-                                value = bytes,
+                                FILE,
+                                ChannelProvider(size = contentLength) {
+                                    attachmentContentReader.openReadChannel(contentUri)
+                                        ?: error("upload attachment: cannot open content stream")
+                                },
                                 Headers.build {
                                     append(
                                         name = HttpHeaders.ContentDisposition,

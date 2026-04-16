@@ -37,7 +37,7 @@ data class PhotoModel(
  */
 data class ChannelModel(
     val id: String,
-    val kind: ChannelKind, // enum для строгой типизации
+    val kind: ChannelKind,
     val name: String?,
     val url: String?
 )
@@ -51,22 +51,21 @@ enum class ChannelKind(val apiValue: String, val displayName: String) {
     TG("tg", "Telegram"),
     VB("vb", "Viber"),
     WZ("wz", "Wazzup24"),
-
-    VK("vk", "ВКонтакте"),
-    WA("wa", "WhatsApp"),
-    AVITO("avito", "Авито"),
     WIDGET("widget", "Виджет"),
-    API("api", "API"),
-    CQ("cq", "Carrot Quest"),
-    OZON("ozon", "Ozon"),
-    WB("wb", "Wildberries"),
-    OK("ok", "Одноклассники"),
+    VK("vk", "ВКонтакте"),
+    //WA("wa", "WhatsApp"),
+    //AVITO("avito", "Авито"),
+    //API("api", "API"),
+    //CQ("cq", "Carrot Quest"),
+    //OZON("ozon", "Ozon"),
+    //WB("wb", "Wildberries"),
+    //OK("ok", "Одноклассники"),
     UNKNOWN("unknown", "Неизвестно");
 
     companion object {
         fun fromString(value: String?): ChannelKind {
             val normalized = value?.lowercase() ?: return UNKNOWN
-            return values().find { it.apiValue == normalized } ?: UNKNOWN
+            return entries.find { it.apiValue == normalized } ?: UNKNOWN
         }
     }
 }

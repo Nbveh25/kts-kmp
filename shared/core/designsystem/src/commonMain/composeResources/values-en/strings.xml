@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_bottom_nav_chats">Chats</string>
+    <string name="app_bottom_nav_profile">Profile</string>
+
+    <string name="top_bar_space">Space</string>
+    <string name="top_bar_project">Project</string>
+
+    <string name="month_january">January</string>
+    <string name="month_february">February</string>
+    <string name="month_march">March</string>
+    <string name="month_april">April</string>
+    <string name="month_may">May</string>
+    <string name="month_june">June</string>
+    <string name="month_july">July</string>
+    <string name="month_august">August</string>
+    <string name="month_september">September</string>
+    <string name="month_october">October</string>
+    <string name="month_november">November</string>
+    <string name="month_december">December</string>
+
+    <string name="time_yesterday">Yesterday</string>
+    <string name="time_today">Today</string>
+    <string name="time_weekday_mon">Mon</string>
+    <string name="time_weekday_tue">Tue</string>
+    <string name="time_weekday_wed">Wed</string>
+    <string name="time_weekday_thu">Thu</string>
+    <string name="time_weekday_fri">Fri</string>
+    <string name="time_weekday_sat">Sat</string>
+    <string name="time_weekday_sun">Sun</string>
+    <string name="time_unknown">?</string>
+
+    <string name="error_default_message">Something went wrong</string>
+    <string name="error_retry">Retry</string>
+    <string name="error_icon_content_description">Error</string>
+
+    <string name="error_user_json_schema">Could not parse the server response: the data format has changed. Update the app or try again later.</string>
+    <string name="error_user_network">No internet connection or the server is temporarily unavailable. Check your network and try again.</string>
+    <string name="error_user_timeout">The server did not respond in time. Please try again.</string>
+    <string name="error_user_ssl">Secure connection failed. Check your device date and network.</string>
+    <string name="error_user_unauthorized">Your session has expired or access was denied. Please sign in again.</string>
+</resources>

@@ -15,6 +15,9 @@ plugins {
     alias(libs.plugins.jetbrainsKotlinJvm) apply false
 
     alias(libs.plugins.secretGradlePlugin) apply false
+
+    alias(libs.plugins.google.services.plugin) apply false
+    alias(libs.plugins.firebase.crashlytics.plugin) apply false
 }
 
 private val versionMajor = 1

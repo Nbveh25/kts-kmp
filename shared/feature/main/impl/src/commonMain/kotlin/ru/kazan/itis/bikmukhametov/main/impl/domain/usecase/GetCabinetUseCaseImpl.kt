@@ -1,6 +1,6 @@
 package ru.kazan.itis.bikmukhametov.main.impl.domain.usecase
 
-import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.CabinetModel
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.repository.CabinetRepository
 

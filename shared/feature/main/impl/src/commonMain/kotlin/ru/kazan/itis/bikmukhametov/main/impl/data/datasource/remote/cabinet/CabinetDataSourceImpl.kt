@@ -5,7 +5,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.CabinetDataSource
-import ru.kazan.itis.bikmukhametov.main.api.model.CabinetModel
+import ru.kazan.itis.bikmukhametov.main.api.model.space.CabinetModel
 import ru.kazan.itis.bikmukhametov.main.impl.BuildKonfig
 import ru.kazan.itis.bikmukhametov.network.error.mapApiError
 import ru.kazan.itis.bikmukhametov.network.error.runCatchingCancelable

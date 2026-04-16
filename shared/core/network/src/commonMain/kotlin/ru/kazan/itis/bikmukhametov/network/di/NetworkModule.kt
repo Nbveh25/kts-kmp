@@ -1,6 +1,7 @@
 package ru.kazan.itis.bikmukhametov.network.di
 
 import io.ktor.client.HttpClient
+import io.ktor.client.engine.HttpClientEngine
 import io.ktor.client.plugins.HttpResponseValidator
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.cookies.HttpCookies
@@ -19,6 +20,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import io.github.aakira.napier.Napier
+import io.ktor.client.HttpClientConfig
+import kotlinx.coroutines.NonCancellable.get
 import kotlinx.serialization.json.Json
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
@@ -58,7 +61,10 @@ val networkModule = module {
         val logoutBus = get<LogoutEventBus>()
         val appScope = get<CoroutineScope>()
 
-        HttpClient {
+        // Если платформа предоставила движок (Android — OkHttp с таймаутами), используем его.
+        // На iOS движок подхватывается автоматически (Darwin).
+        val engine = getOrNull<HttpClientEngine>()
+        val clientBlock: HttpClientConfig<*>.() -> Unit = {
 
             install(HttpCookies) { storage = cookieStorage }
 
@@ -89,6 +95,8 @@ val networkModule = module {
                 spaceProvider.project.value
                     ?.takeIf { it.isNotBlank() }
                     ?.let { header("X-SPro-Project", it) }
+
+                header("X-SPro-Bucket", "prod")
             }
 
             HttpResponseValidator {
@@ -122,5 +130,7 @@ val networkModule = module {
                 }
             }
         }
+
+        if (engine != null) HttpClient(engine, clientBlock) else HttpClient(clientBlock)
     }
 }

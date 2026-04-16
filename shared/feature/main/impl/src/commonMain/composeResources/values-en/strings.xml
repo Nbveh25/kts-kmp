@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="button_text_retry">Retry</string>
+    <string name="error_message">Something went wrong</string>
+
+    <string name="project_error_message">Failed to load projects</string>
+    <string name="cabinet_error_message">Failed to load workspace</string>
+
+    <string name="space">Space</string>
+    <string name="project">Project</string>
+    <string name="search">Search</string>
+
+    <string name="chat_list_tab_all">All conversations</string>
+    <string name="chat_list_tab_waiting">Awaiting reply</string>
+
+    <string name="nothing_was_found">Nothing found</string>
+
+    <string name="filter_title">Filters</string>
+    <string name="filter_channel_type">Channel type</string>
+    <string name="filter_channel">Channel</string>
+    <string name="filter_user_lists">User lists</string>
+    <string name="filter_apply">Apply</string>
+    <string name="filter_all_channel_kinds">All types</string>
+    <string name="filter_all_channels">All channels</string>
+    <string name="filter_all_users">All users</string>
+    <string name="filter_selected_n">%1$d selected</string>
+    <string name="filter_no_channels">No channels in loaded chats</string>
+    <string name="filter_no_buckets">No lists (bucket field in messages is empty)</string>
+
+    <string name="filter_cancel_selection">Clear selection</string>
+    <string name="filter_select_all">Select all</string>
+    <string name="filter_pick_channel_type">Choose channel type</string>
+    <string name="filter_pick_channel">Choose channel</string>
+
+    <string name="conversation_preview_start_bot">User was switched to the bot</string>
+    <string name="conversation_preview_stop_bot">Bot is stopped and will not respond to user messages</string>
+</resources>

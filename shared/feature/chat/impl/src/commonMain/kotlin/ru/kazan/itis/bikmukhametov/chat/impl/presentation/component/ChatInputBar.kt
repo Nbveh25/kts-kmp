@@ -1,11 +1,16 @@
 package ru.kazan.itis.bikmukhametov.chat.impl.presentation.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -14,9 +19,13 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.chat.impl.generated.resources.Res
@@ -33,6 +42,8 @@ internal fun ChatInputBar(
     onSendClick: () -> Unit,
     attachEnabled: Boolean = true,
     sendEnabled: Boolean = true,
+    /** Загрузка вложения и отправка сообщения с файлом */
+    sendInProgress: Boolean = false,
 ) {
     Surface(
         color = MaterialTheme.colorScheme.surface,
@@ -74,20 +85,35 @@ internal fun ChatInputBar(
                 ),
                 shape = RoundedCornerShape(CornerShape.cornerShapeLarge),
             )
-            IconButton(
-                onClick = onSendClick,
-                enabled = sendEnabled,
+            val sendInteractionSource = remember { MutableInteractionSource() }
+            Box(
                 modifier = Modifier
-                    .background(
-                        MaterialTheme.colorScheme.primary,
-                        CircleShape
-                    )
+                    .size(48.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primary)
+                    .clickable(
+                        interactionSource = sendInteractionSource,
+                        indication = null,
+                        enabled = sendEnabled && !sendInProgress,
+                        onClick = onSendClick,
+                    ),
+                contentAlignment = Alignment.Center,
             ) {
-                Icon(
-                    imageVector = vectorResource(Res.drawable.ic_send_24),
-                    tint = Color.White,
-                    contentDescription = "Отправить",
-                )
+                if (sendInProgress) {
+                    CircularProgressIndicator(
+                        modifier = Modifier
+                            .size(24.dp)
+                            .semantics { contentDescription = "Отправка сообщения" },
+                        color = Color.White,
+                        strokeWidth = 2.dp,
+                    )
+                } else {
+                    Icon(
+                        imageVector = vectorResource(Res.drawable.ic_send_24),
+                        tint = if (sendEnabled) Color.White else Color.White.copy(alpha = 0.38f),
+                        contentDescription = "Отправить",
+                    )
+                }
             }
         }
     }

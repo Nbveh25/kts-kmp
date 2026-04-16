@@ -10,6 +10,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import org.koin.compose.koinInject
 import ru.kazan.itis.bikmukhametov.chat.impl.presentation.screen.ChatScreen
+import ru.kazan.itis.bikmukhametov.interlocutorinfo.impl.presentation.screen.InterlocutorInfoScreen
 import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.impl.presentation.screen.LoginScreen
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainScreen
@@ -28,11 +29,23 @@ fun AppNavigation(
     val sessionChecker = koinInject<SessionChecker>()
     val onboardingRepository = koinInject<OnboardingCompletedRepository>()
 
-    // если онбординг уже пройден — сразу на логин
-    LaunchedEffect(Unit) {
-        if (onboardingRepository.isOnboardingCompleted()) {
+    /*
+     * Один проход при старте: если онбординг уже пройден — либо Main (живая сессия), либо Login.
+     * Раньше два LaunchedEffect(Unit) гонялись и могли открыть главный экран во время ввода на логине.
+     */
+    LaunchedEffect(onboardingRepository, sessionChecker, navController) {
+        if (!onboardingRepository.isOnboardingCompleted()) return@LaunchedEffect
+
+        val isValid = runCatching { sessionChecker.isSessionValid() }.getOrDefault(false)
+        if (isValid) {
+            navController.navigate(Route.Main) {
+                popUpTo(Route.Onboarding) { inclusive = true }
+                launchSingleTop = true
+            }
+        } else {
             navController.navigate(Route.Login) {
                 popUpTo(Route.Onboarding) { inclusive = true }
+                launchSingleTop = true
             }
         }
     }
@@ -42,19 +55,6 @@ fun AppNavigation(
         logoutEventBus.logoutEvents.collect {
             navController.navigate(Route.Login) {
                 popUpTo(navController.graph.startDestinationId) { inclusive = true }
-            }
-        }
-    }
-
-    // валидна ли сессия: если да — сразу идём на главный экран
-    LaunchedEffect(Unit) {
-        val isValid = runCatching { sessionChecker.isSessionValid() }.getOrDefault(false)
-        if (isValid) {
-            navController.navigate(Route.Main) {
-                popUpTo(navController.graph.startDestinationId) {
-                    inclusive = true
-                }
-                launchSingleTop = true
             }
         }
     }
@@ -100,9 +100,31 @@ fun AppNavigation(
             ChatScreen(
                 conversationId = chatRoute.conversationId,
                 onBack = { navController.popBackStack() },
-                onUserInfoClick = {
-                    
+                onUserInfoClick = { interlocutorName, channelKind, channelName, chatId, userId ->
+                    navController.navigate(
+                        Route.InterlocutorInfo(
+                            conversationId = chatRoute.conversationId,
+                            interlocutorName = interlocutorName,
+                            channelKind = channelKind,
+                            channelName = channelName,
+                            chatId = chatId,
+                            userId = userId,
+                        ),
+                    )
                 }
+            )
+        }
+
+        composable<Route.InterlocutorInfo> { backStackEntry ->
+            val infoRoute: Route.InterlocutorInfo = backStackEntry.toRoute()
+            InterlocutorInfoScreen(
+                conversationId = infoRoute.conversationId,
+                interlocutorName = infoRoute.interlocutorName,
+                channelKind = infoRoute.channelKind,
+                channelName = infoRoute.channelName,
+                chatId = infoRoute.chatId,
+                userId = infoRoute.userId,
+                onClose = { navController.popBackStack() },
             )
         }
 

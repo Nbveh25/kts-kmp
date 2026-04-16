@@ -36,8 +36,7 @@ include(":iosApp")
 include(":shared")
 include(":shared:main")
 
-include(":shared:core:ui")
-include(":shared:core:theme")
+include(":shared:core:designsystem")
 include(":shared:core:network")
 include(":shared:core:database")
 
@@ -54,4 +53,7 @@ include(":shared:feature:profile:impl")
 
 include(":shared:feature:chat:api")
 include(":shared:feature:chat:impl")
+
+include(":shared:feature:interlocutor-info:api")
+include(":shared:feature:interlocutor-info:impl")
 

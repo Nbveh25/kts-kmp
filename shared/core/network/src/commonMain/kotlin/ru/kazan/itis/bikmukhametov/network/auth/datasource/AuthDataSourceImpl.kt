@@ -20,14 +20,9 @@ internal class AuthDataSourceImpl(
             val response = httpClient.get(
                 urlString = BuildKonfig.BASE_URL + "/auth/info"
             )
-            val rawBody = response.body<String>()
-
-            Napier.d(tag = "AuthApi") {
-                "RAW API Response: $rawBody"
-            }
-
-            response.body<AuthInfoResponse>()
-
+            val body = response.body<AuthInfoResponse>()
+            Napier.d(tag = "AuthApi") { "auth/info parsed OK, status=${response.status}" }
+            body
         }.map { response ->
             response.toModel()
         }

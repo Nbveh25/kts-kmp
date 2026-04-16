@@ -12,11 +12,11 @@ import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import ru.kazan.itis.bikmukhametov.database.cookie.CookiePersistence
 import ru.kazan.itis.bikmukhametov.database.cookie.KvaultCookiePersistence
+import ru.kazan.itis.bikmukhametov.database.locale.AppLanguageRepository
+import ru.kazan.itis.bikmukhametov.database.locale.DataStoreAppLanguageRepository
 import ru.kazan.itis.bikmukhametov.database.onboarding.DataStoreOnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.database.room.AppDatabase
-
-private const val APP_PREFS_DATASTORE_NAME = "app_prefs"
 private const val DB_NAME = "app_database.db"
 private const val COOKIES_KVAULT_NAME = "cookies"
 
@@ -36,14 +36,17 @@ actual fun databasePlatformModules(): List<Module> = listOf(
         single<CookiePersistence> {
             KvaultCookiePersistence(get())
         }
-        single<DataStore<Preferences>>(named(APP_PREFS_DATASTORE_NAME)) {
+        single<DataStore<Preferences>>(named(AppPreferencesQualifier.NAME)) {
             val context = get<Context>()
             PreferenceDataStoreFactory.create(
                 produceFile = { context.preferencesDataStoreFile("app_prefs.pb") }
             )
         }
         single<OnboardingCompletedRepository> {
-            DataStoreOnboardingCompletedRepository(get(named(APP_PREFS_DATASTORE_NAME)))
+            DataStoreOnboardingCompletedRepository(get(named(AppPreferencesQualifier.NAME)))
+        }
+        single<AppLanguageRepository> {
+            DataStoreAppLanguageRepository(get(named(AppPreferencesQualifier.NAME)))
         }
     }
 )

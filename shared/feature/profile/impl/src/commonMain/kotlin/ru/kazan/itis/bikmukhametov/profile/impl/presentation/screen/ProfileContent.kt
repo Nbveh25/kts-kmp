@@ -9,6 +9,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import ru.kazan.itis.bikmukhametov.database.locale.AppLanguage
+import ru.kazan.itis.bikmukhametov.profile.impl.presentation.component.ProfileLanguageCard
 import ru.kazan.itis.bikmukhametov.profile.impl.presentation.component.ProfileLogoutButton
 import ru.kazan.itis.bikmukhametov.profile.impl.presentation.component.ProfileNotificationsCard
 import ru.kazan.itis.bikmukhametov.profile.impl.presentation.component.ProfileUserCard
@@ -17,6 +19,8 @@ import ru.kazan.itis.bikmukhametov.theme.Spacing
 @Composable
 internal fun ProfileContent(
     state: ProfileUiState,
+    appLanguage: AppLanguage,
+    onAppLanguageSelected: (AppLanguage) -> Unit,
     onToggleNotifications: (Boolean) -> Unit,
     onLogout: () -> Unit,
     modifier: Modifier = Modifier,
@@ -34,6 +38,13 @@ internal fun ProfileContent(
         ProfileNotificationsCard(
             notificationsEnabled = state.notificationsEnabled,
             onToggle = onToggleNotifications
+        )
+
+        HorizontalDivider()
+
+        ProfileLanguageCard(
+            selected = appLanguage,
+            onSelect = onAppLanguageSelected,
         )
 
         HorizontalDivider()

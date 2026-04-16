@@ -9,6 +9,8 @@ import platform.Foundation.NSFileManager
 import platform.Foundation.NSUserDomainMask
 import ru.kazan.itis.bikmukhametov.database.cookie.CookiePersistence
 import ru.kazan.itis.bikmukhametov.database.cookie.KvaultCookiePersistence
+import ru.kazan.itis.bikmukhametov.database.locale.AppLanguageRepository
+import ru.kazan.itis.bikmukhametov.database.locale.IosAppLanguageRepository
 import ru.kazan.itis.bikmukhametov.database.onboarding.InMemoryOnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.database.onboarding.OnboardingCompletedRepository
 import ru.kazan.itis.bikmukhametov.database.room.AppDatabase
@@ -36,5 +38,6 @@ actual fun databasePlatformModules(): List<Module> = listOf(
             KvaultCookiePersistence(get())
         }
         single<OnboardingCompletedRepository> { InMemoryOnboardingCompletedRepository() }
+        single<AppLanguageRepository> { IosAppLanguageRepository() }
     }
 )

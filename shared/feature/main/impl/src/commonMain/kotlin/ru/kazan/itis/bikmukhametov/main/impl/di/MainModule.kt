@@ -6,24 +6,30 @@ import ru.kazan.itis.bikmukhametov.database.room.AppDatabase
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.CabinetDataSource
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.ConversationDataSource
 import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.ProjectDataSource
+import ru.kazan.itis.bikmukhametov.main.api.datasource.remote.UserListDataSource
 import ru.kazan.itis.bikmukhametov.main.api.repository.CabinetRepository
 import ru.kazan.itis.bikmukhametov.main.api.repository.ConversationRepository
 import ru.kazan.itis.bikmukhametov.main.api.repository.ProjectRepository
+import ru.kazan.itis.bikmukhametov.main.api.repository.UserListRepository
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetCabinetUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.GetProjectListUseCase
+import ru.kazan.itis.bikmukhametov.main.api.usecase.GetUserListsUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.ObserveConversationListUseCase
 import ru.kazan.itis.bikmukhametov.main.api.usecase.SetProjectUseCase
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.local.ConversationLocalDataSource
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.cabinet.CabinetDataSourceImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.conversation.ConversationDataSourceImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.project.ProjectDataSourceImpl
+import ru.kazan.itis.bikmukhametov.main.impl.data.datasource.remote.userlist.UserListDataSourceImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.repository.CabinetRepositoryImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.repository.ConversationRepositoryImpl
 import ru.kazan.itis.bikmukhametov.main.impl.data.repository.ProjectRepositoryImpl
+import ru.kazan.itis.bikmukhametov.main.impl.data.repository.UserListRepositoryImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetCabinetUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetConversationListUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetProjectListUseCaseImpl
+import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.GetUserListsUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.ObserveConversationListUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.domain.usecase.SetProjectUseCaseImpl
 import ru.kazan.itis.bikmukhametov.main.impl.presentation.screen.MainViewModel
@@ -39,11 +45,13 @@ val mainModule = module {
     factory<CabinetDataSource> { CabinetDataSourceImpl(get()) }
     factory<ProjectDataSource> { ProjectDataSourceImpl(get()) }
     factory<ConversationDataSource> { ConversationDataSourceImpl(get()) }
+    factory<UserListDataSource> { UserListDataSourceImpl(get()) }
 
     // Data layer — repositories
     factory<CabinetRepository> { CabinetRepositoryImpl(get(), get<SpaceProvider>()) }
     factory<ProjectRepository> { ProjectRepositoryImpl(get(), get<SpaceProvider>()) }
     factory<ConversationRepository> { ConversationRepositoryImpl(get(), get()) }
+    factory<UserListRepository> { UserListRepositoryImpl(get()) }
 
     // Domain layer
     factory<GetCabinetUseCase> { GetCabinetUseCaseImpl(get()) }
@@ -51,6 +59,7 @@ val mainModule = module {
     factory<SetProjectUseCase> { SetProjectUseCaseImpl(get()) }
     factory<GetConversationListUseCase> { GetConversationListUseCaseImpl(get()) }
     factory<ObserveConversationListUseCase> { ObserveConversationListUseCaseImpl(get()) }
+    factory<GetUserListsUseCase> { GetUserListsUseCaseImpl(get()) }
 
     // Presentation layer
     viewModelOf(::MainViewModel)

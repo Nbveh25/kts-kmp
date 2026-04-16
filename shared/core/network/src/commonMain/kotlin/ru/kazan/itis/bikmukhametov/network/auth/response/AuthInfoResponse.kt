@@ -1,7 +1,11 @@
+@file:OptIn(ExperimentalSerializationApi::class)
+
 package ru.kazan.itis.bikmukhametov.network.auth.response
 
+import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.JsonIgnoreUnknownKeys
 
 @Serializable
 internal data class AuthInfoResponse(
@@ -26,9 +30,10 @@ internal data class Manager(
 )
 
 @Serializable
+@JsonIgnoreUnknownKeys
 internal data class Extra(
     @SerialName("onboarding") val onboarding: Onboarding,
-    @SerialName("notification_channel_id") val notificationChannelId: String?
+    @SerialName("notification_channel_id") val notificationChannelId: String?,
 )
 
 @Serializable

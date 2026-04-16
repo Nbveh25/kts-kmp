@@ -28,8 +28,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
 
-            implementation(projects.shared.core.ui)
-            implementation(projects.shared.core.theme)
+            implementation(projects.shared.core.designsystem)
             implementation(projects.shared.core.network)
             implementation(projects.shared.core.database)
 
@@ -39,6 +38,7 @@ kotlin {
             implementation(projects.shared.feature.main.impl)
             implementation(projects.shared.feature.profile.impl)
             implementation(projects.shared.feature.chat.impl)
+            implementation(projects.shared.feature.interlocutorInfo.impl)
 
             implementation(libs.compose.runtime)
             implementation(libs.compose.foundation)
@@ -50,6 +50,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.jetbrains.compose.navigation)
             implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
             implementation(libs.napier)
 
             implementation(libs.koin.core)

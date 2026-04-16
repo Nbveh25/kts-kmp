@@ -5,4 +5,8 @@
     <string name="profile_push_notifications">Звук и push-уведомления</string>
     <string name="profile_error">Произошла ошибка</string>
     <string name="profile_button_error">Повторить</string>
+
+    <string name="profile_language_title">Язык интерфейса</string>
+    <string name="profile_language_russian">Русский</string>
+    <string name="profile_language_english">English</string>
 </resources>

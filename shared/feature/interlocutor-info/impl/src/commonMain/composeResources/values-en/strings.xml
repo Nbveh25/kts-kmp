@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="interlocutor_info_close">Close</string>
+    <string name="interlocutor_info_tab_variables">Variables</string>
+    <string name="interlocutor_info_tab_lists">Lists</string>
+    <string name="interlocutor_info_tab_chats">Chats</string>
+    <string name="interlocutor_info_tab_delayed_events">Delayed events</string>
+    <string name="interlocutor_info_label_channel">Channel</string>
+    <string name="interlocutor_info_label_chat">Chat</string>
+    <string name="interlocutor_info_empty_lists">No mailing lists</string>
+    <string name="interlocutor_info_empty_chats">No other conversations</string>
+    <string name="interlocutor_info_empty_events">No delayed events</string>
+    <string name="interlocutor_info_empty_variables">Variable list is empty</string>
+</resources>

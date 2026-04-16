@@ -14,7 +14,8 @@ interface ChatRepository {
     suspend fun uploadAttachment(
         fileName: String,
         mimeType: String?,
-        bytes: ByteArray,
+        contentUri: String,
+        contentLength: Long?,
     ): Result<String>
 
     suspend fun sendMessage(
