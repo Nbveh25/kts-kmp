@@ -11,6 +11,17 @@ val SmartbotSuccess = Color(0xFF22C55E)    // Зеленый для статус
 val SmartbotIndigoDark = Color(0xFF252F91) // Темно-синий для глубоких теней или нажатых кнопок
 val SmartbotAmber = Color(0xFFF59E0B)      // Теплый оранжевый для алертов или важных тегов
 
+/** Красный для `ColorScheme.error` в светлой теме и ошибок полей ввода (Material Red 600). */
+val KtsFormFieldError = Color(0xFFE53935)
+val KtsOnError = Color(0xFFFFFFFF)
+val KtsErrorContainer = Color(0xFFF9DEDC)
+val KtsOnErrorContainer = Color(0xFF410E0B)
+
+val KtsErrorDark = Color(0xFFF2B8B5)
+val KtsOnErrorDark = Color(0xFF601410)
+val KtsErrorContainerDark = Color(0xFF8C1D18)
+val KtsOnErrorContainerDark = Color(0xFFF9DEDC)
+
 // Диалоги и вторичный текст (голубая гамма)
 val KtsDialogTitle = Color(0xFF5C6B7A)
 val KtsDialogBody = Color(0xFF7A8E9F)

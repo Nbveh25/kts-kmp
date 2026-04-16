@@ -262,11 +262,18 @@ internal class MainViewModel(
         return getProjectListUseCase().fold(
             onSuccess = { projectModels ->
                 val projectsListUi = projectModels.map { it.toItem() }
+                val cabinetId = state.value.currentCabinet?.id
+                val selectedProject = projectsListUi.firstOrNull()
                 updateState {
                     copy(
-                        currentProject = projectsListUi.firstOrNull(),
+                        currentProject = selectedProject,
                         projects = projectsListUi
                     )
+                }
+                // После кабинета SpaceProvider может содержать пустой project (см. CabinetRepositoryImpl);
+                // без X-SPro-Project запрос списка чатов часто падает.
+                if (cabinetId != null && selectedProject != null) {
+                    setProjectUseCase(cabinetId, selectedProject.id)
                 }
                 true
             },

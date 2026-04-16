@@ -3,6 +3,7 @@ package ru.kazan.itis.bikmukhametov.ui.error
 /**
  * Классификация «сырого» [Throwable.message] / текста с API для показа на [ru.kazan.itis.bikmukhametov.ui.screen.ErrorScreen].
  */
+@Suppress("MaxLineLength")
 internal enum class UserFacingErrorKind {
     /** Подставить общий текст из ресурсов. */
     UseDefault,
@@ -26,6 +27,7 @@ internal enum class UserFacingErrorKind {
     ShowAsIs,
 }
 
+@Suppress("MagicNumber")
 internal fun classifyUserError(raw: String?): UserFacingErrorKind {
     if (raw.isNullOrBlank()) return UserFacingErrorKind.UseDefault
     val m = raw

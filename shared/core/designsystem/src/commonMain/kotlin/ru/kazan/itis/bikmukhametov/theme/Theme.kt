@@ -30,8 +30,10 @@ private val LightColorScheme = lightColorScheme(
     outline = KtsTextSecondary.copy(alpha = 0.3f),
     outlineVariant = KtsFieldBorder.copy(alpha = 0.55f),
 
-    error = SmartbotAmber,
-    onError = Color.White
+    error = KtsFormFieldError,
+    onError = KtsOnError,
+    errorContainer = KtsErrorContainer,
+    onErrorContainer = KtsOnErrorContainer,
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -56,8 +58,10 @@ private val DarkColorScheme = darkColorScheme(
     outline = Color(0xFF475569),
     outlineVariant = Color(0xFF475569),
 
-    error = SmartbotAmber,
-    onError = Color.White
+    error = KtsErrorDark,
+    onError = KtsOnErrorDark,
+    errorContainer = KtsErrorContainerDark,
+    onErrorContainer = KtsOnErrorContainerDark,
 )
 
 @Composable

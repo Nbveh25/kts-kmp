@@ -19,7 +19,8 @@ internal data class UserListData(
 internal data class UserListDto(
     @SerialName("_id") val id: String,
     @SerialName("name") val name: String,
-    @SerialName("tag") val tag: String,
+    /** Бэкенд не всегда отдаёт tag для списка — без значения по умолчанию падает весь ответ. */
+    @SerialName("tag") val tag: String = "",
 )
 
 internal fun UserListDto.toModel(): UserListModel = UserListModel(

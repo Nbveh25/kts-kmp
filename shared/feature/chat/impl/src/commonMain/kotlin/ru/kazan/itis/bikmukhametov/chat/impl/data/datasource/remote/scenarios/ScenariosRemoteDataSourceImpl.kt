@@ -33,7 +33,7 @@ internal class ScenariosRemoteDataSourceImpl(
             val body = response.body<ScenariosListApiResponse>()
             require(body.status == "ok") { "scenarios/list: status=${body.status}" }
             val data = body.data
-                ?: throw IllegalStateException("scenarios/list: пустой data")
+                ?: error("scenarios/list: пустой data")
             data.toResult()
         }
 

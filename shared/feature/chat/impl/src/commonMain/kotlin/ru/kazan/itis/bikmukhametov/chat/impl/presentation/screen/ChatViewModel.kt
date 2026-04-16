@@ -45,7 +45,8 @@ internal class ChatViewModel(
     /** Id вложений после upload, пока ждём то же сообщение по WebSocket (для снятия оптимистичной записи). */
     private var pendingOutgoingAttachmentIds: Set<String> = emptySet()
 
-    /** Email менеджера из сессии — для аватара оператора на оптимистичных сообщениях (см. [MessageBubble] BOT + managerEmail). */
+    /** Email менеджера из сессии — для аватара оператора на оптимистичных сообщениях
+     * (см. [MessageBubble] BOT + managerEmail). */
     private var cachedManagerEmail: String? = null
 
     init {

@@ -27,7 +27,7 @@ internal class BlocksRemoteDataSourceImpl(
             val body = response.body<BlocksListApiResponse>()
             require(body.status == "ok") { "blocks/list: status=${body.status}" }
             val data = body.data
-                ?: throw IllegalStateException("blocks/list: пустой data")
+                ?: error("blocks/list: пустой data")
             data.toResult()
         }
 

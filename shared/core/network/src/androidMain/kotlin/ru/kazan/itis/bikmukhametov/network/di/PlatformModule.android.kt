@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit
  * Платформенный модуль сети: DataStore для space + OkHttp движок с явными таймаутами.
  * Context должен быть в графе Koin (androidContext() при initKoin).
  */
+@Suppress("MagicNumber")
 actual fun platformModules(): List<Module> = listOf(
     module {
         single<DataStore<Preferences>>(named(PlatformDataStoreNames.SPACE)) {

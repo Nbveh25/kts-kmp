@@ -5,8 +5,8 @@ import androidx.compose.runtime.Immutable
 /* Состояние экрана входа */
 @Immutable
 internal data class LoginUiState(
-    val email: String = "", // TODO(потом убрать надо)
-    val password: String = "",
+    val email: String = "tima.bikmukhametov@inbox.ru", // TODO(потом убрать надо)
+    val password: String = "kts2005!",
     val captchaToken: String = "",
     val emailError: EmailFieldError? = null,
     val passwordError: PasswordFieldError? = null,

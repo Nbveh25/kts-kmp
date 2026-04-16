@@ -315,14 +315,20 @@ private fun FileAttachmentRow(
     }
 }
 
+private const val ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE = 1024
+private const val ATTACHMENT_SIZE_MEGABYTES_DECIMAL_SCALE = 10
+
 private fun formatAttachmentFileSize(bytes: Int): String {
-    val unit = 1024
     return when {
-        bytes < unit -> "$bytes Б"
-        bytes < unit * unit -> "${bytes / unit} КБ"
+        bytes < ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE -> "$bytes Б"
+        bytes < ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE * ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE ->
+            "${bytes / ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE} КБ"
         else -> {
-            val mb = bytes.toDouble() / (unit * unit)
-            val rounded = (mb * 10).roundToInt() / 10.0
+            val unitSq =
+                ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE * ATTACHMENT_SIZE_BYTES_PER_KIBIBYTE
+            val mb = bytes.toDouble() / unitSq
+            val scale = ATTACHMENT_SIZE_MEGABYTES_DECIMAL_SCALE
+            val rounded = (mb * scale).roundToInt() / scale.toDouble()
             "$rounded МБ"
         }
     }

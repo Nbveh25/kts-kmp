@@ -46,7 +46,6 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_title
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_validation_email_invalid
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_validation_password_length
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.AppTextField
-import ru.kazan.itis.bikmukhametov.impl.presentation.component.AuthFormFieldErrorColor
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.PasswordTextField
 import ru.kazan.itis.bikmukhametov.impl.presentation.component.YandexCaptchaWidget
 import ru.kazan.itis.bikmukhametov.theme.Spacing
@@ -129,7 +128,7 @@ fun LoginScreen(
                     {
                         Text(
                             text = stringResource(Res.string.login_validation_email_invalid),
-                            color = AuthFormFieldErrorColor,
+                            color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }
@@ -151,7 +150,7 @@ fun LoginScreen(
                     {
                         Text(
                             text = stringResource(Res.string.login_validation_password_length),
-                            color = AuthFormFieldErrorColor,
+                            color = MaterialTheme.colorScheme.error,
                             style = MaterialTheme.typography.bodySmall
                         )
                     }

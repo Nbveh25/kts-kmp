@@ -8,6 +8,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldColors
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,7 +16,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -27,9 +27,6 @@ import ru.kazan.itis.bikmukhametov.impl.generated.resources.ic_vis_24
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.ic_vis_off_24
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_password_hint
 import ru.kazan.itis.bikmukhametov.impl.generated.resources.login_password_visibility_toggle
-
-/** Явный красный для ошибок полей (colorScheme.error в теме может быть не красным). */
-internal val AuthFormFieldErrorColor = Color(0xFFE53935)
 
 /* Базовое поле ввода: текст или пароль (при isPassword = true — маскировка и иконка видимости) */
 @Composable
@@ -132,32 +129,35 @@ fun PasswordTextField(
 
 /* Основные цвета для полей ввода */
 @Composable
-private fun defaultTextFieldColors() = TextFieldDefaults.colors(
-    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-    disabledTextColor = MaterialTheme.colorScheme.onSurface,
-    errorTextColor = AuthFormFieldErrorColor,
-    focusedContainerColor = MaterialTheme.colorScheme.surface,
-    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-    disabledContainerColor = MaterialTheme.colorScheme.surface,
-    errorContainerColor = MaterialTheme.colorScheme.surface,
-    cursorColor = MaterialTheme.colorScheme.onSurface,
-    errorCursorColor = AuthFormFieldErrorColor,
-    focusedIndicatorColor = MaterialTheme.colorScheme.primary,
-    unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
-    disabledIndicatorColor = MaterialTheme.colorScheme.primary,
-    errorIndicatorColor = AuthFormFieldErrorColor,
-    focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-    unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary,
-    disabledLeadingIconColor = MaterialTheme.colorScheme.primary,
-    errorLeadingIconColor = AuthFormFieldErrorColor,
-    focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
-    unfocusedTrailingIconColor = MaterialTheme.colorScheme.primary,
-    disabledTrailingIconColor = MaterialTheme.colorScheme.primary,
-    errorTrailingIconColor = AuthFormFieldErrorColor,
-    focusedLabelColor = MaterialTheme.colorScheme.primary,
-    unfocusedLabelColor = MaterialTheme.colorScheme.primary,
-    disabledLabelColor = MaterialTheme.colorScheme.onSurface,
-    errorLabelColor = AuthFormFieldErrorColor,
-    errorSupportingTextColor = AuthFormFieldErrorColor,
-)
+private fun defaultTextFieldColors(): TextFieldColors {
+    val errorColor = MaterialTheme.colorScheme.error
+    return TextFieldDefaults.colors(
+        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+        disabledTextColor = MaterialTheme.colorScheme.onSurface,
+        errorTextColor = errorColor,
+        focusedContainerColor = MaterialTheme.colorScheme.surface,
+        unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        disabledContainerColor = MaterialTheme.colorScheme.surface,
+        errorContainerColor = MaterialTheme.colorScheme.surface,
+        cursorColor = MaterialTheme.colorScheme.onSurface,
+        errorCursorColor = errorColor,
+        focusedIndicatorColor = MaterialTheme.colorScheme.primary,
+        unfocusedIndicatorColor = MaterialTheme.colorScheme.primary,
+        disabledIndicatorColor = MaterialTheme.colorScheme.primary,
+        errorIndicatorColor = errorColor,
+        focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+        unfocusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+        disabledLeadingIconColor = MaterialTheme.colorScheme.primary,
+        errorLeadingIconColor = errorColor,
+        focusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+        unfocusedTrailingIconColor = MaterialTheme.colorScheme.primary,
+        disabledTrailingIconColor = MaterialTheme.colorScheme.primary,
+        errorTrailingIconColor = errorColor,
+        focusedLabelColor = MaterialTheme.colorScheme.primary,
+        unfocusedLabelColor = MaterialTheme.colorScheme.primary,
+        disabledLabelColor = MaterialTheme.colorScheme.onSurface,
+        errorLabelColor = errorColor,
+        errorSupportingTextColor = errorColor,
+    )
+}

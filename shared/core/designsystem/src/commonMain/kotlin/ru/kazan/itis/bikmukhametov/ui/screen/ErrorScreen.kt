@@ -9,19 +9,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
-import org.jetbrains.compose.resources.vectorResource
 import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.Res
 import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.error_default_message
 import ru.kazan.itis.bikmukhametov.designsystem.generated.resources.error_icon_content_description
@@ -90,13 +89,13 @@ fun ErrorScreen(
                 painter = painterResource(Res.drawable.ic_error),
                 contentDescription = stringResource(Res.string.error_icon_content_description),
                 modifier = Modifier.size(iconSize),
-                //tint = MaterialTheme.colorScheme.error,
+                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.error),
             )
             Text(
                 text = resolvedMessage,
                 style = MaterialTheme.typography.bodyMedium,
                 textAlign = TextAlign.Center,
-                color = MaterialTheme.colorScheme.onSurface,
+                color = MaterialTheme.colorScheme.error,
             )
             if (showRetryButton) {
                 Button(onClick = onRetry) {

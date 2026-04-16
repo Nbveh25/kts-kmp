@@ -40,7 +40,7 @@ jobs:
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
-      # 3. Загрузка в Firebase App Distribution
+      # 2. Загрузка в Firebase App Distribution
       - name: Upload to Firebase App Distribution
         uses: w9jds/firebase-action@master
         with:
