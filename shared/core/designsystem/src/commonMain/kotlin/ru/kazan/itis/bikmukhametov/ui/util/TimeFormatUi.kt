@@ -28,14 +28,10 @@ fun formatTimeForUi(
     val diffDays = nowDay - thenDay
 
     return when {
-        diffDays == 0L -> "%02d:%02d".format(parsed.hour, parsed.minute)
+        diffDays == 0L -> "${parsed.hour.toString().padStart(2, '0')}:${parsed.minute.toString().padStart(2, '0')}"
         diffDays == 1L -> strings.yesterday
         diffDays in 2L..6L -> dayOfWeekShort(parsed.dayOfWeek, strings)
-        else -> "%02d.%02d.%02d".format(
-            parsed.dayOfMonth,
-            parsed.month,
-            parsed.year % 100
-        )
+        else -> "${parsed.dayOfMonth.toString().padStart(2, '0')}.${parsed.month.toString().padStart(2, '0')}.${(parsed.year % 100).toString().padStart(2, '0')}"
     }
 }
 
@@ -45,7 +41,7 @@ fun formatTimeForUi(
 fun formatTimeOnly(isoOrEpoch: String): String {
     val epochMs = parseToEpochMillis(isoOrEpoch) ?: return isoOrEpoch
     val parsed = epochMillisToComponents(epochMs)
-    return "%02d:%02d".format(parsed.hour, parsed.minute)
+    return "${parsed.hour.toString().padStart(2, '0')}:${parsed.minute.toString().padStart(2, '0')}"
 }
 
 /**
@@ -198,7 +194,12 @@ fun epochMillisToIso8601Utc(ms: Long): String {
     val rem = timeMs % (3600 * 1000)
     val minute = rem / (60 * 1000)
     val second = (rem % (60 * 1000)) / 1000
-    return "%04d-%02d-%02dT%02d:%02d:%02d.000Z".format(y, m, dom, hour, minute, second)
+    return "${y.toString().padStart(4, '0')}-" +
+            "${m.toString().padStart(2, '0')}-" +
+            "${dom.toString().padStart(2, '0')}T" +
+            "${hour.toString().padStart(2, '0')}:" +
+            "${minute.toString().padStart(2, '0')}:" +
+            "${second.toString().padStart(2, '0')}.000Z"
 }
 
 private fun epochDaysToDate(epochDays: Int): Triple<Int, Int, Int> {

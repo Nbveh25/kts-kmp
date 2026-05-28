@@ -2,6 +2,7 @@ package ru.kazan.itis.bikmukhametov.database.di
 
 import androidx.room.Room
 import com.liftric.kvault.KVault
+import kotlinx.cinterop.ExperimentalForeignApi
 import org.koin.core.module.Module
 import org.koin.dsl.module
 import platform.Foundation.NSDocumentDirectory
@@ -18,6 +19,7 @@ import ru.kazan.itis.bikmukhametov.database.room.AppDatabase
 private const val DB_NAME = "app_database.db"
 private const val COOKIES_KVAULT_SERVICE = "ru.kazan.itis.bikmukhametov.cookies"
 
+@OptIn(ExperimentalForeignApi::class)
 actual fun databasePlatformModules(): List<Module> = listOf(
     module {
         single<AppDatabase> {
