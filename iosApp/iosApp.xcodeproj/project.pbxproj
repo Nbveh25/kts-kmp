@@ -45368,6 +45368,7 @@
 /* Begin PBXShellScriptBuildPhase section */
 		55D49CB72FC89E6800A1BA0C /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
 			buildActionMask = 2147483647;
 			files = (
 			);
@@ -45381,8 +45382,8 @@
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "cd \"$SRCROOT/..\"\n./gradlew :shared:embedAndSignAppleFrameworkForXcode\n";
+			shellPath = /bin/bash;
+			shellScript = "#!/bin/bash\nset -e\n\ncd \"$SRCROOT/..\"\n\n# Собираем фреймворк через универсальную задачу\n# Она автоматически определит Debug/Release из $CONFIGURATION\n./gradlew :shared:embedAndSignAppleFrameworkForXcode \\\n    --no-configuration-cache \\\n    -PXcodeConfiguration=\"$CONFIGURATION\" \\\n    -PXcodeTargetSDK=\"$SDK_NAME\" \\\n    -PXcodeArchitecture=\"$ARCHS\"\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 

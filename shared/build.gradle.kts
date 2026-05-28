@@ -14,17 +14,28 @@ kotlin {
         }
     }
 
-    listOf(
-        iosArm64(),
-        iosSimulatorArm64()
-    ).forEach { iosTarget ->
-        iosTarget.binaries.framework {
+    val iosArm64 = iosArm64()
+    val iosSimulatorArm64 = iosSimulatorArm64()
+
+    listOf(iosArm64, iosSimulatorArm64).forEach { target ->
+        target.binaries.framework {
             baseName = "Shared"
-            isStatic = true
+            isStatic = false
+            export(projects.shared.main)
         }
     }
 
     sourceSets {
+        val iosMain by creating {
+            dependsOn(commonMain.get())
+        }
+        val iosSimulatorArm64Main by getting {
+            dependsOn(iosMain)
+        }
+        val iosArm64Main by getting {
+            dependsOn(iosMain)
+        }
+
         commonMain.dependencies {
 
             api(projects.shared.main)
@@ -36,8 +47,11 @@ kotlin {
             api(projects.shared.feature.auth.impl)
             api(projects.shared.feature.main.impl)
         }
-    }
 
+        iosMain {
+            dependsOn(commonMain.get())
+        }
+    }
 }
 
 android {
