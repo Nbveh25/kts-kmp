@@ -43,6 +43,9 @@ kotlin {
             implementation(libs.compose.components.resources)
             implementation(libs.androidx.lifecycle.viewmodelCompose)
         }
+        iosMain.dependencies {
+            implementation(libs.compose.components.resources)
+        }
     }
 }
 

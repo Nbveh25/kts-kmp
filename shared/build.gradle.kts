@@ -5,6 +5,8 @@ plugins {
     alias(libs.plugins.androidLibrary)
     //alias(libs.plugins.koinCompilerPlugin)
     //alias(libs.plugins.buildKonfigPlugin)
+    alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.composeCompiler)
 }
 
 kotlin {
@@ -22,6 +24,7 @@ kotlin {
             baseName = "Shared"
             isStatic = false
             export(projects.shared.main)
+            export(libs.ktor.client.darwin)
         }
     }
 
@@ -52,6 +55,10 @@ kotlin {
             dependsOn(commonMain.get())
         }
     }
+}
+
+compose.resources {
+    packageOfResClass = "ru.kazan.itis.bikmukhametov.designsystem.generated.resources"
 }
 
 android {

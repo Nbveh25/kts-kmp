@@ -70,6 +70,7 @@ kotlin {
             implementation(libs.datastore.preferences)
         }
         iosMain.dependencies {
+            implementation(libs.ktor.client.darwin)
         }
     }
 }
