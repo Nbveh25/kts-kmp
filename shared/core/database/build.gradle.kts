@@ -49,6 +49,7 @@ kotlin {
             implementation(libs.datastore.preferences)
         }
         iosMain.dependencies {
+            implementation(libs.androidx.sqlite.bundled)
         }
     }
 }
