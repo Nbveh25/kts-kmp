@@ -28,10 +28,15 @@ fun formatTimeForUi(
     val diffDays = nowDay - thenDay
 
     return when {
-        diffDays == 0L -> "${parsed.hour.toString().padStart(2, '0')}:${parsed.minute.toString().padStart(2, '0')}"
+        diffDays == 0L -> "${parsed.hour.toString().padStart(2, '0')}:${
+            parsed.minute.toString().padStart(2, '0')
+        }"
+
         diffDays == 1L -> strings.yesterday
         diffDays in 2L..6L -> dayOfWeekShort(parsed.dayOfWeek, strings)
-        else -> "${parsed.dayOfMonth.toString().padStart(2, '0')}.${parsed.month.toString().padStart(2, '0')}.${(parsed.year % 100).toString().padStart(2, '0')}"
+        else -> "${parsed.dayOfMonth.toString().padStart(2, '0')}.${
+            parsed.month.toString().padStart(2, '0')
+        }.${(parsed.year % 100).toString().padStart(2, '0')}"
     }
 }
 
@@ -140,12 +145,19 @@ private fun parseIso8601ToEpochMillis(iso: String): Long? {
  * Преобразование (год, месяц, день, час, минута, секунда) UTC в epoch-миллисекунды.
  * Упрощённая реализация (без учёта високосных секунд).
  */
-private fun utcToEpochMillis(year: Int, month: Int, dayOfMonth: Int, hour: Int, minute: Int, second: Int): Long {
+private fun utcToEpochMillis(
+    year: Int,
+    month: Int,
+    dayOfMonth: Int,
+    hour: Int,
+    minute: Int,
+    second: Int
+): Long {
     val days = dateToEpochDays(year, month, dayOfMonth)
     return days * MILLIS_PER_DAY +
-        hour * 3600L * 1000 +
-        minute * 60L * 1000 +
-        second * 1000L
+            hour * 3600L * 1000 +
+            minute * 60L * 1000 +
+            second * 1000L
 }
 
 private fun dateToEpochDays(year: Int, month: Int, dayOfMonth: Int): Long {

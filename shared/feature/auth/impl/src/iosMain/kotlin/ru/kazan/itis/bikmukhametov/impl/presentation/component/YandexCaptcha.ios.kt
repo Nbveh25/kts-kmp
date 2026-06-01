@@ -21,8 +21,6 @@ import platform.darwin.NSObject
 import platform.darwin.dispatch_async
 import platform.darwin.dispatch_get_main_queue
 
-private const val MIME_TYPE = "text/html"
-private const val ENCODING = "UTF-8"
 private const val AUTH_URL = "https://auth.smartbotpro.ru"
 private const val JS_MESSAGE_HANDLER_NAME = "iOSCallback"
 
@@ -34,7 +32,8 @@ actual fun YandexCaptchaWidget(
     onToken: (String) -> Unit
 ) {
     val jsCallback =
-        "if(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers.iOSCallback) { window.webkit.messageHandlers.iOSCallback.postMessage(token); }"
+        "if(window.webkit && window.webkit.messageHandlers && window.webkit.messageHandlers." +
+                "iOSCallback) { window.webkit.messageHandlers.iOSCallback.postMessage(token); }"
 
     val configuration = remember {
         WKWebViewConfiguration().apply {

@@ -23,9 +23,10 @@ actual fun YandexCaptchaWidget(
     modifier: Modifier,
     onToken: (String) -> Unit
 ) {
-    val context = LocalContext.current
 
-    val jsCallback = "if(window.AndroidCallback && typeof window.AndroidCallback.onToken === 'function') { AndroidCallback.onToken(token); }"
+    val jsCallback =
+        "if(window.AndroidCallback && typeof window.AndroidCallback.onToken === 'function') " +
+                "{ AndroidCallback.onToken(token); }"
 
     AndroidView(
         modifier = modifier
